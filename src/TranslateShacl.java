@@ -1,3 +1,4 @@
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -19,7 +20,11 @@ public class TranslateShacl {
 		
 		Model shaclModel = populateModel();
 		Model appModel = generateAppModel(shaclModel);
+		//Print out app Model
 		
+		
+		System.out.println("Print out APP MODEL");
+		appModel.write(System.out, "N3");
 		
 	}
 
@@ -57,6 +62,7 @@ public class TranslateShacl {
 		System.out.println("Query is " + query);
 		ResultSet rs = executeQuery(queryModel, query);
 		Model returnModel = mapToFauxProperties(rs);
+	
 		return returnModel;
 		
 	}
@@ -65,22 +71,25 @@ public class TranslateShacl {
 	//Given result set with properties, create new faux properties
 	private static Model mapToFauxProperties(ResultSet rs) {
 		Model appModel = ModelFactory.createDefaultModel();
-	
+		int configNumber = 200;
 		// TODO Auto-generated method stub
 		try {
 			while(rs.hasNext()) {
 				QuerySolution qs = rs.nextSolution();
 				System.out.println(qs.toString());
-				Model fauxPropModel = createFauxProperty(qs);
+				Model fauxPropModel = createFauxProperty(qs, configNumber);
 				appModel.add(fauxPropModel);
+				configNumber++;
 			} 
 		}catch(Exception ex) {
 			System.out.println("Exception occurred in getting query solution");
+			ex.printStackTrace();
 		}
-		return null;
+		return appModel;
 	}
 
-	private static Model createFauxProperty(QuerySolution qs) {
+	private static Model createFauxProperty(QuerySolution qs, int configNumber) {
+		String URIType = "http://www.w3.org/ns/shacl#IRI";
 		Model fauxPropertyModel = ModelFactory.createDefaultModel();
 		//?property ?path ?class ?group ?name ?nodeKind ?order ?target ?orList
 		Resource path = getVarResource(qs, "path");
@@ -90,8 +99,63 @@ public class TranslateShacl {
 		Resource nodeKind = getVarResource(qs, "nodeKind");
 		Resource target = getVarResource(qs, "target");
 		Resource orList = getVarResource(qs, "orList");
+		Literal orderLiteral = getVarLiteral(qs, "order");
 		
-		return null;
+		//Create faux property configuration for this path
+		//Starting at 200 because 127 is the last generated faux property
+		String prefixes = "@prefix : <http://vitro.mannlib.cornell.edu/ns/vitro/ApplicationConfiguration#> .\r\n" + 
+				"@prefix vitro: <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#> .\r\n" + 
+				"@prefix role:  <http://vitro.mannlib.cornell.edu/ns/vitro/role#> .\r\n" + 
+				"@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n" + 
+				"@prefix bf: <http://id.loc.gov/ontologies/bibframe/> .\r\n" + 
+				"@prefix prov: <http://www.w3.org/ns/prov#> .\r\n" + 
+				"@prefix owl: <http://www.w3.org/2002/07/owl#> .\r\n" + 
+				"@prefix oa: <http://www.w3.org/ns/oa#> .\r\n" + 
+				"@prefix foaf: <http://xmlns.com/foaf/0.1/> .\r\n" + 
+				"@prefix dcterms: <http://purl.org/dc/terms/> .\r\n" + 
+				"@prefix local: <http://vitro.mannlib.cornell.edu/ns/vitro/siteConfig/> .\r\n" + 
+				"@prefix bib: <http://bibliotek-o.org/ontology/> .\r\n" + 
+				"@prefix schema: <http://schema.org/> . ";
+		String fauxConfigContextURI = "local:fpgn" + configNumber;
+		String fauxConfigURI = "local:fpgenconfig" + configNumber;
+		String fauxN3 = prefixes;
+		String pathURI = path.getURI();
+		//If object property
+		if(nodeKind != null) {
+			if(nodeKind.getURI().equals(URIType)) {
+				fauxN3 += fauxConfigContextURI + " a :ConfigContext ; " + 
+						" :configContextFor <" + pathURI + ">;" + 
+						" :hasConfiguration " + fauxConfigURI + " . ";
+				//class= qualified by, target = qualified by domain
+				if(classResource != null) {
+					fauxN3 += fauxConfigContextURI + " :qualifiedBy <" + classResource.getURI() + "> .";
+				}
+				if(target != null) {
+					fauxN3 += fauxConfigContextURI + " :qualifiedByDomain <" + target.getURI() + "> .";
+				}
+				fauxN3 += fauxConfigURI + " a  :ObjectPropertyDisplayConfig ; " + 
+				"vitro:collateBySubclassAnnot   false ; vitro:displayLimitAnnot \"0\"^^xsd:int . ";
+				if(orderLiteral != null) {
+					fauxN3 += fauxConfigURI + " vitro:displayRankAnnot  \"" + orderLiteral.getString() + "\"^^xsd:int .";
+				} else {
+					//defaulting to order = 0
+					fauxN3 += fauxConfigURI + " vitro:displayRankAnnot  \"0\"^^xsd:int .";
+				}
+				fauxN3 += fauxConfigURI + " vitro:hiddenFromDisplayBelowRoleLevelAnnot role:public ;	vitro:hiddenFromPublishBelowRoleLevelAnnot role:public ; vitro:offerCreateNewOptionAnnot true ; vitro:prohibitedFromUpdateBelowRoleLevelAnnot role:public ; vitro:selectFromExistingAnnot  true .";
+				
+				if(name != null) {
+					fauxN3 += fauxConfigURI + " :displayName \"" + name.getString() +  "\" .";
+				}
+				
+
+			} else {
+				
+			}
+		}
+		
+		System.out.println("Faux N3 is now " + fauxN3);
+		fauxPropertyModel.read(new ByteArrayInputStream(fauxN3.getBytes()), null, "N3");
+		return fauxPropertyModel;
 	}
 
 	private static Literal getVarLiteral(QuerySolution qs, String varName) {
