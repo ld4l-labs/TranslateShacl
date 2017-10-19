@@ -1,6 +1,9 @@
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -24,7 +27,34 @@ public class TranslateShacl {
 		
 		
 		System.out.println("Print out APP MODEL");
-		appModel.write(System.out, "N3");
+		//appModel.write(System.out, "N3");
+		//Thank you Jim!
+		
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		appModel.write(stream, "N-TRIPLE");
+		String[] lines = new String(stream.toByteArray()).split("[\\n\\r]");
+		Arrays.sort(lines);
+		System.out.println(String.join("\n", lines));
+
+		
+		//System.out.println(appModel.listStatements().toList().stream().map(Object::toString).sorted().collect(Collectors.joining("\n")));
+		
+		//Check against generated faux properties to see which properties are 
+		
+		System.out.println("******");
+		
+		/*Need to generate THIS based on the shacl file
+		 * Can we call in instance view into the work view somehow?
+		 * <#assign propertyInfoList = [ {"baseUri":"http://bibliotek-o.org/ontology/hasActivity", "rangeUri":"http://bibliotek-o.org/ontology/Activity"},
+		{"baseUri":"http://id.loc.gov/ontologies/bibframe/hasInstance"},
+		{"baseUri":"http://purl.org/dc/terms/subject", "rangeUri":"http://www.w3.org/2002/07/owl#Thing", "domainUri":"http://id.loc.gov/ontologies/bibframe/Work"},
+		{"baseUri":"http://id.loc.gov/ontologies/bibframe/genreForm", "rangeUri":"http://id.loc.gov/ontologies/bibframe/GenreForm", "domainUri":"http://id.loc.gov/ontologies/bibframe/Work"},
+		{"baseUri":"http://purl.org/dc/terms/hasPart", "rangeUri":"http://id.loc.gov/ontologies/bibframe/Work","domainUri":"http://id.loc.gov/ontologies/bibframe/Work"},
+		{"baseUri":"http://bibliotek-o.org/ontology/isTargetOf", "rangeUri":"http://www.w3.org/ns/oa#Annotation","domainUri":"http://id.loc.gov/ontologies/bibframe/Work"}
+		] />
+		 * 
+		 */
+		
 		
 	}
 
@@ -51,7 +81,7 @@ public class TranslateShacl {
 				"OPTIONAL {?property sh:name ?name .} " + 
 				"OPTIONAL {?property sh:nodeKind ?nodeKind .} " + 
 				"OPTIONAL {?property sh:order ?order .} " + 
-				"OPTIONAL {?property sh:targer ?target .} " + 
+				"OPTIONAL {?property sh:target ?target .} " + 
 				"OPTIONAL {?property sh:or ?orList .} "
 				+ " }";
 		/*query = PREFIXES + 
