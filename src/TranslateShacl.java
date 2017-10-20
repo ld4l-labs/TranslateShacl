@@ -14,7 +14,12 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.NodeIterator;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.StmtIterator;
 
 
 public class TranslateShacl {
@@ -42,7 +47,16 @@ public class TranslateShacl {
 		//Check against generated faux properties to see which properties are 
 		
 		System.out.println("******");
+		compareToGeneratedProperties(appModel);
 		
+		generateTemplateList(appModel);
+		
+		
+		
+		
+	}
+
+	private static void generateTemplateList(Model appModel) {
 		/*Need to generate THIS based on the shacl file
 		 * Can we call in instance view into the work view somehow?
 		 * <#assign propertyInfoList = [ {"baseUri":"http://bibliotek-o.org/ontology/hasActivity", "rangeUri":"http://bibliotek-o.org/ontology/Activity"},
@@ -55,7 +69,72 @@ public class TranslateShacl {
 		 * 
 		 */
 		
+		//Based on ORDER IF SPECIFIED: 
+		//AND THEN the rest should be sorted alphabetically
 		
+		String query = "SELECT ?uri ?domain ?range ?rank WHERE {" +
+		"?configContext <http://vitro.mannlib.cornell.edu/ns/vitro/ApplicationConfiguration#configContextFor> ?uri . " +
+		"?configContext <http://vitro.mannlib.cornell.edu/ns/vitro/ApplicationConfiguration#hasConfiguration> ?config . " +
+		"OPTIONAL {?configContext <http://vitro.mannlib.cornell.edu/ns/vitro/ApplicationConfiguration#qualifiedBy> ?range . } " +
+		"OPTIONAL {?configContext <http://vitro.mannlib.cornell.edu/ns/vitro/ApplicationConfiguration#qualifiedByDomain> ?domain . } " + 
+		"OPTIONAL {?config <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#displayRankAnnot> ?rank . }" + 
+		"  } ORDER BY ?rank ?uri";
+		System.out.println(query);
+		
+		ResultSet rs = executeQuery(appModel, query);
+		while(rs.hasNext()) {
+			QuerySolution qs = rs.nextSolution();
+			Resource uriResource = getVarResource(qs, "uri");
+			Resource domainResource = getVarResource(qs, "domain");
+			Resource rangeResource = getVarResource(qs, "range");
+			Literal rankLiteral = getVarLiteral(qs, "rank");
+			/*
+			 * 		{"baseUri":"http://purl.org/dc/terms/subject", "rangeUri":"http://www.w3.org/2002/07/owl#Thing", "domainUri":"http://id.loc.gov/ontologies/bibframe/Work"},
+
+			 */
+			String toPrint = "{\"baseUri\":\"" + uriResource.getURI() + "\"";
+			if(domainResource != null) {
+				toPrint += 	", \"domainUri\":\"" + domainResource.getURI() + "\"";
+			}
+			if(rangeResource != null) {
+				toPrint += ", \"rangeUri\":\"" +  rangeResource.getURI() + "\"";
+			}
+			toPrint += "}";
+			//if(rankLiteral != null) {toPrint += rankLiteral.getString();}
+			System.out.println(toPrint);
+			
+		}
+		
+	}
+
+	private static void compareToGeneratedProperties(Model appModel) {
+		System.out.println("Compate to generated properties");
+		// TODO Auto-generated method stub
+		File generatedFauxProperties = new File("rdf/generatedFauxProperties.n3");
+		Model model= ModelFactory.createDefaultModel();
+		try {
+			model.read(new FileInputStream(generatedFauxProperties), null, "N3");
+			System.out.println("Model read in from generated properties");
+		} catch(Exception ex) {
+			System.out.println("Error occurred in reading in");
+			ex.printStackTrace();
+		}
+		System.out.println("Read file in and created faux property model");
+		
+		String configPropURI = "http://vitro.mannlib.cornell.edu/ns/vitro/ApplicationConfiguration#configContextFor";
+		NodeIterator it = appModel.listObjectsOfProperty(ResourceFactory.createProperty(configPropURI));
+		while(it.hasNext()) {
+			RDFNode node = it.next();
+			//Is this already in faux property land as 
+			Property prop = ResourceFactory.createProperty(configPropURI);
+			StmtIterator pIt = model.listStatements(null, prop, node);
+			if(pIt.hasNext()) {
+				System.out.println("*****Faux property exists for ********" + node.asResource().getURI());
+			}
+			while(pIt.hasNext()) {
+				System.out.println(pIt.nextStatement());
+			}
+		}
 	}
 
 	private static Model generateAppModel(Model shaclModel) {
