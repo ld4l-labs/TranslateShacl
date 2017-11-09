@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -31,7 +32,7 @@ public class TranslateShacl {
 		//Print out app Model
 		
 		
-		System.out.println("Print out APP MODEL");
+		System.out.println("***********Print out APP MODEL**********************");
 		//appModel.write(System.out, "N3");
 		//Thank you Jim!
 		
@@ -46,13 +47,84 @@ public class TranslateShacl {
 		
 		//Check against generated faux properties to see which properties are 
 		
-		System.out.println("******");
+		System.out.println("*************End Print out APP Model *****************");
 		compareToGeneratedProperties(appModel);
-		
+		System.out.println("*************Generate Template List**************");
 		generateTemplateList(appModel);
+		//Generate property groups
+		System.out.println("********Generate Property Groups***********");
+		generatePropertyGroups(shaclModel);
 		
 		
 		
+		
+	}
+
+	private static void generatePropertyGroups(Model shaclModel) {
+		//Get all properties for an audio work form
+		String typeURI = "http://example.org/bibliotek-o_shapes#PropertyGroup";
+		System.out.println("Before query shape");
+		queryAndMapPropertyGroup(typeURI, shaclModel);
+		System.out.println("After query shape");
+		
+		
+	}
+
+	private static void queryAndMapPropertyGroup(String typeURI, Model shaclModel) {
+		String PREFIXES = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
+				"PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> " + 
+				"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> " + 
+				"";
+		String query = PREFIXES + 
+				"SELECT ?propertyGroup ?propertyGroupLabel ?order ?description WHERE " + 
+				"{ ?propertyGroup rdf:type  <" + typeURI + "> .  " + 
+				"?propertyGroup rdfs:label ?propertyGroupLabel . " + 
+				"?propertyGroup sh:order ?order . " + 
+				"OPTIONAL {?propertyGroup sh:description ?description .} " + 
+				" } ORDER BY ?order ?propertyGroupLabel";
+		/*query = PREFIXES + 
+				"SELECT ?property WHERE " + 
+				"{ <" + shapeURI + "> sh:property ?property .  " 
+				+ " }";
+		query = PREFIXES + "SELECT ?s ?p ?o WHERE {?s ?p ?o .}";*/
+		System.out.println("Query is " + query);
+		ResultSet rs = executeQuery(shaclModel, query);
+		//Map results to the RDF for 
+		while(rs.hasNext()) {
+			QuerySolution qs = rs.nextSolution();
+			
+			
+			generateVitroLibPropertyGroup(qs);
+			
+		}
+	
+	}
+
+	private static void generateVitroLibPropertyGroup(QuerySolution qs) {
+		// TODO Auto-generated method stub
+		Resource pGroupRes = getVarResource(qs, "propertyGroup");
+		Literal pGroupLabel = getVarLiteral(qs, "propertyGroupLabel");
+		Literal order = getVarLiteral(qs, "order");
+		Literal description = getVarLiteral(qs, "description");
+		String n3 = "";
+		if(pGroupRes != null && pGroupRes.isURIResource() && StringUtils.isNotEmpty(pGroupRes.getURI())) {
+			String pGroupResURI = pGroupRes.getURI();
+			String uri = "<" + pGroupResURI + ">";
+			//Use the same URI to see if it works?
+			n3 += uri + " rdf:type <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#PropertyGroup> .";
+			if(pGroupLabel != null && StringUtils.isNotEmpty(pGroupLabel.getString())) {
+				n3 += uri + " rdfs:label \"" + pGroupLabel.getString() + "\" .";
+			}
+			if(order != null) {
+				n3 += uri + " <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#displayRank> \"" + order.getInt() + "\"^^<http://www.w3.org/2001/XMLSchema#integer> .";
+			}
+			if(description != null) {
+				n3 += uri + " <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#publicDescriptionAnnot> \"" + description.getString() + "\" .";
+			}
+			
+		}
+		
+		System.out.println(n3);
 		
 	}
 
@@ -293,6 +365,20 @@ public class TranslateShacl {
 		}
 		return rs;
 	}
+	
+	private static Model executeConstructQuery(Model queryModel, String query) {
+		Query q= QueryFactory.create(query);
+		Model results = null;
+		QueryExecution qe = QueryExecutionFactory.create(q, queryModel);
+		try {
+			results = qe.execConstruct();
+			
+		} catch(Exception ex) {
+			System.out.println("Error executing this query");
+		}
+		return results;
+	}
+
 
 	//Read in SHACL files and populate model
 	private static Model populateModel() {

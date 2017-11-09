@@ -28,6 +28,8 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix bf: <http://id.loc.gov/ontologies/bibframe/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
 <http://example.org/bibliotek-o_shapes>
   rdf:type owl:Ontology ;
   owl:imports <file:///bibliotek-o_shapes/target-ontologies-renamed-for-TopBraid/dcterms.2012-06-14.rdf> ;
@@ -52,6 +54,30 @@ bibliotek-o_shapes:AudioWorkForm
   rdf:type sh:NodeShape ;
   rdfs:label "Audio form" ;
   rdfs:subClassOf rdfs:Resource ;
+  sh:target <http://id.loc.gov/ontologies/bibframe/Work>; 
+  sh:property [
+      sh:path bf:genreForm ;
+      sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
+      sh:group bibliotek-o_shapes:TypeFormPropertyGroup ;
+      sh:name "Form Genre" ;
+      sh:nodeKind sh:IRI ;
+      sh:order "0"^^xsd:decimal ;
+      bibliotek-o_shapes:lookup bibliotek-o_shapes:LD4LookupService ;
+      sh:target <http://id.loc.gov/ontologies/bibframe/Work> ;
+    ] ;
+    
+  # The following sh:path bf:genreForm/ns0:isMemberOfMADSScheme isn't meant to be a field in the form, but rather state a restriction on the use of bf:genreForm to instances from http://id.loc.gov/authorities/genreForms. 
+  
+  sh:property [
+      sh:path <bf:genreForm/ns0:isMemberOfMADSScheme> ;
+      sh:hasValue <http://id.loc.gov/authorities/genreForms> ;
+      sh:description "Values for form genre terms" ;
+      sh:group bibliotek-o_shapes:TypeFormPropertyGroup ;
+      sh:name "LCGFT Form Genre Terms" ;
+      sh:nodeKind sh:IRI ;
+      skos:editorialNote "Use look up service; LCGFT is too big to load directly into an RDF editor, and more importantly we don't want to create MADSAuthorities, only link to them." ;
+    ] ;
+    
   sh:property [
       sh:path bib:hasPreferredTitle ;
       sh:class <http://id.loc.gov/ontologies/bibframe/Title> ;
@@ -80,10 +106,25 @@ bibliotek-o_shapes:AudioWorkForm
       sh:nodeKind sh:IRI ;
       sh:or (
           [
+            sh:class <http://bibliotek-o.org/1.0/ontology/ComposerActivity> ;
+          ]
+          [
+            sh:class <http://bibliotek-o.org/1.0/ontology/ArrangerActivity> ;
+          ]
+          [
+            sh:class <http://bibliotek-o.org/1.0/ontology/LibrettistActivity> ;
+          ]
+          [
+            sh:class <http://bibliotek-o.org/1.0/ontology/LyricistActivity> ;
+          ]
+          [
             sh:class <http://bibliotek-o.org/1.0/ontology/PerformerActivity> ;
           ]
           [
-            sh:class <http://bibliotek-o.org/1.0/ontology/ProducerActivity> ;
+            sh:class <http://bibliotek-o.org/1.0/ontology/ConductorActivity> ;
+          ]
+          [
+            sh:class <http://bibliotek-o.org/1.0/ontology/MusicianActivity> ;
           ]
           [
             sh:class <http://bibliotek-o.org/1.0/ontology/SingerActivity> ;
@@ -91,41 +132,23 @@ bibliotek-o_shapes:AudioWorkForm
           [
             sh:class <http://bibliotek-o.org/1.0/ontology/InstrumentalistActivity> ;
           ]
-          [
-            sh:class <http://bibliotek-o.org/1.0/ontology/LyricistActivity> ;
-          ]
-          [
-            sh:class <http://bibliotek-o.org/1.0/ontology/ArrangerActivity> ;
-          ]
-          [
-            sh:class <http://bibliotek-o.org/1.0/ontology/ComposerActivity> ;
-          ]
-          [
-            sh:class <http://bibliotek-o.org/1.0/ontology/ConductorActivity> ;
-          ]
-          [
-            sh:class <http://bibliotek-o.org/1.0/ontology/LibrettistActivity> ;
-          ]
-          [
-            sh:class <http://bibliotek-o.org/1.0/ontology/MusicianActivity> ;
-          ]
-          [
-            sh:class <http://bibliotek-o.org/1.0/ontology/MusicalDirectorActivity> ;
+          [ 
+            sh:class <http://bibliotek-o.org/1.0/ontology/NarratorActivity> ;
           ]
           [
             sh:class <http://bibliotek-o.org/1.0/ontology/CommentatorActivity> ;
           ]
           [
-            sh:class <http://bibliotek-o.org/1.0/ontology/SoundDesignerActivity> ;
+            sh:class <http://bibliotek-o.org/1.0/ontology/ProducerActivity> ;
           ]
-          [ 
-            sh:class <http://bibliotek-o.org/1.0/ontology/NarratorActivity> ;
+          [
+            sh:class <http://bibliotek-o.org/1.0/ontology/MusicalDirectorActivity> ;
+          ]
+          [
+            sh:class <http://bibliotek-o.org/1.0/ontology/SoundDesignerActivity> ;
           ]
           [
             sh:class <http://bibliotek-o.org/1.0/ontology/RecordistActivity> ;
-          ]
-          [
-            sh:class <http://bibliotek-o.org/1.0/ontology/SoundDesignerActivity> ;
           ]
           [
             sh:class <http://bibliotek-o.org/1.0/ontology/BroadcasterActivity> ;
@@ -153,9 +176,6 @@ bibliotek-o_shapes:AudioWorkForm
           ]
           [
             sh:class <http://xmlns.com/foaf/0.1/Agent> ;
-          ]
-          [
-            sh:class <http://schema.org/event> ;
           ]
           [
             sh:class <http://www.lingvoj.org/ontology/Lingvo> ;
@@ -197,7 +217,22 @@ bibliotek-o_shapes:AudioWorkForm
       sh:group bibliotek-o_shapes:SubjectAndCoveragePropertyGroup ;
       sh:nodeKind sh:IRI ;
     ] ;
-  
+    sh:property [
+      sh:path <http://schema.org/recordedAt> ;
+      sh:description "An event (a performance, concert, audition, etc.) wholly or partially captured by the work." ;
+      sh:name "Event recorded" ;
+      sh:group bibliotek-o_shapes:SubjectAndCoveragePropertyGroup ;
+      sh:nodeKind sh:IRI ;
+      sh:or (
+          [
+          sh:class <http://schema.org/Event> ;
+          ] 
+          [
+          sh:class <http://id.loc.gov/ontologies/bibframe/Event> ;
+           ]
+        ) ;
+    ] ;      
+    
   sh:property [
       sh:path <http://rdaregistry.info/Elements/u/P60242> ;
       sh:class <http://id.loc.gov/ontologies/bibframe/Audio> ;
@@ -215,11 +250,12 @@ bibliotek-o_shapes:AudioWorkForm
     
 # TODO- Still need to add Perform Music Ontology patterns. 
     
+    
   sh:property [
-      sh:path <http://id.loc.gov/ontologies/bibframe/hasExpression> ;
+      sh:path <http://purl.org/dc/terms/hasPart> ;
       sh:class <http://id.loc.gov/ontologies/bibframe/Work> ;
-      sh:description "Work that is an expression of a described Work. For use to relate Works under FRBR/RDA rules." ;
       sh:group bibliotek-o_shapes:WorkToWorkPropertyGroup ;
+      sh:name "Has part" ;
       sh:nodeKind sh:IRI ;
     ] ;
     
@@ -228,6 +264,14 @@ bibliotek-o_shapes:AudioWorkForm
       sh:class <http://id.loc.gov/ontologies/bibframe/Work> ;
       sh:group bibliotek-o_shapes:WorkToWorkPropertyGroup ;
       sh:name "Is part of" ;
+      sh:nodeKind sh:IRI ;
+    ] ;
+    
+   sh:property [
+      sh:path <http://id.loc.gov/ontologies/bibframe/hasExpression> ;
+      sh:class <http://id.loc.gov/ontologies/bibframe/Work> ;
+      sh:description "Work that is an expression of a described Work. For use to relate Works under FRBR/RDA rules." ;
+      sh:group bibliotek-o_shapes:WorkToWorkPropertyGroup ;
       sh:nodeKind sh:IRI ;
     ] ;
     
@@ -683,13 +727,6 @@ bibliotek-o_shapes:AudioWorkForm
       sh:name "Is inspiration for" ;
       sh:nodeKind sh:IRI ;
     ] ;
-  sh:property [
-      sh:path <ttp://purl.org/dc/terms/hasPart> ;
-      sh:class <http://id.loc.gov/ontologies/bibframe/Work> ;
-      sh:group bibliotek-o_shapes:WorkToWorkPropertyGroup ;
-      sh:name "Has part" ;
-      sh:nodeKind sh:IRI ;
-    ] ;
     
   sh:property [
       sh:path <http://id.loc.gov/ontologies/bibframe/dataSource> ;
@@ -743,6 +780,16 @@ bibliotek-o_shapes:AudioWorkForm
           ]
         ) ;
     ] ;
+    
+  sh:property [
+      sh:path <http://schema.org/duration> ;
+      sh:class <http://id.loc.gov/ontologies/bibframe/Audio> ;
+      sh:group bibliotek-o_shapes:AudioWorkMiscellaneousPropertyGroup ;
+      sh:name "Duration of audio work" ;
+      sh:nodeKind sh:Literal ;
+      sh:maxCount 1 ;
+      skos:editorialNote "The duration of the item (movie, audio recording, event, etc.) in <a href=\"http://en.wikipedia.org/wiki/ISO_8601\">ISO 8601 date format." ;
+    ] ;
   sh:property [
       sh:path <http://id.loc.gov/ontologies/bibframe/accompaniedBy> ;
       sh:class <http://id.loc.gov/ontologies/bibframe/Work> ;
@@ -779,7 +826,6 @@ bibliotek-o_shapes:AudioWorkForm
       sh:datatype xsd:string ;
       sh:description "Beginning date of a resource and/or the sequential designations." ;
       sh:maxCount 1 ;
-      sh:minCount 1 ;
       sh:name "first issue" ;
       sh:group bibliotek-o_shapes:AudioWorkMiscellaneousPropertyGroup ;
     ] ;
@@ -788,7 +834,6 @@ bibliotek-o_shapes:AudioWorkForm
       sh:datatype xsd:string ;
       sh:description "Ending date of a resource and/or the sequential designations." ;
       sh:maxCount 1 ;
-      sh:minCount 1 ;
       sh:name "last issue" ;
       sh:group bibliotek-o_shapes:AudioWorkMiscellaneousPropertyGroup ;
     ] ;
@@ -800,6 +845,14 @@ bibliotek-o_shapes:AudioInstanceForm
   rdfs:label "Instance of Audio form" ;
   rdfs:subClassOf rdfs:Resource ;
   sh:property [
+      sh:path rdf:type ;
+      sh:name "Type of Instance" ;
+      sh:nodeKind sh:IRI ;
+      sh:group bibliotek-o_shapes:TypeFormPropertyGroup ;
+      sh:in ( <http://bibliotek-o.org/1.0/ontology/AudioDisc> <http://bibliotek-o.org/1.0/ontology/AudioRoll> <http://bibliotek-o.org/1.0/ontology/AudioCassette> <http://bibliotek-o.org/1.0/ontology/AudioBelt> <http://bibliotek-o.org/1.0/ontology/AudioCylinder> <http://bibliotek-o.org/1.0/ontology/AudioWireReel> <http://bibliotek-o.org/1.0/ontology/AudiotapeReel> <http://bibliotek-o.org/1.0/ontology/Cassette> <http://bibliotek-o.org/1.0/ontology/SoundTrackReel> <http://bibliotek-o.org/1.0/ontology/ComputerTapeReel> <http://bibliotek-o.org/1.0/ontology/Disc> <http://bibliotek-o.org/1.0/ontology/Reel> ) ;
+    ] ;
+    
+  sh:property [
       sh:path bib:hasPreferredTitle ;
       sh:class <http://id.loc.gov/ontologies/bibframe/Title> ;
       sh:group bibliotek-o_shapes:TitlePropertyGroup ;
@@ -809,6 +862,7 @@ bibliotek-o_shapes:AudioInstanceForm
       sh:order "0"^^xsd:decimal ;
       sh:target <http://id.loc.gov/ontologies/bibframe/Instance> ;
     ] ;
+    
   sh:property [
       sh:path <http://id.loc.gov/ontologies/bibframe/title> ;
       sh:class <http://id.loc.gov/ontologies/bibframe/Title> ;
@@ -819,76 +873,28 @@ bibliotek-o_shapes:AudioInstanceForm
       sh:order "1"^^xsd:decimal ;
       sh:target <http://id.loc.gov/ontologies/bibframe/Instance> ;
     ] ;
+    
   sh:property [
       sh:path bib:hasActivity ;
       sh:name "Agent activity or role" ;
       sh:nodeKind sh:IRI ;
       sh:group bibliotek-o_shapes:InstanceActivityPropertyGroup ;
       sh:or (
-          [
-            sh:class <> ;
-          ]
-          [
-            sh:class <> ;
-          ]
-          [
-            sh:class <> ;
-          ]
-          [
-            sh:class <> ;
-          ]
-          [
-            sh:class <> ;
-          ]
+         [
+           sh:class <http://bibliotek-o.org/1.1/ontology/Distributor> ;
+         ]
+         [
+           sh:class <http://bibliotek-o.org/1.1/ontology/PublisherActivity> ;
+         ]
+         [
+           sh:class <http://bibliotek-o.org/1.1/ontology/ManufacturerActivity> ;
+         ]
+         [
+           sh:class <http://bibliotek-o.org/1.1/ontology/DistributorActivity> ;
+         ]
         ) ;
     ] ;
-    
-# TODO- Still need to add/order AudioInstance Activities
-
-  sh:property [
-      sh:path rdf:type ;
-      sh:name "Type of Instance" ;
-      sh:nodeKind sh:IRI ;
-      sh:or (
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/AudioDisc> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/AudioRoll> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/AudioCassette> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/AudioBelt> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/AudioCylinder> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/AudioWireReel> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/AudiotapeReel> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/Cassette> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/SoundTrackReel> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/ComputerTapeReel> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/Disc> ;
-          ]
-          [
-            sh:in <http://bibliotek-o.org/1.0/ontology/Reel> ;
-          ]
-        ) ;
-    ] ;
-    
+  
     sh:property [
       sh:path <http://measurement.biblioteko-o.org/hasMeasurementGroup> ;
       sh:class <http://measurement.biblioteko-o.org/MeasurementGroup> ;
@@ -921,7 +927,7 @@ bibliotek-o_shapes:AudioInstanceForm
     ] ;
     
     sh:property [
-      sh:path rdfs:value ;
+      sh:path rdf:value ;
       sh:description "Numeric value for the measurement" ;
       sh:name "Numeric value" ;
       sh:group bibliotek-o_shapes:MeasurementPropertyGroup ;
@@ -949,91 +955,54 @@ bibliotek-o_shapes:AudioInstanceForm
       sh:order "5"^^xsd:decimal ;
       sh:target <http://measurement.biblioteko-o.org/Measurement> ;
     ] ;
-
   
+   sh:property [
+      sh:path <http://id.loc.gov/ontologies/bibframe/soundCharacteristic> ;
+      sh:description "Technical specification relating to the encoding of sound in a resource." ;
+      sh:name "Sound Characteristics" ;
+      sh:group bibliotek-o_shapes:AudioInstanceCharacteristicsPropertyGroup ;
+      sh:nodeKind sh:IRI ;
+      sh:or (
+          [
+             sh:class <http://id.loc.gov/ontologies/bibframe/PlayingSpeed> ;
+          ]
+          [
+             sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
+          ]
+          [
+            sh:class <http://id.loc.gov/ontologies/bibframe/TapeConfig> ;
+          ]
+          [
+            sh:class <http://performedmusicontology.org/ontology/DiscCutting> ;
+          ]
+        ) ;
+    ] ;
   
   sh:property [
-      sh:path <http://rdaregistry.info/Elements/u/P60552> ;
+      sh:path <http://id.loc.gov/ontologies/bibframe/soundCharacteristic/skos:inScheme> ;
       sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
-      sh:description "Relates a resource to a number of sound channels used to make a recording." ;
-      sh:name "Has playback channels" ;
+      sh:description "Terms for sound characteristics should be taken from RDA Values List or individuals from Performed Music Ontology" ;
+      sh:name "Sound Characteristics" ;
       sh:group bibliotek-o_shapes:AudioInstanceCharacteristicsPropertyGroup ;
       sh:nodeKind sh:IRI ;
+      sh:or (
+          [
+            sh:hasValue <http://rdaregistry.info/termList/configPlayback> 
+          ]
+          [
+            sh:hasValue <http://rdaregistry.info/termList/groovePitch>
+          ]
+          [
+            sh:hasValue <http://rdaregistry.info/termList/grooveWidth> ;
+          ]
+          [
+            sh:hasValue <http://rdaregistry.info/termList/specPlayback> ;
+          ]
+          [
+            sh:hasValue <http://rdaregistry.info/termList/RDAGeneration> ;
+          ]
+        ) ;
     ] ;
-    
-# The following sh:path http://rdaregistry.info/Elements/u/P60552/skos:inScheme isn't meant to be a field in the form, but rather state a restriction on the use of http://rdaregistry.info/Elements/u/P60552 to instances from http://rdaregistry.info/termList/configPlayback
-  
-  sh:property [
-      sh:path <http://rdaregistry.info/Elements/u/P60552/skos:inScheme> ;
-      sh:value <http://rdaregistry.info/termList/configPlayback> ;
-      sh:description "Values for playback channel should be from the RDA playback channel vocabulary." ;
-      sh:name "RDA Playback Channels" ;
-      sh:nodeKind sh:IRI ;
-    ] ;
-  
-  sh:property [
-      sh:path <http://rdaregistry.info/Elements/u/P60586> ;
-      sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
-      sh:description "Relates a resource to a speed at which an audio carrier must be operated to produce the sound intended." ;
-      sh:name "Has playing speed" ;
-      sh:group bibliotek-o_shapes:AudioInstanceCharacteristicsPropertyGroup ;
-      sh:nodeKind sh:IRI ;
- 
-# TODO- Still need to create a Speed class and individuals based on MARC 007
-
-    ] ;
-    
-  sh:property [
-      sh:path <http://rdaregistry.info/Elements/u/P60532> ;
-      sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
-      sh:description "Relates a resource to a groove width of an analog disc or a groove pitch of an analog cylinder." ;
-      sh:name "Has groove characteristic" ;
-      sh:group bibliotek-o_shapes:AudioInstanceCharacteristicsPropertyGroup ;
-      sh:nodeKind sh:IRI ;
-    ] ;
-    
-# The following sh:path http://rdaregistry.info/Elements/u/P60532/skos:inScheme isn't meant to be a field in the form, but rather state a restriction on the use of http://rdaregistry.info/Elements/u/P60532 to instances from <http://rdaregistry.info/termList/groovePitch> or <http://rdaregistry.info/termList/grooveWidth>
-
-  sh:property [
-      sh:path <http://rdaregistry.info/Elements/u/P60532/skos:inScheme> ;
-      sh:value <http://rdaregistry.info/termList/configPlayback> ;
-      sh:description "Values for groove width of an analog disc or a groove pitch of an analog cylinder." ;
-      sh:name "RDA Groove Widths or Pitch" ;
-      sh:in ( <http://rdaregistry.info/termList/groovePitch> <http://rdaregistry.info/termList/grooveWidth> ) ;
-      sh:nodeKind sh:IRI ;
-    ] ;
-        
-# TODO- Seems there is no rda tape config value list. Waiting on cataloger to confirm/prioritize.
-
-  sh:property [
-      sh:path <http://rdaregistry.info/Elements/u/P60553> ;
-      sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
-      sh:description "Relates a resource to a number of tracks on an audiotape." ;
-      sh:name "Has tape configuration" ;
-      sh:group bibliotek-o_shapes:AudioInstanceCharacteristicsPropertyGroup ;
-      sh:nodeKind sh:IRI ;
-    ] ;
-    
-  sh:property [
-      sh:path <http://rdaregistry.info/Elements/u/P60567> ;
-      sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
-      sh:description "Relates a resource to the relationship between an original audio carrier and the carrier of a reproduction made from the original (e.g., a tape duplication master, a test pressing)." ;
-      sh:name "Generation of audio recording" ;
-      sh:group bibliotek-o_shapes:AudioInstanceCharacteristicsPropertyGroup ;
-      sh:nodeKind sh:IRI ;
-
-# The sh:path http://rdaregistry.info/Elements/u/P60567/skos:inScheme isn't meant to be a field in the form, but rather state a restriction on the use of http://rdaregistry.info/Elements/u/P60567 to instances from http://rdaregistry.info/termList/RDAGeneration
-    
-    ] ;
-    
-  sh:property [
-      sh:path <http://rdaregistry.info/Elements/u/P60567/skos:inScheme> ;
-      sh:value <http://rdaregistry.info/termList/RDAGeneration> ;
-      sh:description "Values for relationships between an original carrier and the carrier of a reproduction made from the original." ;
-      sh:name "RDA value list for generation of audio recording" ;
-      sh:nodeKind sh:IRI ;
-    ] ;
-    
     
   sh:property [
       sh:path <http://id.loc.gov/ontologies/bibframe/hasItem> ;
@@ -1135,7 +1104,7 @@ bibliotek-o_shapes:TitleElementForm
   rdfs:label "Title element form" ;
   rdfs:subClassOf rdfs:Resource ;
   sh:property [
-      sh:path rdfs:value ;
+      sh:path rdf:value ;
       sh:description "String value for the title element" ;
       sh:name "Title element value" ;
       sh:nodeKind sh:Literal ;
@@ -1152,75 +1121,82 @@ bibliotek-o_shapes:TitleElementForm
   sh:targetClass <http://bibliotek-o.org/1.0/ontology/TitleElement> ;
 .
 
+bibliotek-o_shapes:TypeFormPropertyGroup
+  rdf:type sh:PropertyGroup ;
+  rdfs:label "Type and form property group" ;
+  sh:description "To group title information for the resource." ;
+  sh:order "0"^^xsd:decimal ;
+.
+
 bibliotek-o_shapes:TitlePropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Title property group" ;
   sh:description "To group title information for the resource." ;
-  sh:order "0"^^xsd:decimal ;
+  sh:order "1"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:WorkActivityPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Activity property group" ;
   sh:description "To group Agent role information for the resource." ;
-  sh:order "1"^^xsd:decimal ;
+  sh:order "2"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:SubjectAndCoveragePropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Audio work subject and coverage property group" ;
-  sh:order "2"^^xsd:decimal ;
+  sh:order "3"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:AudioWorkToWorkPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Work to work property group" ;
-  sh:order "3"^^xsd:decimal ;
+  sh:order "4"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:WorkToWorkPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Work to work property group" ;
-  sh:order "4"^^xsd:decimal ;
+  sh:order "5"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:WorkToInstancePropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Work to Instance property group" ;
-  sh:order "5"^^xsd:decimal ;
+  sh:order "6"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:AudioWorkMiscellaneousPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Work to Instance property group" ;
-  sh:order "6"^^xsd:decimal ;
+  sh:order "7"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:InstanceActivityPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Activity property group" ;
   sh:description "To group Agent role information for the resource." ;
-  sh:order "1"^^xsd:decimal ;
+  sh:order "2"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:MeasurementPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Measurement property group" ;
   sh:description "To group measurement information for the resource." ;
-  sh:order "3"^^xsd:decimal ;
+  sh:order "4"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:AudioInstanceCharacteristicsPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Audio Instance Characteristics" ;
   sh:description "To group information about the Audio-specific instance characteristics, e.g. playback channel." ;
-  sh:order "4"^^xsd:decimal ;
+  sh:order "5"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:InstanceToItemPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Work to Instance property group" ;
-  sh:order "5"^^xsd:decimal ;
+  sh:order "6"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes:ItemActivityPropertyGroup
@@ -1229,6 +1205,3 @@ bibliotek-o_shapes:ItemActivityPropertyGroup
   sh:description "To group Agent role information for the resource." ;
   sh:order "1"^^xsd:decimal ;
 .
-
-
-
