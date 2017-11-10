@@ -2,7 +2,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,11 +30,14 @@ public class TranslateShacl {
 	public static void main (String[] args) {
 		
 		Model shaclModel = populateModel();
-		Model appModel = generateAppModel(shaclModel);
+		Model appModel = generateWorkModel(shaclModel);
 		//Print out app Model
 		
+		//Generate property groups
+		System.out.println("********Generate Property Groups***********");
+		generatePropertyGroups(shaclModel);
 		
-		System.out.println("***********Print out APP MODEL**********************");
+		System.out.println("***********Print out APP MODEL For WORJ**********************");
 		//appModel.write(System.out, "N3");
 		//Thank you Jim!
 		
@@ -51,9 +56,7 @@ public class TranslateShacl {
 		compareToGeneratedProperties(appModel);
 		System.out.println("*************Generate Template List**************");
 		generateTemplateList(appModel);
-		//Generate property groups
-		System.out.println("********Generate Property Groups***********");
-		generatePropertyGroups(shaclModel);
+
 		
 		
 		
@@ -62,7 +65,7 @@ public class TranslateShacl {
 
 	private static void generatePropertyGroups(Model shaclModel) {
 		//Get all properties for an audio work form
-		String typeURI = "http://example.org/bibliotek-o_shapes#PropertyGroup";
+		String typeURI = "http://www.w3.org/ns/shacl#PropertyGroup";
 		System.out.println("Before query shape");
 		queryAndMapPropertyGroup(typeURI, shaclModel);
 		System.out.println("After query shape");
@@ -209,10 +212,24 @@ public class TranslateShacl {
 		}
 	}
 
-	private static Model generateAppModel(Model shaclModel) {
+	private static Model generateWorkModel(Model shaclModel) {
 		
 		//Get all properties for an audio work form
 		String shapeURI = "http://example.org/bibliotek-o_shapes#AudioWorkForm";
+		Model appModel = generateAppModel(shapeURI, shaclModel);
+		return appModel;
+	}
+	
+	private static Model generateInstanceModel(Model shaclModel) {
+		
+		//Get all properties for an audio work form
+		String shapeURI = "http://example.org/bibliotek-o_shapes#AudioInstanceForm";
+		Model appModel = generateAppModel(shapeURI, shaclModel);
+		return appModel;
+	}
+	
+	
+	private static Model generateAppModel(String shapeURI, Model shaclModel) {
 		System.out.println("Before query shape");
 		Model appModel = queryShape(shapeURI, shaclModel);
 		System.out.println("After query shape");
@@ -224,7 +241,7 @@ public class TranslateShacl {
 		String PREFIXES = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
 				"";
 		String query = PREFIXES + 
-				"SELECT ?property ?path ?class ?group ?name ?nodeKind ?order ?target ?orList WHERE " + 
+				"SELECT ?property ?path ?class ?group ?name ?nodeKind ?order ?target ?orList ?shapeTarget WHERE " + 
 				"{ <" + shapeURI + "> sh:property ?property .  " + 
 				"?property sh:path ?path . " + 
 				"OPTIONAL {?property sh:class ?class .} " + 
@@ -233,7 +250,8 @@ public class TranslateShacl {
 				"OPTIONAL {?property sh:nodeKind ?nodeKind .} " + 
 				"OPTIONAL {?property sh:order ?order .} " + 
 				"OPTIONAL {?property sh:target ?target .} " + 
-				"OPTIONAL {?property sh:or ?orList .} "
+				"OPTIONAL {?property sh:or ?orList .} " + 
+				"OPTIONAL { <" + shapeURI + "> sh:target ?shapeTarget .} "
 				+ " }";
 		/*query = PREFIXES + 
 				"SELECT ?property WHERE " + 
@@ -281,6 +299,7 @@ public class TranslateShacl {
 		Resource target = getVarResource(qs, "target");
 		Resource orList = getVarResource(qs, "orList");
 		Literal orderLiteral = getVarLiteral(qs, "order");
+		Resource shapeTarget = getVarResource(qs, "shapeTarget");
 		
 		//Create faux property configuration for this path
 		//Starting at 200 because 127 is the last generated faux property
@@ -301,6 +320,7 @@ public class TranslateShacl {
 		String fauxConfigURI = "local:fpgenconfig" + configNumber;
 		String fauxN3 = prefixes;
 		String pathURI = path.getURI();
+		List<String> urisWithoutRange = new ArrayList<String>();
 		//If object property
 		if(nodeKind != null) {
 			if(nodeKind.getURI().equals(URIType)) {
@@ -310,9 +330,16 @@ public class TranslateShacl {
 				//class= qualified by, target = qualified by domain
 				if(classResource != null) {
 					fauxN3 += fauxConfigContextURI + " :qualifiedBy <" + classResource.getURI() + "> .";
+				} else {
+					urisWithoutRange.add(fauxConfigContextURI);
 				}
 				if(target != null) {
 					fauxN3 += fauxConfigContextURI + " :qualifiedByDomain <" + target.getURI() + "> .";
+				} else {
+					//If property target IS NULL, check the form target
+					if(shapeTarget != null) {
+						fauxN3 += fauxConfigContextURI + " :qualifiedByDomain <" + shapeTarget.getURI() + "> .";
+					}
 				}
 				fauxN3 += fauxConfigURI + " a  :ObjectPropertyDisplayConfig ; " + 
 				"vitro:collateBySubclassAnnot   false ; vitro:displayLimitAnnot \"0\"^^xsd:int . ";
@@ -328,6 +355,10 @@ public class TranslateShacl {
 					fauxN3 += fauxConfigURI + " :displayName \"" + name.getString() +  "\" .";
 				}
 				
+				if(group != null) {
+					fauxN3 += fauxConfigURI + " :propertyGroup <" + group.getURI()  +  "> .";
+				}
+				
 
 			} else {
 				
@@ -336,6 +367,8 @@ public class TranslateShacl {
 		
 		System.out.println("Faux N3 is now " + fauxN3);
 		fauxPropertyModel.read(new ByteArrayInputStream(fauxN3.getBytes()), null, "N3");
+		System.out.println("Faux properties without range");
+		System.out.println(StringUtils.join(urisWithoutRange, ","));
 		return fauxPropertyModel;
 	}
 
