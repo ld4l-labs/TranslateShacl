@@ -114,15 +114,15 @@ public class TranslateShacl {
 			String pGroupResURI = pGroupRes.getURI();
 			String uri = "<" + pGroupResURI + ">";
 			//Use the same URI to see if it works?
-			n3 += uri + " rdf:type <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#PropertyGroup> .";
+			n3 += uri + " rdf:type <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#PropertyGroup> . ";
 			if(pGroupLabel != null && StringUtils.isNotEmpty(pGroupLabel.getString())) {
-				n3 += uri + " rdfs:label \"" + pGroupLabel.getString() + "\" .";
+				n3 += uri + " rdfs:label \"" + pGroupLabel.getString() + "\" . ";
 			}
 			if(order != null) {
-				n3 += uri + " <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#displayRank> \"" + order.getInt() + "\"^^<http://www.w3.org/2001/XMLSchema#integer> .";
+				n3 += uri + " <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#displayRank> \"" + order.getInt() + "\"^^<http://www.w3.org/2001/XMLSchema#integer> . ";
 			}
 			if(description != null) {
-				n3 += uri + " <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#publicDescriptionAnnot> \"" + description.getString() + "\" .";
+				n3 += uri + " <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#publicDescriptionAnnot> \"" + description.getString() + "\" . ";
 			}
 			
 		}
@@ -332,6 +332,12 @@ public class TranslateShacl {
 					fauxN3 += fauxConfigContextURI + " :qualifiedBy <" + classResource.getURI() + "> .";
 				} else {
 					urisWithoutRange.add(fauxConfigContextURI);
+					//For now, simply to make this work in the interface when we upload it, changing this to owl:Thing
+					//As faux properties require ranges
+					fauxN3 += fauxConfigContextURI + " :qualifiedBy owl:Thing .";
+					//QUESTION: Should a faux property AUTOMATICALLY pick up the ontological range
+					//in the case where no range is explicitly specified
+
 				}
 				if(target != null) {
 					fauxN3 += fauxConfigContextURI + " :qualifiedByDomain <" + target.getURI() + "> .";
