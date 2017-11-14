@@ -27,21 +27,30 @@ import org.apache.jena.rdf.model.StmtIterator;
 
 
 public class TranslateShacl {
-	
+	public static int configNumber = 200;
 	public static void main (String[] args) {
 		
 		Model shaclModel = populateModel();
-		
 		compareToOntology(shaclModel);
-		
-		Model appModel = generateWorkModel(shaclModel);
-		//Print out app Model
-		
 		//Generate property groups
 		System.out.println("********Generate Property Groups***********");
 		generatePropertyGroups(shaclModel);
+				
+		processWork(shaclModel);
+		processInstance(shaclModel);
 		
-		System.out.println("***********Print out APP MODEL For WORJ**********************");
+		
+		
+		
+	}
+
+	
+	private static void processWork(Model shaclModel) {
+		Model appModel = generateWorkModel(shaclModel);
+		//Print out app Model
+		
+		
+		System.out.println("***********Print out Work MODEL For WORJ**********************");
 		//appModel.write(System.out, "N3");
 		//Thank you Jim!
 		
@@ -56,17 +65,40 @@ public class TranslateShacl {
 		
 		//Check against generated faux properties to see which properties are 
 		
-		System.out.println("*************End Print out APP Model *****************");
+		System.out.println("*************End Print out Work Model *****************");
 		compareToGeneratedProperties(appModel);
 		System.out.println("*************Generate Template List**************");
 		generateTemplateList(appModel);
 
-		
-		
-		
-		
 	}
+	
+	private static void processInstance(Model shaclModel) {
+		Model appModel = generateInstanceModel(shaclModel);
+		//Print out app Model
+		
+		
+		System.out.println("***********Print out Instance MODEL For INSTANCE**********************");
+		//appModel.write(System.out, "N3");
+		//Thank you Jim!
+		
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		appModel.write(stream, "N-TRIPLE");
+		String[] lines = new String(stream.toByteArray()).split("[\\n\\r]");
+		Arrays.sort(lines);
+		System.out.println(String.join("\n", lines));
 
+		
+		//System.out.println(appModel.listStatements().toList().stream().map(Object::toString).sorted().collect(Collectors.joining("\n")));
+		
+		//Check against generated faux properties to see which properties are 
+		
+		System.out.println("*************End Print out Instance Model *****************");
+		compareToGeneratedProperties(appModel);
+		System.out.println("*************Generate Template List**************");
+		generateTemplateList(appModel);
+
+	}
+	
 	//Check WHICH SHACL properties NOT defined in current version of ontology files
 	private static void compareToOntology(Model shaclModel) {
 		//Read in all the files
@@ -78,7 +110,7 @@ public class TranslateShacl {
 				FileInputStream fis = (new FileInputStream(fileEntry));
 				String fn = fileEntry.getName();
 				//String fn = Paths.get(fileEntry.getPath()).getFileName().toString().toLowerCase();
-				System.out.println("Reading in " + fn);
+				//System.out.println("Reading in " + fn);
 				 //String fn = fileEntry.getPath().getFileName()
                  if ( fn.endsWith(".nt") ) {
                      model.read( fis, null, "N-TRIPLE" );
@@ -103,23 +135,29 @@ public class TranslateShacl {
             
         }
 	    
+	    /*
 	    StmtIterator testIt = model.listStatements(ResourceFactory.createResource("http://bibliotek-o.org/ontology/hasActivity"), null, (RDFNode) null);
 	    while(testIt.hasNext()) {
 	    	System.out.println(testIt.nextStatement().toString());
-	    }
+	    }*/
+	    
 	    //Shacl Model paths: which of these already exist within the Model
+	    List<String> urisMissing = new ArrayList<String>();
 	    NodeIterator it = shaclModel.listObjectsOfProperty(ResourceFactory.createProperty("http://www.w3.org/ns/shacl#path"));
 	    while(it.hasNext()) {
 	    	RDFNode node = it.nextNode();
 	    	String uri = node.asResource().getURI();
-	    	System.out.println("uri is for property decorated" + uri);
+	    	//System.out.println("uri is for property decorated" + uri);
 	    	StmtIterator stmtit = model.listStatements(ResourceFactory.createResource(uri), null, (RDFNode) null);
 	    	if(!stmtit.hasNext()) {
-	    		System.out.println("This URI does not appear in the ontology files as a subject " + uri);
+	    		//System.out.println("This URI does not appear in the ontology files as a subject " + uri);
+	    		urisMissing.add(uri);
 	    	}
 	    }
 	    
-	    model.write(System.out, "N3");
+	    //model.write(System.out, "N3");
+	    System.out.println("URIs missing = ");
+	    System.out.println(urisMissing.toString());
 		
 	}
 	
@@ -245,6 +283,7 @@ public class TranslateShacl {
 
 	private static void compareToGeneratedProperties(Model appModel) {
 		System.out.println("Compate to generated properties");
+		List<String> existingFauxProperties = new ArrayList<String>();
 		// TODO Auto-generated method stub
 		File generatedFauxProperties = new File("rdf/generatedFauxProperties.n3");
 		Model model= ModelFactory.createDefaultModel();
@@ -265,12 +304,17 @@ public class TranslateShacl {
 			Property prop = ResourceFactory.createProperty(configPropURI);
 			StmtIterator pIt = model.listStatements(null, prop, node);
 			if(pIt.hasNext()) {
-				System.out.println("*****Faux property exists for ********" + node.asResource().getURI());
+				//System.out.println("*****Faux property exists for ********" + node.asResource().getURI());
+				existingFauxProperties.add(node.asResource().getURI());
 			}
+			/*
 			while(pIt.hasNext()) {
 				System.out.println(pIt.nextStatement());
-			}
+			}*/
 		}
+		
+		System.out.println("*** Existing faux properties *****");
+		System.out.println(existingFauxProperties.toString());
 	}
 
 	private static Model generateWorkModel(Model shaclModel) {
@@ -331,12 +375,12 @@ public class TranslateShacl {
 	//Given result set with properties, create new faux properties
 	private static Model mapToFauxProperties(ResultSet rs) {
 		Model appModel = ModelFactory.createDefaultModel();
-		int configNumber = 200;
+		
 		// TODO Auto-generated method stub
 		try {
 			while(rs.hasNext()) {
 				QuerySolution qs = rs.nextSolution();
-				System.out.println(qs.toString());
+				//System.out.println(qs.toString());
 				Model fauxPropModel = createFauxProperty(qs, configNumber);
 				appModel.add(fauxPropModel);
 				configNumber++;
@@ -432,7 +476,7 @@ public class TranslateShacl {
 			}
 		}
 		
-		System.out.println("Faux N3 is now " + fauxN3);
+		//System.out.println("Faux N3 is now " + fauxN3);
 		fauxPropertyModel.read(new ByteArrayInputStream(fauxN3.getBytes()), null, "N3");
 		System.out.println("Faux properties without range");
 		System.out.println(StringUtils.join(urisWithoutRange, ","));

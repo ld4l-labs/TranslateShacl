@@ -844,6 +844,7 @@ bibliotek-o_shapes:AudioInstanceForm
   rdf:type sh:NodeShape ;
   rdfs:label "Instance of Audio form" ;
   rdfs:subClassOf rdfs:Resource ;
+  sh:target <http://id.loc.gov/ontologies/bibframe/Instance>;
   sh:property [
       sh:path rdf:type ;
       sh:name "Type of Instance" ;
