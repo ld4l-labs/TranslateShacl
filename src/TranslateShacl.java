@@ -2,6 +2,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +31,9 @@ public class TranslateShacl {
 	public static void main (String[] args) {
 		
 		Model shaclModel = populateModel();
+		
+		compareToOntology(shaclModel);
+		
 		Model appModel = generateWorkModel(shaclModel);
 		//Print out app Model
 		
@@ -63,6 +67,63 @@ public class TranslateShacl {
 		
 	}
 
+	//Check WHICH SHACL properties NOT defined in current version of ontology files
+	private static void compareToOntology(Model shaclModel) {
+		//Read in all the files
+    	Model model= ModelFactory.createDefaultModel();
+
+		File directory = new File("rdf/currentOntologyFiles");
+	    for(File fileEntry : directory.listFiles()) {
+			try {
+				FileInputStream fis = (new FileInputStream(fileEntry));
+				String fn = fileEntry.getName();
+				//String fn = Paths.get(fileEntry.getPath()).getFileName().toString().toLowerCase();
+				System.out.println("Reading in " + fn);
+				 //String fn = fileEntry.getPath().getFileName()
+                 if ( fn.endsWith(".nt") ) {
+                     model.read( fis, null, "N-TRIPLE" );
+                 } else if ( fn.endsWith(".n3") ) {
+                     model.read(fis, null, "N3");
+                 } else if ( fn.endsWith(".ttl") ) {
+                     model.read(fis, null, "TURTLE");
+                 } else if ( fn.endsWith(".owl") || fn.endsWith(".rdf") || fn.endsWith(".xml") ) {
+                	 System.out.println("Reading in owl, rdf, xml" + fn);
+                     model.read( fis, null, "RDF/XML" );
+                 } else if ( fn.endsWith(".md") ) {
+                 	// Ignore markdown files - documentation.
+                 } else {
+                     //log.warn("Ignoring " + type + " file graph " + p + " because the file extension is unrecognized.");
+                 }
+                 
+                 
+			} catch(Exception ex) {
+				System.out.println("Error occurred in reading in");
+				ex.printStackTrace();
+			}
+            
+        }
+	    
+	    StmtIterator testIt = model.listStatements(ResourceFactory.createResource("http://bibliotek-o.org/ontology/hasActivity"), null, (RDFNode) null);
+	    while(testIt.hasNext()) {
+	    	System.out.println(testIt.nextStatement().toString());
+	    }
+	    //Shacl Model paths: which of these already exist within the Model
+	    NodeIterator it = shaclModel.listObjectsOfProperty(ResourceFactory.createProperty("http://www.w3.org/ns/shacl#path"));
+	    while(it.hasNext()) {
+	    	RDFNode node = it.nextNode();
+	    	String uri = node.asResource().getURI();
+	    	System.out.println("uri is for property decorated" + uri);
+	    	StmtIterator stmtit = model.listStatements(ResourceFactory.createResource(uri), null, (RDFNode) null);
+	    	if(!stmtit.hasNext()) {
+	    		System.out.println("This URI does not appear in the ontology files as a subject " + uri);
+	    	}
+	    }
+	    
+	    model.write(System.out, "N3");
+		
+	}
+	
+	
 	private static void generatePropertyGroups(Model shaclModel) {
 		//Get all properties for an audio work form
 		String typeURI = "http://www.w3.org/ns/shacl#PropertyGroup";
@@ -421,7 +482,8 @@ public class TranslateShacl {
 
 	//Read in SHACL files and populate model
 	private static Model populateModel() {
-		File shaclFile = new File("rdf/shacl.ttl");
+		//shacl.ttl has the copy from Steven
+		File shaclFile = new File("rdf/shacl2.ttl");
 		
 		Model model= ModelFactory.createDefaultModel();
 		try {
