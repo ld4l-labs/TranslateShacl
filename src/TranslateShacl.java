@@ -320,7 +320,7 @@ public class TranslateShacl {
 	private static Model generateWorkModel(Model shaclModel) {
 		
 		//Get all properties for an audio work form
-		String shapeURI = "http://example.org/bibliotek-o_shapes#AudioWorkForm";
+		String shapeURI = "http://bibliotek-o.org/shapes/audio/AudioWorkForm";
 		Model appModel = generateAppModel(shapeURI, shaclModel);
 		return appModel;
 	}
@@ -328,7 +328,7 @@ public class TranslateShacl {
 	private static Model generateInstanceModel(Model shaclModel) {
 		
 		//Get all properties for an audio work form
-		String shapeURI = "http://example.org/bibliotek-o_shapes#AudioInstanceForm";
+		String shapeURI = "http://bibliotek-o.org/shapes/audio/AudioInstanceForm";
 		Model appModel = generateAppModel(shapeURI, shaclModel);
 		return appModel;
 	}
@@ -426,7 +426,13 @@ public class TranslateShacl {
 		String fauxN3 = prefixes;
 		String pathURI = path.getURI();
 		List<String> urisWithoutRange = new ArrayList<String>();
+		//IMPORTANT: Switching to nodeKind = IRI if class is present
+		//This may not be actually true, so will need to review
 		//If object property
+		if(nodeKind == null) {
+			nodeKind = ResourceFactory.createResource(URIType);
+			System.out.println("Setting " + path + " to URI Type");
+		}
 		if(nodeKind != null) {
 			if(nodeKind.getURI().equals(URIType)) {
 				fauxN3 += fauxConfigContextURI + " a :ConfigContext ; " + 
@@ -527,7 +533,7 @@ public class TranslateShacl {
 	//Read in SHACL files and populate model
 	private static Model populateModel() {
 		//shacl.ttl has the copy from Steven
-		File shaclFile = new File("rdf/shacl2.ttl");
+		File shaclFile = new File("rdf/bibliotek-o_shapes.shapes.ttl");
 		
 		Model model= ModelFactory.createDefaultModel();
 		try {
