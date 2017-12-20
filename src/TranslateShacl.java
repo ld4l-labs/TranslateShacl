@@ -356,7 +356,7 @@ public class TranslateShacl {
 				"OPTIONAL {?property sh:order ?order .} " + 
 				"OPTIONAL {?property sh:target ?target .} " + 
 				"OPTIONAL {?property sh:or ?orList .} " + 
-				"OPTIONAL { <" + shapeURI + "> sh:target ?shapeTarget .} "
+				"OPTIONAL { <" + shapeURI + "> sh:targetClass ?shapeTarget .} "
 				+ " }";
 		/*query = PREFIXES + 
 				"SELECT ?property WHERE " + 
@@ -428,8 +428,8 @@ public class TranslateShacl {
 		List<String> urisWithoutRange = new ArrayList<String>();
 		//IMPORTANT: Switching to nodeKind = IRI if class is present
 		//This may not be actually true, so will need to review
-		//If object property
-		if(nodeKind == null) {
+		//If object property and there is some kind of range present
+		if(nodeKind == null && classResource != null) {
 			nodeKind = ResourceFactory.createResource(URIType);
 			System.out.println("Setting " + path + " to URI Type");
 		}
@@ -456,6 +456,8 @@ public class TranslateShacl {
 					//If property target IS NULL, check the form target
 					if(shapeTarget != null) {
 						fauxN3 += fauxConfigContextURI + " :qualifiedByDomain <" + shapeTarget.getURI() + "> .";
+					} else {
+						System.out.println("**No Domain For:" + fauxConfigContextURI + " - " + pathURI);
 					}
 				}
 				fauxN3 += fauxConfigURI + " a  :ObjectPropertyDisplayConfig ; " + 
@@ -484,8 +486,10 @@ public class TranslateShacl {
 		
 		//System.out.println("Faux N3 is now " + fauxN3);
 		fauxPropertyModel.read(new ByteArrayInputStream(fauxN3.getBytes()), null, "N3");
-		System.out.println("Faux properties without range");
-		System.out.println(StringUtils.join(urisWithoutRange, ","));
+		if(urisWithoutRange.size() > 0) {
+			System.out.println("Properties without range set to owl:Thing");
+			System.out.println(StringUtils.join(urisWithoutRange, ","));
+		}
 		return fauxPropertyModel;
 	}
 
