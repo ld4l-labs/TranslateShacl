@@ -35,10 +35,12 @@ public class TranslateShacl {
 		//Generate property groups
 		System.out.println("********Generate Property Groups***********");
 		generatePropertyGroups(shaclModel);
-				
+		//Work level info		
 		processWork(shaclModel);
+		//Instance level info
 		processInstance(shaclModel);
-		
+		//Item level info
+		processItem(shaclModel);
 		
 		
 		
@@ -93,6 +95,33 @@ public class TranslateShacl {
 		//Check against generated faux properties to see which properties are 
 		
 		System.out.println("*************End Print out Instance Model *****************");
+		compareToGeneratedProperties(appModel);
+		System.out.println("*************Generate Template List**************");
+		generateTemplateList(appModel);
+
+	}
+	
+	private static void processItem(Model shaclModel) {
+		Model appModel = generateItemModel(shaclModel);
+		//Print out app Model
+		
+		
+		System.out.println("***********Print out Item MODEL**********************");
+		//appModel.write(System.out, "N3");
+		//Thank you Jim!
+		
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		appModel.write(stream, "N-TRIPLE");
+		String[] lines = new String(stream.toByteArray()).split("[\\n\\r]");
+		Arrays.sort(lines);
+		System.out.println(String.join("\n", lines));
+
+		
+		//System.out.println(appModel.listStatements().toList().stream().map(Object::toString).sorted().collect(Collectors.joining("\n")));
+		
+		//Check against generated faux properties to see which properties are 
+		
+		System.out.println("*************End Print out Item Model *****************");
 		compareToGeneratedProperties(appModel);
 		System.out.println("*************Generate Template List**************");
 		generateTemplateList(appModel);
@@ -333,6 +362,14 @@ public class TranslateShacl {
 		return appModel;
 	}
 	
+	private static Model generateItemModel(Model shaclModel) {
+		
+		//Get all properties for an audio work form
+		String shapeURI = "http://bibliotek-o.org/shapes/audio/AudioItemForm";
+		Model appModel = generateAppModel(shapeURI, shaclModel);
+		return appModel;
+	}
+	
 	
 	private static Model generateAppModel(String shapeURI, Model shaclModel) {
 		System.out.println("Before query shape");
@@ -393,10 +430,24 @@ public class TranslateShacl {
 	}
 
 	private static Model createFauxProperty(QuerySolution qs, int configNumber) {
-		String URIType = "http://www.w3.org/ns/shacl#IRI";
 		Model fauxPropertyModel = ModelFactory.createDefaultModel();
-		//?property ?path ?class ?group ?name ?nodeKind ?order ?target ?orList
 		Resource path = getVarResource(qs, "path");
+		//If path is not predicate but complex path, do not create a faux property
+		//Do print out a message
+		if(path != null) {
+			String pathURI = path.getURI();
+			//the path may include the prefix namespace within <>
+			//in this case, search for a : that is not the only one
+			if(pathURI.lastIndexOf("http:") > pathURI.indexOf("http:") ||
+					pathURI.lastIndexOf(":") > pathURI.indexOf(":")) {
+				System.out.println("Faux property not created for " + pathURI);
+				return fauxPropertyModel;
+			}
+		}
+		String URIType = "http://www.w3.org/ns/shacl#IRI";
+		
+		//?property ?path ?class ?group ?name ?nodeKind ?order ?target ?orList
+		
 		Literal name = getVarLiteral(qs, "name");
 		Resource classResource = getVarResource(qs, "class");
 		Resource group = getVarResource(qs, "group");
