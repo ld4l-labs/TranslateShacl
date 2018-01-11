@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,14 +32,19 @@ public class TranslateShacl {
 	public static void main (String[] args) {
 		
 		Model shaclModel = populateModel();
-		compareToOntology(shaclModel);
+		Model ontologyModel = getOntologyModel();
+		compareToOntology(shaclModel, ontologyModel);
 		//Generate property groups
 		System.out.println("********Generate Property Groups***********");
 		generatePropertyGroups(shaclModel);
+		System.out.println("********Generate Work*********");
 		//Work level info		
-		processWork(shaclModel);
+		processWork(shaclModel, ontologyModel);
+		System.out.println("********Generate Instance*********");
 		//Instance level info
 		processInstance(shaclModel);
+		System.out.println("********Generate Item*********");
+
 		//Item level info
 		processItem(shaclModel);
 		
@@ -47,7 +53,114 @@ public class TranslateShacl {
 	}
 
 	
-	private static void processWork(Model shaclModel) {
+	//For each of work, instance, item models, generate the appropriate custom form linkages
+	//Cases are hardcoded, but specific faux property config numbers change based on the original shacl file
+	/*
+	 
+#In older generated version, this was 128 and applied for any work to work has part
+#Replaced with specific audio to audio part 284
+#local:fpgn128 a  :ConfigContext ; :configContextFor <http://purl.org/dc/terms/hasPart>;:hasConfiguration local:fpgenconfig128; :qualifiedBy bf:Work ; :qualifiedByDomain bf:Work .	local:fpgenconfig128 a  :ObjectPropertyDisplayConfig ; vitro:collateBySubclassAnnot   false ; vitro:displayLimitAnnot "0"^^xsd:int ; vitro:displayRankAnnot  "0"^^xsd:int ; vitro:hiddenFromDisplayBelowRoleLevelAnnot role:public ;	vitro:hiddenFromPublishBelowRoleLevelAnnot role:public ; vitro:offerCreateNewOptionAnnot true ; vitro:prohibitedFromUpdateBelowRoleLevelAnnot role:public ; vitro:selectFromExistingAnnot  true ; :displayName "related works/content listing" .
+#List view for related works/content listing (for 740 field)
+local:fpgenconfig284 :listViewConfigFile "listViewConfig-workHasPartWork.xml"^^xsd:string .
+local:fpgenconfig284 <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> "edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator"^^<http://www.w3.org/2001/XMLSchema#string> ;
+ <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> "workHasPartWork.jsonld" .
+
+# Genre Form addition FOR WORK
+#Used to be 70, changed to 218
+local:fpgenconfig218 <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> "edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator"^^<http://www.w3.org/2001/XMLSchema#string> ;
+ <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> "hasGenreForm.jsonld";
+ <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> "hasGenreForm.ftl" .
+ 
+ 
+ #These were changed from original to 
+ #Work has Activity configuration
+ #Changed from 28 in original to audio has activity 278
+ local:fpgenconfig278 :listViewConfigFile "listViewConfig-workHasActivity.xml"^^xsd:string .
+ #Instance Has Activity configuration
+ #Has activity changed from 39 to 306
+ local:fpgenconfig306 :listViewConfigFile "listViewConfig-instanceHasActivity.xml"^^xsd:string .  
+ #Subject - changed from 34 in original to 283 in new version
+ local:fpgenconfig283 :listViewConfigFile "listViewConfig-subject.xml"^^xsd:string .  
+ 
+ 
+ ## Not in SHACL yet so copied from original generated properties
+ # Annotation at work level, ties to specific jsonld
+ # Keep this as is because annotation not currently in SHACL but this will probably change
+ # Copied from original file here
+ local:fpgn11 a  :ConfigContext ; :configContextFor <http://bibliotek-o.org/ontology/isTargetOf>;:hasConfiguration local:fpgenconfig11 ; :qualifiedBy oa:Annotation ; :qualifiedByDomain bf:Work .	local:fpgenconfig11 a  :ObjectPropertyDisplayConfig ; vitro:collateBySubclassAnnot   false ; vitro:displayLimitAnnot "0"^^xsd:int ; vitro:displayRankAnnot  "0"^^xsd:int ; vitro:hiddenFromDisplayBelowRoleLevelAnnot role:public ;	vitro:hiddenFromPublishBelowRoleLevelAnnot role:public ; vitro:offerCreateNewOptionAnnot true ; vitro:prohibitedFromUpdateBelowRoleLevelAnnot role:public ; vitro:selectFromExistingAnnot  true ; :displayName "has annotation " .
+ local:fpgenconfig11 <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> "edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator"^^<http://www.w3.org/2001/XMLSchema#string> ;
+  <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> "isTargetOf.jsonld";
+ :listViewConfigFile "listViewConfig-isTargetOf.xml"^^xsd:string .
+
+	 */
+	private static void generateCustomFormSpecifics(Model appModel) {
+		//App Model uses the vitroLib-specific faux configuration
+		//TODO: Make this use classes instead
+		//Base URI -> <domain =, range= >
+		
+		//has part custom form
+		String configURI = retrieveConfigURI("http://purl.org/dc/terms/hasPart", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Audio", appModel);
+		//Genre form, audio to concept
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Audio", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
+		//has activity
+		configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Audio", "http://bibliotek-o.org/ontology/Activity", appModel);
+
+		//Subject
+		//http://www.w3.org/2002/07/owl#
+		configURI =  retrieveConfigURI("http://purl.org/dc/terms/subject", "http://id.loc.gov/ontologies/bibframe/Audio", "http://www.w3.org/2002/07/owl#Thing", appModel);
+		
+	}
+	
+	//Dropdowns to be hardcode or otherwise used
+	private static void generateCustomFormDropdowns(Model shaclModel, Model appModel, Model ontologyModel) {
+		//Test queries
+		String sparqlQuery = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
+		"PREFIX list: <http://jena.hpl.hp.com/ARQ/list#> " + 
+		"SELECT ?form ?propertyURI ?position ?element WHERE { ?form sh:property ?propInfo . " + 
+		"?propInfo sh:path ?propertyURI . " + 
+		"?propInfo sh:in ?allowedList . ?allowedList list:index (?position ?element) .}";
+		ResultSet rs = executeQuery(shaclModel, sparqlQuery);
+		while(rs.hasNext()) {
+			QuerySolution qs = rs.nextSolution();
+			System.out.println(qs.toString());
+		}
+		
+		//Do a similar one for sh:or to see what it entails
+		String orSparqlQuery = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
+				"PREFIX list: <http://jena.hpl.hp.com/ARQ/list#> " + 
+				"SELECT ?form ?propertyURI ?position ?element ?elementp ?elemento WHERE { ?form sh:property ?propInfo . " + 
+				"?propInfo sh:path ?propertyURI . " + 
+				"?propInfo sh:or ?allowedList . ?allowedList list:index (?position ?element) . OPTIONAL {?element ?elementp ?elemento .}}";
+				ResultSet orRs = executeQuery(shaclModel, orSparqlQuery);
+				while(orRs.hasNext()) {
+					QuerySolution qs = orRs.nextSolution();
+					System.out.println(qs.toString());
+				}
+	}
+	
+	//Range is assumed to be non-null - remember to check this assumption later
+	private static String retrieveConfigURI(String baseURI, String domain, String range, Model appModel) {
+		String sparqlQuery = "PREFIX appConfig: <http://vitro.mannlib.cornell.edu/ns/vitro/ApplicationConfiguration#> " + 
+	   " SELECT ?configContextURI ?configURI WHERE { ?configContextURI appConfig:configContextFor <" + baseURI + "> .";
+		sparqlQuery += "?configContextURI appConfig:hasConfiguration ?configURI .";
+		sparqlQuery += "?configContextURI appConfig:qualifiedBy <" + range + "> . ";
+		if(StringUtils.isNotEmpty(domain)) {
+			sparqlQuery += "?configContextURI appConfig:qualifiedByDomain <" + domain + "> .";
+		}
+		sparqlQuery += "} ";
+		System.out.println(sparqlQuery);
+		//Execute this query to retrieve the configURI
+		ResultSet rs = executeQuery(appModel, sparqlQuery);
+		while(rs.hasNext()) {
+			QuerySolution qs = rs.nextSolution();
+			if(qs.contains("configURI")) {
+				return qs.getResource("configURI").getURI();
+			}
+		}
+		return null;
+	}
+	
+	private static void processWork(Model shaclModel, Model ontologyModel) {
 		Model appModel = generateWorkModel(shaclModel);
 		//Print out app Model
 		
@@ -68,10 +181,14 @@ public class TranslateShacl {
 		//Check against generated faux properties to see which properties are 
 		
 		System.out.println("*************End Print out Work Model *****************");
+		//Comparing to faux properties
 		compareToGeneratedProperties(appModel);
-		System.out.println("*************Generate Template List**************");
-		generateTemplateList(appModel);
-
+		//No longer generating this as not hard-coding anymore
+		//System.out.println("*************Generate Template List**************");
+		//generateTemplateList(appModel);
+		//retrieve which generated config uris will match certain conditions in order to associate custom form/list view info
+		generateCustomFormSpecifics(appModel);
+		generateCustomFormDropdowns(shaclModel, appModel, ontologyModel);
 	}
 	
 	private static void processInstance(Model shaclModel) {
@@ -128,8 +245,8 @@ public class TranslateShacl {
 
 	}
 	
-	//Check WHICH SHACL properties NOT defined in current version of ontology files
-	private static void compareToOntology(Model shaclModel) {
+	//Load all the ontology files into a model where they can be reviewed/revised
+	private static Model getOntologyModel() {
 		//Read in all the files
     	Model model= ModelFactory.createDefaultModel();
 
@@ -163,7 +280,12 @@ public class TranslateShacl {
 			}
             
         }
-	    
+	    return model;
+
+	}
+	
+	//Check WHICH SHACL properties NOT defined in current version of ontology files
+	private static void compareToOntology(Model shaclModel, Model model) {
 	    /*
 	    StmtIterator testIt = model.listStatements(ResourceFactory.createResource("http://bibliotek-o.org/ontology/hasActivity"), null, (RDFNode) null);
 	    while(testIt.hasNext()) {

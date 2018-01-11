@@ -19,6 +19,7 @@
 @prefix bib: <http://bibliotek-o.org/ontology/> .
 @prefix bibliotek-o_shapes_audio: <http://bibliotek-o.org/shapes/audio/> .
 @prefix core: <http://vivoweb.org/ontology/core#> .
+@prefix gn: <http://www.geonames.org/ontology> .
 @prefix lingvo: <http://www.lingvoj.org/ontology#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix p1: <http://example.org/file1#> .
@@ -29,6 +30,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix bf: <http://id.loc.gov/ontologies/bibframe/> .
 @prefix prov: <http://www.w3.org/ns/prov> .
+@prefix schema: <http://schema.org/> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix swa: <http://topbraid.org/swa#> .
 @prefix tosh: <http://topbraid.org/tosh#> .
@@ -109,6 +111,25 @@ bibliotek-o_shapes_audio:AudioWorkForm
       tosh:editWidget swa:NestedObjectEditor ;
       sh:class bib:Activity ;
     ] ;
+    
+ # May decide to go with bf:eventContent to align with Performed Music decision to use BF instead of reusing schema:recordedAt. bf:eventContent domain should be open so schema:Events can be used without the added bf:Event entailment. Will need to reconcile schema and PMO class hierarchy.
+
+  sh:property [
+      sh:path <http://schema.org/recordedAt> ;
+      sh:description "An event (a performance, concert, audition, etc.) wholly or partially captured by the work." ;
+      sh:name "Recorded Event" ;
+      sh:group bibliotek-o_shapes_audio:WorkActivityPropertyGroup ;
+      bibliotek-o_shapes_audio:lookup bibliotek-o_shapes_audio:LD4LookupService ;
+      skos:editorialNote "Use look up service; though FAST has some events, catalogers will have to create most events because libraries traditionally haven't created many Event authorities." ;
+      sh:or (
+          [
+          sh:class <http://schema.org/Event> ;
+          ] 
+          [
+          sh:class <http://id.loc.gov/ontologies/bibframe/Event> ;
+           ]
+        ) ;
+    ] ;     
   
   sh:property [
       sh:path <http://purl.org/dc/terms/subject> ;
@@ -148,7 +169,7 @@ bibliotek-o_shapes_audio:AudioWorkForm
   sh:property [
       sh:path bib:covers ;
       sh:class <http://id.loc.gov/ontologies/bibframe/Temporal> ;
-      sh:description "Specifies a time period covered in the content of this resource." ;
+      sh:description "Specifies a time period covered in the content of this resource, e.g. the decade a dataset covers, a map depicts boundaries from a given period." ;
       sh:name "Time period covered" ;
       sh:group bibliotek-o_shapes_audio:SubjectAndCoveragePropertyGroup ;
       sh:nodeKind sh:IRI ;
@@ -156,7 +177,7 @@ bibliotek-o_shapes_audio:AudioWorkForm
   sh:property [
       sh:path bib:covers ;
       sh:class <http://www.w3.org/ns/prov#Location> ;
-      sh:description "Specifies a location covered in the content of this resource." ;
+      sh:description "Specifies a location covered in the content of this resource, e.g. the geographic region a dataset covers, a map depicts a specific location." ;
       sh:name "Location covered" ;
       sh:group bibliotek-o_shapes_audio:SubjectAndCoveragePropertyGroup ;
       sh:nodeKind sh:IRI ;
@@ -169,27 +190,6 @@ bibliotek-o_shapes_audio:AudioWorkForm
       sh:group bibliotek-o_shapes_audio:SubjectAndCoveragePropertyGroup ;
       sh:nodeKind sh:IRI ;
     ] ;
-    
-# May decide to go with bf:eventContent to align with Performed Music decision to use BF instead of reusing schema:recordedAt. bf:eventContent domain should be open so schema:Events can be used without the added bf:Event entailment. Will need to reconcile schema and PMO class hierarchy.
-
-    sh:property [
-      sh:path <http://schema.org/recordedAt> ;
-      sh:description "An event (a performance, concert, audition, etc.) wholly or partially captured by the work." ;
-      sh:name "Event recorded" ;
-      sh:group bibliotek-o_shapes_audio:SubjectAndCoveragePropertyGroup ;
-      sh:nodeKind sh:IRI ;
-      bibliotek-o_shapes_audio:lookup bibliotek-o_shapes_audio:LD4LookupService ;
-      skos:editorialNote "Use look up service; though FAST has some events, catalogers will have to create most events because libraries traditionally haven't created many Event authorities." ;
-      
-      sh:or (
-          [
-          sh:class <http://schema.org/Event> ;
-          ] 
-          [
-          sh:class <http://id.loc.gov/ontologies/bibframe/Event> ;
-           ]
-        ) ;
-    ] ;     
     
   sh:property [
       sh:path <http://rdaregistry.info/Elements/u/P60242> ;
@@ -800,8 +800,29 @@ bibliotek-o_shapes_audio:AudioWorkForm
       sh:path <http://id.loc.gov/ontologies/bibframe/identifiedBy> ;
       sh:description "Record identifier string value and type of identifier" ;
       sh:name "Identified by" ;
-      sh:class <http://id.loc.gov/ontologies/bibframe/Identifier> ;
       sh:group bibliotek-o_shapes_audio:AudioWorkMiscellaneousPropertyGroup ;
+      sh:or (
+          [
+           sh:class <http://id.loc.gov/ontologies/bibframe/AudioTake> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Isan> ;
+         ]
+   
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Isrc> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Issn> ;
+         ]
+
+         [
+           sh:class<http://id.loc.gov/ontologies/bibframe/Lccn> ;
+         ]
+
+        ) ;
     ] ;
 .
 
@@ -980,8 +1001,94 @@ bibliotek-o_shapes_audio:AudioInstanceForm
       sh:path <http://id.loc.gov/ontologies/bibframe/identifiedBy> ;
       sh:description "Record identifier string value and type of identifier" ;
       sh:name "Identified by" ;
-      sh:class <http://id.loc.gov/ontologies/bibframe/Identifier> ;
       sh:group bibliotek-o_shapes_audio:InstanceMiscellaneousPropertyGroup ;
+      sh:or (
+           [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Identifier> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Barcode> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Doi> ;
+         ]
+   
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Ean> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Gtin14Number> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Hdl> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Ismn> ;
+         ]
+
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Isan> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Isbn> ;
+         ]
+   
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Isni> ;
+         ]
+
+        [
+         sh:class <http://id.loc.gov/ontologies/bibframe/Issn> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/LcOverseasAcq> ;
+         ]
+   
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Lccn> ;
+         ]
+
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Local> ;
+         ]
+   
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/MusicDistributorNumber> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/PublisherNumber> ;
+         ]
+         
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/StockNumber> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Upc> ;
+         ]
+         
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/StudyNumber> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Urn> ;
+         ]
+         
+         [
+           sh:class <http://bibliotek-o.org/1.1/ontology/OclcIdentifier> ;
+         ]
+        ) ;
     ] ;
     
   sh:property [
@@ -1056,6 +1163,87 @@ bibliotek-o_shapes_audio:AudioItemForm
            ]
         ) ;
     ] ; 
+    
+    sh:property [
+      sh:path <http://id.loc.gov/ontologies/bibframe/note> ;
+      sh:description "Copy specific notes. These note types apply specifically to the Cornell Hip Hop Collection" ;
+      sh:name "Copy specific notes" ;
+      sh:group bibliotek-o_shapes_audio:AudioItemMiscellaneousPropertyGroup ;
+      sh:or (
+         [
+           sh:class <http://audio.biblioteko-o.org/WritingOnAlbumNote> ;
+         ]
+         [
+           sh:class <http://audio.biblioteko-o.org/NumberedSRJacketNote> ;
+         ]
+   
+         [
+           sh:class <http://audio.biblioteko-o.org/InitialsOrNumberOnLabelNote> ;
+         ]
+         [
+           sh:class <http://audio.biblioteko-o.org/PostItNoteNote> ;
+         ]
+
+         [
+           sh:class <http://audio.biblioteko-o.org/SignatureNote> ;
+         ]
+         [
+           sh:class <http://audio.biblioteko-o.org/CuePointMarkerNote> ;
+         ]
+         [
+           sh:class <http://audio.biblioteko-o.org/TracksOfInterestNote> ;
+         ]
+          [
+           sh:class <http://audio.biblioteko-o.org/TapeOnLPDiscLabelOrCoverNote> ;
+         ]
+         [
+           sh:class <http://audio.biblioteko-o.org/NotInOriginalJacketNote> ;
+         ]
+         [
+           sh:class <http://audio.biblioteko-o.org/TwoCopiesInSameSleeveNote> ;
+         ]
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Note> ;
+         ]
+         
+        ) ;
+    ] ;
+    
+     sh:property [
+      sh:path <http://id.loc.gov/ontologies/bibframe/identifiedBy> ;
+      sh:description "Record identifier string value and type of identifier" ;
+      sh:name "Identified by" ;
+      sh:group bibliotek-o_shapes_audio:AudioItemMiscellaneousPropertyGroup ;
+      sh:or (
+          [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Barcode> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/Local> ;
+         ]
+   
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/ShelfMarkDdc> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/ShelfMarkLcc> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/ShelfMarkNlm> ;
+         ]
+
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/ShelfMarkUdc> ;
+         ]
+         
+         [
+           sh:class <http://id.loc.gov/ontologies/bibframe/ShelfMark> ;
+         ]
+        ) ;
+    ] ;
 .
 
 bibliotek-o_shapes_audio:WorkTitleForm
@@ -1239,13 +1427,14 @@ bibliotek-o_shapes_audio:AudioWorkActivityForm
       sh:nodeKind sh:Literal ;
     ];
     sh:property [
-      sh:path bib:atLocation ;
+      sh:path schema:location ;
       sh:order "3" ;
       sh:maxCount "1" ;
       sh:description "Location of the activity" ;
       sh:name "Location" ;
-      sh:class prov:Location ;
+      sh:class gn:Feature ;
       sh:nodeKind sh:IRI ;
+      bibliotek-o_shapes_audio:lookup bibliotek-o_shapes_audio:LD4LookupService ;
     ];
   sh:property [
       sh:path bib:isActivityOf ;
@@ -1287,12 +1476,13 @@ bibliotek-o_shapes_audio:AudioInstanceActivityForm
       sh:nodeKind sh:Literal ;
     ] ;
     sh:property [
-      sh:path bib:atLocation ;
+      sh:path schema:location ;
       sh:order "3" ;
       sh:description "Location of the activity" ;
       sh:name "Location" ;
-      sh:class prov:Location ;
+      sh:class gn:Feature ;
       sh:nodeKind sh:IRI ;
+      bibliotek-o_shapes_audio:lookup bibliotek-o_shapes_audio:LD4LookupService ;
     ];
     sh:property [
       sh:path bib:isActivityOf ;
@@ -1336,12 +1526,13 @@ bibliotek-o_shapes_audio:AudioItemActivityForm
       sh:nodeKind sh:Literal ;
     ] ;
     sh:property [
-      sh:path bib:atLocation ;
+      sh:path schema:location ;
       sh:order "3" ;
       sh:description "Location of the activity" ;
       sh:name "Location" ;
-      sh:class prov:Location ;
+      sh:class gn:Feature ;
       sh:nodeKind sh:IRI ;
+      bibliotek-o_shapes_audio:lookup bibliotek-o_shapes_audio:LD4LookupService ;
     ];
     sh:property [
       sh:path bib:isActivityOf ;
@@ -1445,65 +1636,65 @@ bibliotek-o_shapes_audio:MeasurementForm
 
 bibliotek-o_shapes_audio:TypeGenreFormPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Type, genre, and form property group" ;
+  rdfs:label "Type and Genre" ;
   sh:description "To group type, Genre, and Form information for the resource." ;
   sh:order "0"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:TitlePropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Title property group" ;
+  rdfs:label "Titles" ;
   sh:description "To group title information for the resource." ;
   sh:order "1"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:WorkActivityPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Activity property group" ;
+  rdfs:label "Work Agent and Capture Information" ;
   sh:description "To group Agent role information for the resource." ;
   sh:order "2"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:SubjectAndCoveragePropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Audio work subject and coverage property group" ;
+  rdfs:label "Subjects" ;
   sh:order "3"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:AudioWorkToWorkPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Work to work property group" ;
+  rdfs:label "Related Audio Works" ;
   sh:order "4"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:WorkToWorkPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Work to work property group" ;
+  rdfs:label "Related Works" ;
   sh:order "5"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:WorkToInstancePropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Work to Instance property group" ;
+  rdfs:label "Related Instances (Manifestations)" ;
   sh:order "6"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:AudioWorkMiscellaneousPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Work to Instance property group" ;
+  rdfs:label "Miscellaneous Work Information" ;
   sh:order "7"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:InstanceActivityPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Activity property group" ;
+  rdfs:label "Instance Agent Information" ;
   sh:description "To group Agent role information for the resource." ;
   sh:order "2"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:MeasurementPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Measurement property group" ;
+  rdfs:label "Measurements" ;
   sh:description "To group measurement information for the resource." ;
   sh:order "4"^^xsd:decimal ;
 .
@@ -1517,29 +1708,36 @@ bibliotek-o_shapes_audio:AudioInstanceCharacteristicsPropertyGroup
 
 bibliotek-o_shapes_audio:InstanceMiscellaneousPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Work to Instance property group" ;
+  rdfs:label "Miscellaneous Work Information" ;
   sh:order "6"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:InstanceToItemPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Work to Instance property group" ;
+  rdfs:label "Related Items (Copies)" ;
   sh:order "7"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:ItemActivityPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Activity property group" ;
+  rdfs:label "Item Agent Information" ;
   sh:description "To group Agent role information for the resource." ;
   sh:order "1"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:ItemProvenanceGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Item provenance group" ;
+  rdfs:label "Item Provenance" ;
   sh:description "To group item provenance information for the resource." ;
   sh:order "2"^^xsd:decimal ;
 .
+
+bibliotek-o_shapes_audio:AudioItemMiscellaneousPropertyGroup
+  rdf:type sh:PropertyGroup ;
+  rdfs:label "Miscellaneous Item Information" ;
+  sh:order "3"^^xsd:decimal ;
+.
+
 
 
 
