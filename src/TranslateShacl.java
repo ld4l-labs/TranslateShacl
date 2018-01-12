@@ -57,32 +57,6 @@ public class TranslateShacl {
 	//Cases are hardcoded, but specific faux property config numbers change based on the original shacl file
 	/*
 	 
-#In older generated version, this was 128 and applied for any work to work has part
-#Replaced with specific audio to audio part 284
-#local:fpgn128 a  :ConfigContext ; :configContextFor <http://purl.org/dc/terms/hasPart>;:hasConfiguration local:fpgenconfig128; :qualifiedBy bf:Work ; :qualifiedByDomain bf:Work .	local:fpgenconfig128 a  :ObjectPropertyDisplayConfig ; vitro:collateBySubclassAnnot   false ; vitro:displayLimitAnnot "0"^^xsd:int ; vitro:displayRankAnnot  "0"^^xsd:int ; vitro:hiddenFromDisplayBelowRoleLevelAnnot role:public ;	vitro:hiddenFromPublishBelowRoleLevelAnnot role:public ; vitro:offerCreateNewOptionAnnot true ; vitro:prohibitedFromUpdateBelowRoleLevelAnnot role:public ; vitro:selectFromExistingAnnot  true ; :displayName "related works/content listing" .
-#List view for related works/content listing (for 740 field)
-local:fpgenconfig284 :listViewConfigFile "listViewConfig-workHasPartWork.xml"^^xsd:string .
-local:fpgenconfig284 <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> "edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator"^^<http://www.w3.org/2001/XMLSchema#string> ;
- <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> "workHasPartWork.jsonld" .
-
-# Genre Form addition FOR WORK
-#Used to be 70, changed to 218
-local:fpgenconfig218 <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> "edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator"^^<http://www.w3.org/2001/XMLSchema#string> ;
- <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> "hasGenreForm.jsonld";
- <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> "hasGenreForm.ftl" .
- 
- 
- #These were changed from original to 
- #Work has Activity configuration
- #Changed from 28 in original to audio has activity 278
- local:fpgenconfig278 :listViewConfigFile "listViewConfig-workHasActivity.xml"^^xsd:string .
- #Instance Has Activity configuration
- #Has activity changed from 39 to 306
- local:fpgenconfig306 :listViewConfigFile "listViewConfig-instanceHasActivity.xml"^^xsd:string .  
- #Subject - changed from 34 in original to 283 in new version
- local:fpgenconfig283 :listViewConfigFile "listViewConfig-subject.xml"^^xsd:string .  
- 
- 
  ## Not in SHACL yet so copied from original generated properties
  # Annotation at work level, ties to specific jsonld
  # Keep this as is because annotation not currently in SHACL but this will probably change
@@ -97,18 +71,63 @@ local:fpgenconfig218 <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryF
 		//App Model uses the vitroLib-specific faux configuration
 		//TODO: Make this use classes instead
 		//Base URI -> <domain =, range= >
-		
+		String rdfString = "";
 		//has part custom form
 		String configURI = retrieveConfigURI("http://purl.org/dc/terms/hasPart", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Audio", appModel);
+		rdfString += generateConfigRDF(configURI, "hasPart") + "\n";
+		
 		//Genre form, audio to concept
 		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Audio", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
+		rdfString += generateConfigRDF(configURI, "genreForm")+ "\n";
 		//has activity
 		configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Audio", "http://bibliotek-o.org/ontology/Activity", appModel);
-
+		rdfString += generateConfigRDF(configURI, "hasActivity")+ "\n";
 		//Subject
 		//http://www.w3.org/2002/07/owl#
 		configURI =  retrieveConfigURI("http://purl.org/dc/terms/subject", "http://id.loc.gov/ontologies/bibframe/Audio", "http://www.w3.org/2002/07/owl#Thing", appModel);
-		
+		rdfString += generateConfigRDF(configURI, "subject")+ "\n";
+		System.out.println(rdfString);
+	}
+	
+	//Putting all this in one method for now
+	private static String generateConfigRDF(String configURI, String property) {
+		String configRDF = "";
+		switch (property) {
+			case "hasPart":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-workHasPartWork.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"workHasPartWork.jsonld\" .";
+
+				break;
+			case "genreForm":
+				configRDF = "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+					 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"hasGenreForm.jsonld\"; " + 
+					 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"hasGenreForm.ftl\" .";
+
+				break;	
+			case "hasActivity":
+				//These may be different, as in different faux properties for work has activity and instance has activity
+				
+				configRDF =  "<" + configURI + "> :listViewConfigFile \"listViewConfig-workHasActivity.xml\"^^xsd:string . " + 
+							"<" + configURI + ">  <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ;" + 
+							"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"workHasActivity.jsonld\" . ";
+					 
+				//+  both require list views and custom forms 
+				//"<" + configURI + "> :listViewConfigFile \"listViewConfig-instanceHasActivity.xml\"^^xsd:string .  " + 
+						 
+
+				break;	
+			case "subject":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-subject.xml\"^^xsd:string .  ";
+				configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"hasLCSH.jsonld\"; " + 
+						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"hasLCSH.ftl\" .";
+
+				break;
+			default:
+				break;
+		}
+		return configRDF;
 	}
 	
 	//Dropdowns to be hardcode or otherwise used
@@ -505,7 +524,7 @@ local:fpgenconfig218 <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryF
 		String PREFIXES = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
 				"";
 		String query = PREFIXES + 
-				"SELECT ?property ?path ?class ?group ?name ?nodeKind ?order ?target ?orList ?shapeTarget WHERE " + 
+				"SELECT ?property ?path ?class ?group ?name ?nodeKind ?order ?target ?orList ?inList ?shapeTarget WHERE " + 
 				"{ <" + shapeURI + "> sh:property ?property .  " + 
 				"?property sh:path ?path . " + 
 				"OPTIONAL {?property sh:class ?class .} " + 
@@ -515,6 +534,7 @@ local:fpgenconfig218 <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryF
 				"OPTIONAL {?property sh:order ?order .} " + 
 				"OPTIONAL {?property sh:target ?target .} " + 
 				"OPTIONAL {?property sh:or ?orList .} " + 
+				"OPTIONAL {?property sh:in ?inList .} " + 
 				"OPTIONAL { <" + shapeURI + "> sh:targetClass ?shapeTarget .} "
 				+ " }";
 		/*query = PREFIXES + 
@@ -602,7 +622,7 @@ local:fpgenconfig218 <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryF
 		//IMPORTANT: Switching to nodeKind = IRI if class is present
 		//This may not be actually true, so will need to review
 		//If object property and there is some kind of range present
-		if(nodeKind == null && classResource != null) {
+		if(nodeKind == null && (classResource != null || orList != null)) {
 			nodeKind = ResourceFactory.createResource(URIType);
 			System.out.println("Setting " + path + " to URI Type");
 		}
