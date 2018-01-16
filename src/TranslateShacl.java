@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,8 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 public class TranslateShacl {
@@ -47,6 +50,9 @@ public class TranslateShacl {
 
 		//Item level info
 		processItem(shaclModel);
+		//Generate dropdowns
+		generateCustomFormDropdowns(shaclModel, ontologyModel);
+
 		
 		
 		
@@ -131,30 +137,125 @@ public class TranslateShacl {
 	}
 	
 	//Dropdowns to be hardcode or otherwise used
-	private static void generateCustomFormDropdowns(Model shaclModel, Model appModel, Model ontologyModel) {
+	private static void generateCustomFormDropdowns(Model shaclModel,  Model ontologyModel) {
+		JSONObject inPropertyLists = new JSONObject();
+		JSONObject orPropertyLists = new JSONObject();
 		//Test queries
 		String sparqlQuery = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
 		"PREFIX list: <http://jena.hpl.hp.com/ARQ/list#> " + 
 		"SELECT ?form ?propertyURI ?position ?element WHERE { ?form sh:property ?propInfo . " + 
 		"?propInfo sh:path ?propertyURI . " + 
-		"?propInfo sh:in ?allowedList . ?allowedList list:index (?position ?element) .}";
-		ResultSet rs = executeQuery(shaclModel, sparqlQuery);
-		while(rs.hasNext()) {
-			QuerySolution qs = rs.nextSolution();
-			System.out.println(qs.toString());
+		"?propInfo sh:in ?allowedList . ?allowedList list:index (?position ?element) . } ORDER BY ?form ?propertyURI ?position ?element";
+		System.out.println("*******Allowed in list*********");
+		try {
+			ResultSet rs = executeQuery(shaclModel, sparqlQuery);
+			while(rs.hasNext()) {
+				QuerySolution qs = rs.nextSolution();
+				System.out.println(qs.toString());
+				//Get element and propertyURI
+				String formURI = qs.getResource("form").getURI();
+				String propertyURI = qs.getResource("propertyURI").getURI();
+				String elementURI = qs.getResource("element").getURI();
+				String key = formURI + "-" + propertyURI;
+				if(!inPropertyLists.has(key)) {
+					inPropertyLists.put(key, new JSONArray());
+				}
+				JSONArray inArray = inPropertyLists.getJSONArray(key);
+				JSONObject obj = new JSONObject();
+				obj.put("uri", elementURI);
+				inArray.put(obj);
+				
+			}
+		} catch(Exception ex) {
+			System.out.println("Error");
 		}
+		
+		//Query the ontology to get labels for these properties
+		
+		Iterator k = inPropertyLists.keys();
+		while(k.hasNext()) {
+			String propFormKey = k.next().toString();
+			try {
+				JSONArray propArray = inPropertyLists.getJSONArray(propFormKey);
+				int len = propArray.length();
+				int i;
+				for(i = 0; i < len; i++) {
+					JSONObject obj = propArray.getJSONObject(i);
+					String uri = obj.getString("uri");
+					//Create query for this URI and execute query
+					String labelQuery = "SELECT ?label WHERE {<" + uri + "> <http://www.w3.org/2000/01/rdf-schema#label> ?label .}";
+					ResultSet inLabelRS = executeQuery(ontologyModel, labelQuery);
+					while(inLabelRS.hasNext()) {
+						QuerySolution labelQs = inLabelRS.nextSolution();
+						String inLabel = labelQs.getLiteral("label").getString();
+						if(StringUtils.isNotEmpty(inLabel)) {
+							obj.put("label", inLabel);
+						}
+					}
+				}
+			} catch(Exception ex) {
+				System.out.println("error occurred");
+			}
+		}
+		System.out.println(inPropertyLists.toString());
 		
 		//Do a similar one for sh:or to see what it entails
 		String orSparqlQuery = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
 				"PREFIX list: <http://jena.hpl.hp.com/ARQ/list#> " + 
 				"SELECT ?form ?propertyURI ?position ?element ?elementp ?elemento WHERE { ?form sh:property ?propInfo . " + 
 				"?propInfo sh:path ?propertyURI . " + 
-				"?propInfo sh:or ?allowedList . ?allowedList list:index (?position ?element) . OPTIONAL {?element ?elementp ?elemento .}}";
-				ResultSet orRs = executeQuery(shaclModel, orSparqlQuery);
-				while(orRs.hasNext()) {
-					QuerySolution qs = orRs.nextSolution();
-					System.out.println(qs.toString());
+				"?propInfo sh:or ?allowedList . ?allowedList list:index (?position ?element) . ?element ?elementp ?elemento . } ORDER BY ?form ?propertyURI ?position ?elemento";
+		System.out.println("********Allowed or list*********");
+		try {
+			ResultSet orRs = executeQuery(shaclModel, orSparqlQuery);
+			while(orRs.hasNext()) {
+				QuerySolution qs = orRs.nextSolution();
+				System.out.println(qs.toString());
+				//Get element and propertyURI
+				String formURI = qs.getResource("form").getURI();
+				String propertyURI = qs.getResource("propertyURI").getURI();
+				String elementURI = qs.getResource("elemento").getURI();
+				String key = formURI + "-" + propertyURI;
+				if(!orPropertyLists.has(key)) {
+					orPropertyLists.put(key, new JSONArray());
 				}
+				JSONArray inArray = orPropertyLists.getJSONArray(key);
+				JSONObject obj = new JSONObject();
+				obj.put("uri", elementURI);
+				inArray.put(obj);
+		
+			} 
+		} catch(Exception ex) {
+			System.out.println("Error occurred");
+		}
+		k = orPropertyLists.keys();
+		while(k.hasNext()) {
+			String propFormKey = k.next().toString();
+			try {
+				JSONArray propArray = orPropertyLists.getJSONArray(propFormKey);
+				int len = propArray.length();
+				int i;
+				for(i = 0; i < len; i++) {
+					JSONObject obj = propArray.getJSONObject(i);
+					String uri = obj.getString("uri");
+					//Create query for this URI and execute query
+					String labelQuery = "SELECT ?label WHERE {<" + uri + "> <http://www.w3.org/2000/01/rdf-schema#label> ?label .}";
+					ResultSet orLabelRS = executeQuery(ontologyModel, labelQuery);
+					while(orLabelRS.hasNext()) {
+						QuerySolution labelQs = orLabelRS.nextSolution();
+						String orLabel = labelQs.getLiteral("label").getString();
+						if(StringUtils.isNotEmpty(orLabel)) {
+							obj.put("label", orLabel);
+						}
+					}
+				}
+			} catch(Exception ex) {
+				System.out.println("error occurred");
+			}
+		}
+		System.out.println(orPropertyLists.toString());
+		
+		
 	}
 	
 	//Range is assumed to be non-null - remember to check this assumption later
@@ -207,7 +308,6 @@ public class TranslateShacl {
 		//generateTemplateList(appModel);
 		//retrieve which generated config uris will match certain conditions in order to associate custom form/list view info
 		generateCustomFormSpecifics(appModel);
-		generateCustomFormDropdowns(shaclModel, appModel, ontologyModel);
 	}
 	
 	private static void processInstance(Model shaclModel) {
