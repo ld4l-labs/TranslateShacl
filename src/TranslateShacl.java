@@ -42,14 +42,19 @@ public class TranslateShacl {
 		generatePropertyGroups(shaclModel);
 		System.out.println("********Generate Work*********");
 		//Work level info		
-		processWork(shaclModel, ontologyModel);
+		Model workAppModel = processWork(shaclModel, ontologyModel);
 		System.out.println("********Generate Instance*********");
 		//Instance level info
-		processInstance(shaclModel);
+		Model instanceAppModel = processInstance(shaclModel);
 		System.out.println("********Generate Item*********");
 
 		//Item level info
-		processItem(shaclModel);
+		Model itemAppModel = processItem(shaclModel);
+		
+		//Generate custom form specifics
+		generateCustomFormSpecifics(workAppModel);
+		generateInstanceCustomFormSpecifics(instanceAppModel);
+		generateItemCustomFormSpecifics(itemAppModel);
 		//Generate dropdowns
 		generateCustomFormDropdowns(shaclModel, ontologyModel);
 
@@ -80,23 +85,47 @@ public class TranslateShacl {
 		String rdfString = "";
 		//has part custom form
 		String configURI = retrieveConfigURI("http://purl.org/dc/terms/hasPart", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Audio", appModel);
-		rdfString += generateConfigRDF(configURI, "hasPart") + "\n";
+		rdfString += generateConfigRDF(configURI, "hasPart", "http://id.loc.gov/ontologies/bibframe/Audio") + "\n";
 		
 		//Genre form, audio to concept
 		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Audio", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
-		rdfString += generateConfigRDF(configURI, "genreForm")+ "\n";
-		//has activity
+		rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
+		//has activity - audio work, instance, item
 		configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Audio", "http://bibliotek-o.org/ontology/Activity", appModel);
-		rdfString += generateConfigRDF(configURI, "hasActivity")+ "\n";
+		rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
 		//Subject
 		//http://www.w3.org/2002/07/owl#
 		configURI =  retrieveConfigURI("http://purl.org/dc/terms/subject", "http://id.loc.gov/ontologies/bibframe/Audio", "http://www.w3.org/2002/07/owl#Thing", appModel);
-		rdfString += generateConfigRDF(configURI, "subject")+ "\n";
+		rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
+		System.out.println(rdfString);
+	}
+	
+	private static void generateInstanceCustomFormSpecifics(Model appModel) {
+		//App Model uses the vitroLib-specific faux configuration
+		//TODO: Make this use classes instead
+		//Base URI -> <domain =, range= >
+		String rdfString = "";
+		//has part custom form
+		String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance", "http://bibliotek-o.org/ontology/Activity", appModel);
+		rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+	
+		System.out.println(rdfString);
+	}
+	
+	private static void generateItemCustomFormSpecifics(Model appModel) {
+		//App Model uses the vitroLib-specific faux configuration
+		//TODO: Make this use classes instead
+		//Base URI -> <domain =, range= >
+		String rdfString = "";
+		//has part custom form
+		String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Item", "http://bibliotek-o.org/ontology/Activity", appModel);
+		rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+	
 		System.out.println(rdfString);
 	}
 	
 	//Putting all this in one method for now
-	private static String generateConfigRDF(String configURI, String property) {
+	private static String generateConfigRDF(String configURI, String property, String domainURI) {
 		String configRDF = "";
 		switch (property) {
 			case "hasPart":
@@ -112,13 +141,18 @@ public class TranslateShacl {
 
 				break;	
 			case "hasActivity":
-				//These may be different, as in different faux properties for work has activity and instance has activity
+				configRDF =  "<" + configURI + "> :listViewConfigFile \"listViewConfig-workHasActivity.xml\"^^xsd:string ; " + 
+						" <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string>  ;";
+
+				//Depends on whether audio, instance or item
+				if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Audio")) {
+					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkHasActivity.jsonld\" . ";
+				} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
+					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioInstanceHasActivity.jsonld\" . ";
+				} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
+					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioItemHasActivity.jsonld\" . ";
+				}	  	  
 				
-				configRDF =  "<" + configURI + "> :listViewConfigFile \"listViewConfig-workHasActivity.xml\"^^xsd:string . " + 
-							"<" + configURI + ">  <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ;" + 
-							"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"workHasActivity.jsonld\" . ";
-					 
-				//+  both require list views and custom forms 
 				//"<" + configURI + "> :listViewConfigFile \"listViewConfig-instanceHasActivity.xml\"^^xsd:string .  " + 
 						 
 
@@ -280,7 +314,7 @@ public class TranslateShacl {
 		return null;
 	}
 	
-	private static void processWork(Model shaclModel, Model ontologyModel) {
+	private static Model processWork(Model shaclModel, Model ontologyModel) {
 		Model appModel = generateWorkModel(shaclModel);
 		//Print out app Model
 		
@@ -303,14 +337,10 @@ public class TranslateShacl {
 		System.out.println("*************End Print out Work Model *****************");
 		//Comparing to faux properties
 		compareToGeneratedProperties(appModel);
-		//No longer generating this as not hard-coding anymore
-		//System.out.println("*************Generate Template List**************");
-		//generateTemplateList(appModel);
-		//retrieve which generated config uris will match certain conditions in order to associate custom form/list view info
-		generateCustomFormSpecifics(appModel);
+		return appModel;
 	}
 	
-	private static void processInstance(Model shaclModel) {
+	private static Model processInstance(Model shaclModel) {
 		Model appModel = generateInstanceModel(shaclModel);
 		//Print out app Model
 		
@@ -332,12 +362,13 @@ public class TranslateShacl {
 		
 		System.out.println("*************End Print out Instance Model *****************");
 		compareToGeneratedProperties(appModel);
-		System.out.println("*************Generate Template List**************");
-		generateTemplateList(appModel);
+		//System.out.println("*************Generate Template List**************");
+		//generateTemplateList(appModel);
+		return appModel;
 
 	}
 	
-	private static void processItem(Model shaclModel) {
+	private static Model processItem(Model shaclModel) {
 		Model appModel = generateItemModel(shaclModel);
 		//Print out app Model
 		
@@ -359,8 +390,9 @@ public class TranslateShacl {
 		
 		System.out.println("*************End Print out Item Model *****************");
 		compareToGeneratedProperties(appModel);
-		System.out.println("*************Generate Template List**************");
-		generateTemplateList(appModel);
+		//System.out.println("*************Generate Template List**************");
+		//generateTemplateList(appModel);
+		return appModel;
 
 	}
 	
