@@ -652,6 +652,7 @@ public class TranslateShacl {
 	}
 	
 	//Get all properties and info for an audio work form
+	//Need to ensure the ordering stays consistent with the same properties
 	private static Model queryShape(String shapeURI, Model queryModel) {
 		String PREFIXES = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
 				"";
@@ -668,7 +669,7 @@ public class TranslateShacl {
 				"OPTIONAL {?property sh:or ?orList .} " + 
 				"OPTIONAL {?property sh:in ?inList .} " + 
 				"OPTIONAL { <" + shapeURI + "> sh:targetClass ?shapeTarget .} "
-				+ " }";
+				+ " } ORDER by ?path ?order ?class ?target";
 		/*query = PREFIXES + 
 				"SELECT ?property WHERE " + 
 				"{ <" + shapeURI + "> sh:property ?property .  " 
