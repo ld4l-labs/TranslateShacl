@@ -657,12 +657,13 @@ public class TranslateShacl {
 		String PREFIXES = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
 				"";
 		String query = PREFIXES + 
-				"SELECT ?property ?path ?class ?group ?name ?nodeKind ?order ?target ?orList ?inList ?shapeTarget WHERE " + 
+				"SELECT ?property ?path ?class ?group ?name ?propDescription ?nodeKind ?order ?target ?orList ?inList ?shapeTarget WHERE " + 
 				"{ <" + shapeURI + "> sh:property ?property .  " + 
 				"?property sh:path ?path . " + 
 				"OPTIONAL {?property sh:class ?class .} " + 
 				"OPTIONAL {?property sh:group ?group .} " + 
 				"OPTIONAL {?property sh:name ?name .} " + 
+				"OPTIONAL {?property sh:description ?propDescription .} " + 
 				"OPTIONAL {?property sh:nodeKind ?nodeKind .} " + 
 				"OPTIONAL {?property sh:order ?order .} " + 
 				"OPTIONAL {?property sh:target ?target .} " + 
@@ -714,7 +715,8 @@ public class TranslateShacl {
 			//the path may include the prefix namespace within <>
 			//in this case, search for a : that is not the only one
 			if(pathURI.lastIndexOf("http:") > pathURI.indexOf("http:") ||
-					pathURI.lastIndexOf(":") > pathURI.indexOf(":")) {
+					pathURI.lastIndexOf(":") > pathURI.indexOf(":") ||
+					pathURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
 				System.out.println("Faux property not created for " + pathURI);
 				return fauxPropertyModel;
 			}
@@ -731,7 +733,7 @@ public class TranslateShacl {
 		Resource orList = getVarResource(qs, "orList");
 		Literal orderLiteral = getVarLiteral(qs, "order");
 		Resource shapeTarget = getVarResource(qs, "shapeTarget");
-		
+		Literal propDescription = getVarLiteral(qs, "propDescription");
 		//Create faux property configuration for this path
 		//Starting at 200 because 127 is the last generated faux property
 		String prefixes = "@prefix : <http://vitro.mannlib.cornell.edu/ns/vitro/ApplicationConfiguration#> .\r\n" + 
@@ -802,6 +804,10 @@ public class TranslateShacl {
 				
 				if(group != null) {
 					fauxN3 += fauxConfigURI + " :propertyGroup <" + group.getURI()  +  "> .";
+				}
+				
+				if(propDescription != null) {
+					fauxN3 += fauxConfigURI + " vitro:publicDescriptionAnnot \"" + propDescription.getString() + "\"^^xsd:string .";
 				}
 				
 
