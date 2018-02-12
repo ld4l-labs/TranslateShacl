@@ -97,6 +97,18 @@ public class TranslateShacl {
 		//http://www.w3.org/2002/07/owl#
 		configURI =  retrieveConfigURI("http://purl.org/dc/terms/subject", "http://id.loc.gov/ontologies/bibframe/Audio", "http://www.w3.org/2002/07/owl#Thing", appModel);
 		rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
+				
+		//hasPreferredTitle
+		configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
+		rdfString += generateConfigRDF(configURI, "hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
+		
+		//Title
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
+		rdfString += generateConfigRDF(configURI, "title", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
+	
+	
+		
+		
 		System.out.println(rdfString);
 	}
 	
@@ -109,6 +121,14 @@ public class TranslateShacl {
 		String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance", "http://bibliotek-o.org/ontology/Activity", appModel);
 		rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
 	
+		//has preferred title
+		configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Instance", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
+		rdfString += generateConfigRDF(configURI, "hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+		
+		//title
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/Instance", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
+		rdfString += generateConfigRDF(configURI, "title", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+		
 		System.out.println(rdfString);
 	}
 	
@@ -121,6 +141,15 @@ public class TranslateShacl {
 		String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Item", "http://bibliotek-o.org/ontology/Activity", appModel);
 		rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
 	
+		
+		//preferred title
+		configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Item", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
+		rdfString += generateConfigRDF(configURI, "hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+	
+		
+		//title
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/Item", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
+		rdfString += generateConfigRDF(configURI, "title", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
 		System.out.println(rdfString);
 	}
 	
@@ -162,6 +191,46 @@ public class TranslateShacl {
 				configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
 						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"hasLCSH.jsonld\"; " + 
 						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"hasLCSH.ftl\" .";
+
+				break;
+			case "hasPreferredTitle":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-hasPreferredTitle.xml\"^^xsd:string .  ";
+				configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> . " ; 
+				configRDF +=  	"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkPreferredTitle.jsonld\". ";				
+
+				//In case this depends on whether audio, instance, or item, right now attaching same one for all classes
+				//Depends on whether audio, instance or item
+				/*
+				if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Audio")) {
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkPreferredTitle.jsonld\". ";				} 
+				else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioInstancePreferredTitle.jsonld\". ";
+				} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioItemPreferredTitle.jsonld\". " ;
+				}*/	  	  
+				
+
+				break;	
+			case "title":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-title.xml\"^^xsd:string .  ";
+				configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " ; 
+						
+				
+				
+				//Depends on whether audio, instance or item
+				if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Audio")) {
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkTitle.jsonld\"; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"audioWorkTitle.ftl\" .";
+				} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioInstanceTitle.jsonld\"; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"audioInstanceTitle.ftl\" .";
+				} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioItemTitle.jsonld\"; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"audioItemTitle.ftl\" .";
+				}	else {
+					configRDF += " .";
+				}
+				
 
 				break;
 			default:
@@ -302,7 +371,7 @@ public class TranslateShacl {
 			sparqlQuery += "?configContextURI appConfig:qualifiedByDomain <" + domain + "> .";
 		}
 		sparqlQuery += "} ";
-		System.out.println(sparqlQuery);
+		//log.debug(sparqlQuery);
 		//Execute this query to retrieve the configURI
 		ResultSet rs = executeQuery(appModel, sparqlQuery);
 		while(rs.hasNext()) {
