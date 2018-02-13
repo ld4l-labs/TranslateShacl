@@ -195,8 +195,8 @@ public class TranslateShacl {
 				break;
 			case "hasPreferredTitle":
 				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-hasPreferredTitle.xml\"^^xsd:string .  ";
-				configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> . " ; 
-				configRDF +=  	"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkPreferredTitle.jsonld\". ";				
+				configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " +
+						"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkPreferredTitle.jsonld\". ";				
 
 				//In case this depends on whether audio, instance, or item, right now attaching same one for all classes
 				//Depends on whether audio, instance or item
