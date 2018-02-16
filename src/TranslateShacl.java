@@ -151,6 +151,11 @@ public class TranslateShacl {
 		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/Item", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
 		rdfString += generateConfigRDF(configURI, "title", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
 		System.out.println(rdfString);
+		
+		//note
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/note", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2002/07/owl#Thing", appModel);
+		rdfString += generateConfigRDF(configURI, "note", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+		System.out.println(rdfString);
 	}
 	
 	//Putting all this in one method for now
@@ -214,9 +219,11 @@ public class TranslateShacl {
 			case "title":
 				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-title.xml\"^^xsd:string .  ";
 				configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " ; 
-						
+				configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkTitle.jsonld\". " ;
+		
+				//This will be simpler for now, just putting in one version
 				
-				
+				/*
 				//Depends on whether audio, instance or item
 				if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Audio")) {
 					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkTitle.jsonld\"; " + 
@@ -231,8 +238,27 @@ public class TranslateShacl {
 					configRDF += " .";
 				}
 				
-
+				*/
 				break;
+			case "note":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-note.xml\"^^xsd:string .  ";
+				configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " ; 
+						
+				
+				
+				//Depends on whether audio, instance or item
+				if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Audio")) {
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkNote.jsonld\" . " ;
+				} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioInstanceNote.jsonld\". " ;
+				} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioItemNote.jsonld\". " ;
+				}	else {
+					configRDF += " .";
+				}
+				
+
+				break;	
 			default:
 				break;
 		}
