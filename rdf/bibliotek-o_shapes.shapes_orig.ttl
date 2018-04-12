@@ -19,7 +19,7 @@
 @prefix bib: <http://bibliotek-o.org/ontology/> .
 @prefix bibliotek-o_shapes_audio: <http://bibliotek-o.org/shapes/audio/> .
 @prefix core: <http://vivoweb.org/ontology/core#> .
-@prefix gn: <http://www.geonames.org/ontology> .
+@prefix gn: <http://www.geonames.org/ontology/> .
 @prefix lingvo: <http://www.lingvoj.org/ontology#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix p1: <http://example.org/file1#> .
@@ -34,6 +34,7 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix swa: <http://topbraid.org/swa#> .
 @prefix tosh: <http://topbraid.org/tosh#> .
+@prefix pmo: <http://performedmusicontology.org/ontology/> .
 
 <http://bibliotek-o.org/shapes/audio/>
   rdf:type owl:Ontology ;
@@ -118,11 +119,12 @@ bibliotek-o_shapes_audio:AudioWorkForm
       sh:path <http://schema.org/recordedAt> ;
       sh:description "An event (a performance, concert, audition, etc.) wholly or partially captured by the work." ;
       sh:name "Recorded Event" ;
+      tosh:editWidget swa:NestedObjectEditor ;
       sh:group bibliotek-o_shapes_audio:WorkActivityPropertyGroup ;
       bibliotek-o_shapes_audio:lookup bibliotek-o_shapes_audio:LD4LookupService ;
       skos:editorialNote "Use look up service; though FAST has some events, catalogers will have to create most events because libraries traditionally haven't created many Event authorities." ;
-      sh:class <http://schema.org/Event> ;
-    ] ;     
+      sh:class <http://id.loc.gov/ontologies/bibframe/Event> ;
+    ] ;   
   
   sh:property [
       sh:path <http://purl.org/dc/terms/subject> ;
@@ -155,7 +157,7 @@ bibliotek-o_shapes_audio:AudioWorkForm
             sh:class gn:Feature ;
           ]
           [
-            sh:class <http://schema.org/Event> ;
+            sh:class <http://id.loc.gov/ontologies/bibframe/Event> ;
           ]
         ) ;
     ] ;
@@ -206,7 +208,7 @@ bibliotek-o_shapes_audio:AudioWorkForm
       sh:path <http://purl.org/dc/terms/hasPart> ;
       sh:class <http://id.loc.gov/ontologies/bibframe/Audio> ;
       sh:group bibliotek-o_shapes_audio:WorkToWorkPropertyGroup ;
-      sh:name "Has part" ;
+      sh:name "Content listing (track listing)" ;
       sh:nodeKind sh:IRI ;
     ] ;
     
@@ -692,6 +694,7 @@ bibliotek-o_shapes_audio:AudioWorkForm
       sh:path bf:hasInstance ;
       sh:name "Physical Instance or Manifestation" ;
       sh:nodeKind sh:IRI ;
+      sh:group bibliotek-o_shapes_audio:WorkToInstancePropertyGroup ;
       tosh:editWidget swa:NestedObjectEditor ;
       sh:or (
           [
@@ -771,6 +774,32 @@ bibliotek-o_shapes_audio:AudioWorkForm
       sh:name "Content accessibility" ;
       sh:nodeKind sh:IRI ;
       sh:group bibliotek-o_shapes_audio:AudioWorkMiscellaneousPropertyGroup ;
+    ] ;
+  sh:property [
+      sh:path <http://id.loc.gov/ontologies/bibframe/note> ;
+      sh:description "Work related notes for when more granualar information isn't captured." ;
+      sh:name "Work notes" ;
+      tosh:editWidget swa:NestedObjectEditor ;
+      sh:group bibliotek-o_shapes_audio:AudioWorkMiscellaneousPropertyGroup ;
+      sh:or (
+         
+         [
+           sh:class <http://audio.bibliotek-o.org/ContentsNote> ;
+         ]
+         [
+           sh:class <http://audio.bibliotek-o.org/SummaryNote> ;
+         ]
+         [
+           sh:class <http://audio.bibliotek-o.org/SupplementaryContentNote> ;
+         ]
+         [
+           sh:class <http://audio.bibliotek-o.org/ReviewNote> ;
+         ]
+         [
+           sh:class <http://audio.bibliotek-o.org/PurposeNote> ;
+         ]
+         
+        ) ;
     ] ;
   sh:property [
       sh:path <http://id.loc.gov/ontologies/bibframe/firstIssue> ;
@@ -874,6 +903,23 @@ bibliotek-o_shapes_audio:AudioInstanceForm
     ] ;
     
     sh:property [
+      sh:path bf:instanceOf ;
+      sh:name "Relates this Instance to the Work it is the Instance of" ;
+      sh:nodeKind sh:IRI ;
+      sh:group bibliotek-o_shapes_audio:InstancetoWorkPropertyGroup ;
+      tosh:editWidget swa:NestedObjectEditor ;
+      sh:class <http://id.loc.gov/ontologies/bibframe/Audio> ;
+    ] ;
+    
+    sh:property [
+      sh:path bf:editionStatement ;
+      sh:name "Edition statement or version of the resource" ;
+      sh:description: "Edition or version of the resource and associated statements of responsibility for the edition; usually transcribed." ;
+      sh:nodeKind sh:Literal ;
+      sh:group bibliotek-o_shapes_audio:InstancetoWorkPropertyGroup ;
+    ] ;
+    
+    sh:property [
       sh:path <http://id.loc.gov/ontologies/bibframe/soundCharacteristic> ;
       sh:description "Speed at which an audio carrier must be operated to produce the sound intended, e.g., 78 rpm, 19 cm/s." ;
       sh:name "Playing speed" ;
@@ -887,6 +933,7 @@ bibliotek-o_shapes_audio:AudioInstanceForm
       sh:name "Configuration of playback channels" ;
       sh:group bibliotek-o_shapes_audio:AudioInstanceCharacteristicsPropertyGroup ;
       sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
+      sh:class <http://audio.bibliotek-o.org/NumberOfPlaybackChannelsConcept> ;
     ] ;
     
     sh:property [
@@ -895,14 +942,7 @@ bibliotek-o_shapes_audio:AudioInstanceForm
       sh:name "Groove width of an analog disc" ;
       sh:group bibliotek-o_shapes_audio:AudioInstanceCharacteristicsPropertyGroup ;
       sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
-    ] ;
-    
-    sh:property [
-      sh:path <http://id.loc.gov/ontologies/bibframe/soundCharacteristic> ;
-      sh:description "A groove width of an analog disc." ;
-      sh:name "Groove width of an analog disc" ;
-      sh:group bibliotek-o_shapes_audio:AudioInstanceCharacteristicsPropertyGroup ;
-      sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
+      sh:class <http://audio.bibliotek-o.org/GrooveWidthofDiscConcept> ;
     ] ;
     
     sh:property [
@@ -911,6 +951,7 @@ bibliotek-o_shapes_audio:AudioInstanceForm
       sh:name "Groove pitch of an analog cylinder" ;
       sh:group bibliotek-o_shapes_audio:AudioInstanceCharacteristicsPropertyGroup ;
       sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
+      sh:class <http://audio.bibliotek-o.org/GroovePitchOfCylinderConcept> ;
     ] ;
     
     sh:property [
@@ -919,6 +960,7 @@ bibliotek-o_shapes_audio:AudioInstanceForm
       sh:name "Special playback characteristic" ;
       sh:group bibliotek-o_shapes_audio:AudioInstanceCharacteristicsPropertyGroup ;
       sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
+      sh:class <http://audio.bibliotek-o.org/SpecialPlaybackConcept> ;
     ] ;
     
     sh:property [
@@ -927,6 +969,7 @@ bibliotek-o_shapes_audio:AudioInstanceForm
       sh:name "Kind of disc, cylinder or tape in relation to original carrier" ;
       sh:group bibliotek-o_shapes_audio:AudioInstanceCharacteristicsPropertyGroup ;
       sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
+      sh:class <http://audio.bibliotek-o.org/SoundRecordingGenerationConcept> ;
     ] ;
     
     sh:property [
@@ -935,6 +978,7 @@ bibliotek-o_shapes_audio:AudioInstanceForm
       sh:name "Type of recording" ;
       sh:group bibliotek-o_shapes_audio:AudioInstanceCharacteristicsPropertyGroup ;
       sh:class <http://www.w3.org/2004/02/skos/core#Concept> ;
+      sh:class <http://audio.bibliotek-o.org/TypeOfRecordingConcept> ;
     ] ;
     
     sh:property [
@@ -1081,15 +1125,50 @@ bibliotek-o_shapes_audio:AudioInstanceForm
            sh:class <http://bibliotek-o.org/1.1/ontology/OclcIdentifier> ;
          ]
         ) ;
+    ] ;    
+    sh:property [
+      sh:path <http://id.loc.gov/ontologies/bibframe/note> ;
+      sh:description "Instance related note for when more granualar information isn't captured." ;
+      sh:name "Instance note" ;
+      tosh:editWidget swa:NestedObjectEditor ;
+      sh:group bibliotek-o_shapes_audio:InstanceMiscellaneousPropertyGroup ;
+      sh:or (
+         
+         [
+           sh:class <http://audio.bibliotek-o.org/ContentsNote> ;
+         ]
+         [
+           sh:class <http://audio.bibliotek-o.org/SummaryNote> ;
+         ]
+         [
+           sh:class <http://audio.bibliotek-o.org/SupplementaryContentNote> ;
+         ]
+         [
+           sh:class <http://audio.bibliotek-o.org/ReviewNote> ;
+         ]
+         [
+           sh:class <http://audio.bibliotek-o.org/PurposeNote> ;
+         ]
+         
+        ) ;
+    ] ;
+        
+    
+      sh:property [
+      sh:path <http://purl.org/dc/terms/hasPart> ;
+      sh:class <http://id.loc.gov/ontologies/bibframe/Audio> ;
+      sh:group bibliotek-o_shapes_audio:WorkToWorkPropertyGroup ;
+      sh:name "Content listing (track listing)" ;
+      sh:nodeKind sh:IRI ;
     ] ;
     
   sh:property [
       sh:path <http://id.loc.gov/ontologies/bibframe/hasItem> ;
-      sh:datatype xsd:string ;
+      sh:class bf:Item ;
       sh:description "Item which is an example of the described Instance." ;
       sh:name "Has item" ;
       tosh:editWidget swa:NestedObjectEditor ;
-      sh:group bibliotek-o_shapes_audio:InstancetoItemPropertyGroup ;
+      sh:group bibliotek-o_shapes_audio:InstancetToItemPropertyGroup ;
 
     ] ;
     
@@ -1132,6 +1211,13 @@ bibliotek-o_shapes_audio:AudioItemForm
       sh:group bibliotek-o_shapes_audio:ItemActivityPropertyGroup ;
     ] ;
   sh:property [
+      sh:path <http://id.loc.gov/ontologies/bibframe/itemOf> ;
+      sh:name "Item of a Particular Instance" ;
+      sh:order "0"^^xsd:decimal ;
+      sh:class <http://id.loc.gov/ontologies/bibframe/Instance> ;
+      sh:group bibliotek-o_shapes_audio:ItemToInstancePropertyGroup ;
+    ] ;  
+  sh:property [
       sh:path <http://purl.org/dc/terms/isPartOf> ;
       sh:name "Part of collection" ;
       sh:order "0"^^xsd:decimal ;
@@ -1143,61 +1229,55 @@ bibliotek-o_shapes_audio:AudioItemForm
       sh:description "To link an item to an event, e.g. concert, or event series, e.g. a tour, in which the item was used or associated" ;
       sh:name "Associated with an event" ;
       sh:group bibliotek-o_shapes_audio:ItemProvenanceGroup ;
+      tosh:editWidget swa:NestedObjectEditor ;
       sh:order "1"^^xsd:decimal ;
       bibliotek-o_shapes_audio:lookup bibliotek-o_shapes_audio:LD4LookupService ;
       skos:editorialNote "Use look up service; though FAST has some events, catalogers will have to create most events because libraries traditionally haven't created many Event authorities." ;
-      sh:or (
-          [
-          sh:class <http://schema.org/Event> ;
-          ] 
-          [
-          sh:class <http://id.loc.gov/ontologies/bibframe/Event> ;
-           ]
-        ) ;
+      sh:class <http://id.loc.gov/ontologies/bibframe/Event> ;
     ] ; 
     
     sh:property [
       sh:path <http://id.loc.gov/ontologies/bibframe/note> ;
       sh:description "Copy specific notes. These note types apply specifically to the Cornell Hip Hop Collection" ;
       sh:name "Copy specific notes" ;
+      tosh:editWidget swa:NestedObjectEditor ;
       sh:group bibliotek-o_shapes_audio:AudioItemMiscellaneousPropertyGroup ;
       sh:or (
          [
-           sh:class <http://audio.biblioteko-o.org/WritingOnAlbumNote> ;
+           sh:class <http://audio.bibliotek-o.org/WritingOnAlbumNote> ;
          ]
          [
-           sh:class <http://audio.biblioteko-o.org/NumberedSRJacketNote> ;
+           sh:class <http://audio.bibliotek-o.org/NumberedSRJacketNote> ;
          ]
    
          [
-           sh:class <http://audio.biblioteko-o.org/InitialsOrNumberOnLabelNote> ;
+           sh:class <http://audio.bibliotek-o.org/InitialsOrNumberOnLabelNote> ;
          ]
          [
-           sh:class <http://audio.biblioteko-o.org/PostItNoteNote> ;
+           sh:class <http://audio.bibliotek-o.org/PostItNoteNote> ;
          ]
 
          [
-           sh:class <http://audio.biblioteko-o.org/SignatureNote> ;
+           sh:class <http://audio.bibliotek-o.org/SignatureNote> ;
          ]
          [
-           sh:class <http://audio.biblioteko-o.org/CuePointMarkerNote> ;
+           sh:class <http://audio.bibliotek-o.org/CuePointMarkerNote> ;
          ]
          [
-           sh:class <http://audio.biblioteko-o.org/TracksOfInterestNote> ;
+           sh:class <http://audio.bibliotek-o.org/TracksOfInterestNote> ;
          ]
           [
-           sh:class <http://audio.biblioteko-o.org/TapeOnLPDiscLabelOrCoverNote> ;
+           sh:class <http://audio.bibliotek-o.org/TapeOnLPDiscLabelOrCoverNote> ;
          ]
          [
-           sh:class <http://audio.biblioteko-o.org/NotInOriginalJacketNote> ;
+           sh:class <http://audio.bibliotek-o.org/NotInOriginalJacketNote> ;
          ]
          [
-           sh:class <http://audio.biblioteko-o.org/TwoCopiesInSameSleeveNote> ;
+           sh:class <http://audio.bibliotek-o.org/TwoCopiesInSameSleeveNote> ;
          ]
          [
-           sh:class <http://id.loc.gov/ontologies/bibframe/Note> ;
+           sh:class <http://audio.bibliotek-o.org/SummaryNote> ;
          ]
-         
         ) ;
     ] ;
     
@@ -1293,8 +1373,8 @@ bibliotek-o_shapes_audio:InstanceTitleForm
       sh:nodeKind sh:Literal ;
     ] ;
   sh:property [
-      sh:path <http://id.loc.gov/ontologies/bibframe/origin> ;
-      sh:class bf:TitleOrigin ;
+      sh:path <http://bibliotek-o.org/ontology/hasOrigin> ;
+      sh:class <http://bibliotek-o.org/1.1/ontology/Origin> ;
       sh:description "Describe the origin of the title, for example spine or cover" ;
       sh:name "Title origin" ;
       sh:nodeKind sh:IRI ;
@@ -1334,8 +1414,8 @@ bibliotek-o_shapes_audio:ItemTitleForm
       sh:nodeKind sh:Literal ;
     ] ;
   sh:property [
-      sh:path <http://id.loc.gov/ontologies/bibframe/origin> ;
-      sh:class bf:TitleOrigin ;
+      sh:path <http://bibliotek-o.org/ontology/hasOrigin> ;
+      sh:class <http://bibliotek-o.org/1.1/ontology/Origin> ;
       sh:description "Describe the origin of the title, for example spine or cover" ;
       sh:name "Title origin" ;
       sh:nodeKind sh:IRI ;
@@ -1588,6 +1668,81 @@ bibliotek-o_shapes_audio:MeasurementGroupForm
     ] ;
 .
 
+bibliotek-o_shapes_audio:EventForm
+  rdf:type rdfs:Class ;
+  rdf:type sh:NodeShape ;
+  rdfs:label "Event" ;
+  sh:targetClass bf:Event ;
+  rdfs:subClassOf rdfs:Resource ;
+  sh:property [
+      sh:path rdf:type ;
+      sh:order "0" ;
+      sh:description "Type of event" ;
+      sh:name "Event type" ;
+    ] ;
+  sh:property [
+      sh:path rdfs:label ;
+      sh:order "1" ;
+      sh:description "Human readable label/description of the Event" ;
+      sh:name "Event label" ;
+    ] ;
+
+  sh:property [
+      sh:path dcterms:date ;
+      sh:order "2" ;
+      sh:maxCount "1" ;
+      sh:description "Date of the event" ;
+      sh:name "Date" ;
+      sh:nodeKind sh:Literal ;
+    ];
+    sh:property [
+      sh:path schema:location ;
+      sh:order "3" ;
+      sh:maxCount "1" ;
+      sh:description "Location of the event" ;
+      sh:name "Location" ;
+      sh:class gn:Feature ;
+      sh:nodeKind sh:IRI ;
+      bibliotek-o_shapes_audio:lookup bibliotek-o_shapes_audio:LD4LookupService ;
+    ];
+  sh:property [
+      sh:path schema:recordedIn ;
+      sh:order "4" ;
+      sh:description "Links this particular Event to a Audio Work recording of the event" ;
+      sh:class bf:Audio ;
+      sh:name "Activity of an Audio Work" ;
+    ] ;
+    sh:property [
+      sh:path pmo:associatedWith ;
+      sh:order "5" ;
+      sh:description "To link an event e.g. concert, or event series, e.g. a tour, to an item in which the item was used or associated" ;
+      sh:class bf:Item ;
+      sh:name "Associated Item" ;
+    ] ;
+.
+
+bibliotek-o_shapes_audio:NoteForm
+  rdf:type rdfs:Class ;
+  rdf:type sh:NodeShape ;
+  rdfs:label "Note form" ;
+  rdfs:subClassOf rdfs:Resource ;
+  sh:targetClass bf:Note ;
+  sh:property [
+      sh:path rdf:type ;
+      sh:name "Type of Note" ;
+      sh:minCount "1" ;
+      sh:maxCount "1" ;
+    ] ;
+  sh:property [
+      sh:path rdf:value ;
+      sh:minCount "1" ;
+      sh:maxCount "1" ;
+      sh:description "String value for the note" ;
+      sh:name "Note value" ;
+      sh:nodeKind sh:Literal ;
+    ] ;
+.
+
 bibliotek-o_shapes_audio:MeasurementForm
   rdf:type rdfs:Class ;
   rdf:type sh:NodeShape ;
@@ -1609,9 +1764,46 @@ bibliotek-o_shapes_audio:MeasurementForm
       sh:description "Unit used to express the measurement" ;
       sh:group bibliotek-o_shapes_audio:MeasurementPropertyGroup ;
       sh:name "Unit" ;
-      sh:class skos:Concept ;
       sh:nodeKind sh:IRI ;
       sh:order "1"^^xsd:decimal ;
+      sh:or (
+          [
+            sh:hasValue <ttp://qudt.org/vocab/unit#Centimeter> ;
+          ]
+          [
+            sh:hasValue <http://qudt.org/vocab/unit#Foot> ;
+          ]
+          [
+            sh:hasValue <http://qudt.org/vocab/unit#Gram> ;
+          ]
+          [
+            sh:hasValue <http://qudt.org/vocab/unit#Inch> ;
+          ]
+           [
+            sh:hasValue <http://qudt.org/vocab/unit#Kilogram> ;
+          ]
+          [
+            sh:hasValue <http://qudt.org/vocab/unit#Kilometer> ;
+          ]
+          [
+            sh:hasValue <http://qudt.org/vocab/unit#Meter> ;
+          ]
+          [
+            sh:hasValue <http://qudt.org/vocab/unit#MileUSStatute> ;
+          ]
+          [
+            sh:hasValue <http://qudt.org/vocab/unit#Millimeter> ;
+          ]
+          [
+            sh:hasValue <http://qudt.org/vocab/unit#MetricTon> ;
+          ]
+           [
+            sh:hasValue <http://qudt.org/vocab/unit#OunceMass> ;
+          ]
+          [
+            sh:hasValue <http://qudt.org/vocab/unit#PoundMass> ;
+          ]
+        ) ;
     ] ;
 
 # For dimension types, such as height, width, weight, etc. use AAT, Art & Architecture Thesaurus.
@@ -1625,10 +1817,10 @@ bibliotek-o_shapes_audio:MeasurementForm
       sh:order "2"^^xsd:decimal ;
       sh:or (
           [
-            sh:hasValue <http://vocab.getty.edu/aat/300055621> 
+            sh:hasValue <http://vocab.getty.edu/aat/300055621> ;
           ]
           [
-            sh:hasValue <http://vocab.getty.edu/aat/300055623>
+            sh:hasValue <http://vocab.getty.edu/aat/300055623> ;
           ]
           [
             sh:hasValue <http://vocab.getty.edu/aat/300055624> ;
@@ -1643,10 +1835,10 @@ bibliotek-o_shapes_audio:MeasurementForm
             sh:hasValue <http://vocab.getty.edu/aat/300055646> ;
           ]
           [
-            sh:hasValue <http://vocab.getty.edu/aat/300055647> 
+            sh:hasValue <http://vocab.getty.edu/aat/300055647> ;
           ]
           [
-            sh:hasValue <http://vocab.getty.edu/aat/300055649>
+            sh:hasValue <http://vocab.getty.edu/aat/300055649> ;
           ]
           [
             sh:hasValue <http://vocab.getty.edu/aat/300056240> ;
@@ -1664,10 +1856,10 @@ bibliotek-o_shapes_audio:MeasurementForm
             sh:hasValue <http://vocab.getty.edu/aat/300404164> ;
           ]
           [
-            sh:hasValue <http://vocab.getty.edu/aat/300404403> 
+            sh:hasValue <http://vocab.getty.edu/aat/300404403> ;
           ]
           [
-            sh:hasValue <http://vocab.getty.edu/aat/300404430>
+            sh:hasValue <http://vocab.getty.edu/aat/300404430> ;
           ]
           [
             sh:hasValue <http://vocab.getty.edu/aat/300404431> ;
@@ -1750,23 +1942,30 @@ bibliotek-o_shapes_audio:MeasurementPropertyGroup
   sh:order "4"^^xsd:decimal ;
 .
 
+bibliotek-o_shapes_audio:InstancetoWorkPropertyGroup
+ rdf:type sh:PropertyGroup ;
+  rdfs:label "Instance of Work" ;
+  sh:description "To group Instances of the Same Work, and provide edition information" ;
+  sh:order "5"^^xsd:decimal ;
+.
+
 bibliotek-o_shapes_audio:AudioInstanceCharacteristicsPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Audio Instance Characteristics" ;
   sh:description "To group information about the Audio-specific instance characteristics, e.g. playback channel." ;
-  sh:order "5"^^xsd:decimal ;
+  sh:order "6"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:InstanceMiscellaneousPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Miscellaneous Work Information" ;
-  sh:order "6"^^xsd:decimal ;
+  sh:order "7"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:InstanceToItemPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Related Items (Copies)" ;
-  sh:order "7"^^xsd:decimal ;
+  sh:order "8"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:ItemActivityPropertyGroup
@@ -1776,17 +1975,23 @@ bibliotek-o_shapes_audio:ItemActivityPropertyGroup
   sh:order "1"^^xsd:decimal ;
 .
 
+bibliotek-o_shapes_audio:ItemToInstancePropertyGroup
+  rdf:type sh:PropertyGroup ;
+  rdfs:label "Related Items (Copies)" ;
+  sh:order "2"^^xsd:decimal ;
+.
+
 bibliotek-o_shapes_audio:ItemProvenanceGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Item Provenance" ;
   sh:description "To group item provenance information for the resource." ;
-  sh:order "2"^^xsd:decimal ;
+  sh:order "3"^^xsd:decimal ;
 .
 
 bibliotek-o_shapes_audio:AudioItemMiscellaneousPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Miscellaneous Item Information" ;
-  sh:order "3"^^xsd:decimal ;
+  sh:order "4"^^xsd:decimal ;
 .
 
 

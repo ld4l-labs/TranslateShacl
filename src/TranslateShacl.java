@@ -17,6 +17,8 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFactory;
+import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -25,6 +27,7 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,17 +35,19 @@ import org.json.JSONObject;
 
 public class TranslateShacl {
 	public static int configNumber = 200;
+	public static Model ontologyModel = null;
 	public static void main (String[] args) {
 		
 		Model shaclModel = populateModel();
-		Model ontologyModel = getOntologyModel();
+		//Populate this for reference later
+		ontologyModel = getOntologyModel();
 		compareToOntology(shaclModel, ontologyModel);
 		//Generate property groups
 		System.out.println("********Generate Property Groups***********");
 		generatePropertyGroups(shaclModel);
 		System.out.println("********Generate Work*********");
 		//Work level info		
-		Model workAppModel = processWork(shaclModel, ontologyModel);
+		Model workAppModel = processWork(shaclModel);
 		System.out.println("********Generate Instance*********");
 		//Instance level info
 		Model instanceAppModel = processInstance(shaclModel);
@@ -52,18 +57,17 @@ public class TranslateShacl {
 		Model itemAppModel = processItem(shaclModel);
 		
 		//Generate custom form specifics
+		System.out.println("#Work custom form");
 		generateCustomFormSpecifics(workAppModel);
+		System.out.println("#Instance custom form");
 		generateInstanceCustomFormSpecifics(instanceAppModel);
+		System.out.println("#Item custom form");
 		generateItemCustomFormSpecifics(itemAppModel);
 		//Generate dropdowns
+		System.out.println("Custom form dropdowns");
 		generateCustomFormDropdowns(shaclModel, ontologyModel);
 
-		
-		
-		
 	}
-
-	
 	//For each of work, instance, item models, generate the appropriate custom form linkages
 	//Cases are hardcoded, but specific faux property config numbers change based on the original shacl file
 	/*
@@ -105,9 +109,19 @@ public class TranslateShacl {
 		//Title
 		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
 		rdfString += generateConfigRDF(configURI, "title", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
-	
-	
 		
+		//Note
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/note", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Note", appModel);
+		rdfString += generateConfigRDF(configURI, "note", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
+		
+		//event (recorded at)
+		configURI =  retrieveConfigURI("http://schema.org/recordedAt", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Event", appModel);
+		rdfString += generateConfigRDF(configURI, "event", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
+			
+		//Identifier
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/identifiedBy", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Identifier", appModel);
+		rdfString += generateConfigRDF(configURI, "identifier", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
+	
 		
 		System.out.println(rdfString);
 	}
@@ -129,9 +143,58 @@ public class TranslateShacl {
 		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/Instance", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
 		rdfString += generateConfigRDF(configURI, "title", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
 		
+		//note
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/note", "http://id.loc.gov/ontologies/bibframe/Instance", "http://id.loc.gov/ontologies/bibframe/Note", appModel);
+		rdfString += generateConfigRDF(configURI, "note", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+		
+		
+		//identifier
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/identifiedBy", "http://id.loc.gov/ontologies/bibframe/Instance", "http://id.loc.gov/ontologies/bibframe/Identifier", appModel);
+		rdfString += generateConfigRDF(configURI, "identifier", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+		
+		//measurement group
+		configURI =  retrieveConfigURI("http://measurement.bibliotek-o.org/hasMeasurementGroup", "http://id.loc.gov/ontologies/bibframe/Instance", "http://measurement.bibliotek-o.org/MeasurementGroup", appModel);
+		rdfString += generateConfigRDF(configURI, "measurementGroup", "http://measurement.bibliotek-o.org/MeasurementGroup")+ "\n";
+			
+		
 		System.out.println(rdfString);
 	}
 	
+	private static List<String> retrieveMultipleConfigURIs(String baseURI, String domain, String range, Model appModel) {
+		List<String> configURIs = new ArrayList<String>();
+		String sparqlQuery = "PREFIX appConfig: <http://vitro.mannlib.cornell.edu/ns/vitro/ApplicationConfiguration#> " + 
+				   " SELECT ?configContextURI ?configURI WHERE { ?configContextURI appConfig:configContextFor <" + baseURI + "> .";
+					sparqlQuery += "?configContextURI appConfig:hasConfiguration ?configURI .";
+					sparqlQuery += "?configContextURI appConfig:qualifiedBy <" + range + "> . ";
+
+					if(StringUtils.isNotEmpty(domain)) {
+						sparqlQuery += "?configContextURI appConfig:qualifiedByDomain <" + domain + "> .";
+					}
+					
+					sparqlQuery += "} ";
+					//log.debug(sparqlQuery);
+					//Execute this query to retrieve the configURI
+					ResultSet rs = executeQuery(appModel, sparqlQuery);
+					while(rs.hasNext()) {
+						QuerySolution qs = rs.nextSolution();
+						if(qs.contains("configURI")) {
+							configURIs.add(qs.getResource("configURI").getURI());
+						}
+					}
+		return configURIs;
+	}
+	
+	//this is specifically for sound characteristics
+	private static String generateConfigRDFForMultipleURIs(List<String> configURIs, String property, String domainURI) {
+		String configRDF = "";
+		for(String configURI: configURIs) {
+			configRDF += generateConfigRDF(configURI, property, domainURI) + "\n";
+		}
+		return configRDF;
+		
+	}
+
+
 	private static void generateItemCustomFormSpecifics(Model appModel) {
 		//App Model uses the vitroLib-specific faux configuration
 		//TODO: Make this use classes instead
@@ -153,9 +216,14 @@ public class TranslateShacl {
 		System.out.println(rdfString);
 		
 		//note
-		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/note", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2002/07/owl#Thing", appModel);
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/note", "http://id.loc.gov/ontologies/bibframe/Item", "http://id.loc.gov/ontologies/bibframe/Note", appModel);
 		rdfString += generateConfigRDF(configURI, "note", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
 		System.out.println(rdfString);
+		
+		//identifier
+		configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/identifiedBy", "http://id.loc.gov/ontologies/bibframe/Item", "http://id.loc.gov/ontologies/bibframe/Identifier", appModel);
+		rdfString += generateConfigRDF(configURI, "identifier", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+	
 	}
 	
 	//Putting all this in one method for now
@@ -180,13 +248,14 @@ public class TranslateShacl {
 
 				//Depends on whether audio, instance or item
 				if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Audio")) {
-					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkHasActivity.jsonld\" . ";
+					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkHasActivity.jsonld\" ; ";
 				} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
-					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioInstanceHasActivity.jsonld\" . ";
+					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioInstanceHasActivity.jsonld\" ; ";
 				} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
-					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioItemHasActivity.jsonld\" . ";
+					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioItemHasActivity.jsonld\" ; ";
 				}	  	  
 				
+				configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"hasActivity.ftl\" .";
 				//"<" + configURI + "> :listViewConfigFile \"listViewConfig-instanceHasActivity.xml\"^^xsd:string .  " + 
 						 
 
@@ -259,8 +328,32 @@ public class TranslateShacl {
 				
 
 				break;	
+		
+			case "event":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-event.xml\"^^xsd:string .  ";
+				configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+				"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"recordedAt.ftl\" ; ";				
+				configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"recordedAt.jsonld\" ;" + 
+							"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customModelChangePreprocessorAnnot> \"\"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.preprocessors.AuthorityHackPreprocessor\"^^<http://www.w3.org/2001/XMLSchema#string> ." ;
+
+				break;
+				
+			case "identifier": 
+				configRDF = "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+						"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"hasIdentifier.jsonld\" .";
+				break;
+				
+			case "measurementGroup":
+				//configRDF = "<" + configURI + "> 
+				
+			//all sound characteristics require custom configuration for list views
+			case "soundCharacteristic":
+				break;
+				
 			default:
 				break;
+				
+				
 		}
 		return configRDF;
 	}
@@ -357,6 +450,13 @@ public class TranslateShacl {
 		} catch(Exception ex) {
 			System.out.println("Error occurred");
 		}
+		//Testing out note thing
+		String testUri = "http://audio.biblioteko-o.org/SummaryNote";
+		StmtIterator ittest = ontologyModel.listStatements(ResourceFactory.createResource(testUri), null, (RDFNode) null);
+		while(ittest.hasNext()) {
+			Statement itstmt = ittest.nextStatement();
+			System.out.println(itstmt.toString());
+		}
 		k = orPropertyLists.keys();
 		while(k.hasNext()) {
 			String propFormKey = k.next().toString();
@@ -389,12 +489,22 @@ public class TranslateShacl {
 	
 	//Range is assumed to be non-null - remember to check this assumption later
 	private static String retrieveConfigURI(String baseURI, String domain, String range, Model appModel) {
+		return retrieveConfigURI(baseURI, domain, range, null, appModel);
+	}
+	
+	//in case domain and range are same across multiple properties, check label
+	private static String retrieveConfigURI(String baseURI, String domain, String range, String label, Model appModel) {
 		String sparqlQuery = "PREFIX appConfig: <http://vitro.mannlib.cornell.edu/ns/vitro/ApplicationConfiguration#> " + 
 	   " SELECT ?configContextURI ?configURI WHERE { ?configContextURI appConfig:configContextFor <" + baseURI + "> .";
 		sparqlQuery += "?configContextURI appConfig:hasConfiguration ?configURI .";
 		sparqlQuery += "?configContextURI appConfig:qualifiedBy <" + range + "> . ";
+
 		if(StringUtils.isNotEmpty(domain)) {
 			sparqlQuery += "?configContextURI appConfig:qualifiedByDomain <" + domain + "> .";
+		}
+		
+		if(StringUtils.isNotEmpty(label)) {
+			sparqlQuery += "?configURI appConfig:displayName \"" + label + "\" .";
 		}
 		sparqlQuery += "} ";
 		//log.debug(sparqlQuery);
@@ -409,26 +519,12 @@ public class TranslateShacl {
 		return null;
 	}
 	
-	private static Model processWork(Model shaclModel, Model ontologyModel) {
+	private static Model processWork(Model shaclModel) {
 		Model appModel = generateWorkModel(shaclModel);
 		//Print out app Model
-		
-		
 		System.out.println("***********Print out Work MODEL For WORJ**********************");
 		//appModel.write(System.out, "N3");
-		//Thank you Jim!
-		
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		appModel.write(stream, "N-TRIPLE");
-		String[] lines = new String(stream.toByteArray()).split("[\\n\\r]");
-		Arrays.sort(lines);
-		System.out.println(String.join("\n", lines));
-
-		
-		//System.out.println(appModel.listStatements().toList().stream().map(Object::toString).sorted().collect(Collectors.joining("\n")));
-		
-		//Check against generated faux properties to see which properties are 
-		
+		printOutModel(appModel);		
 		System.out.println("*************End Print out Work Model *****************");
 		//Comparing to faux properties
 		compareToGeneratedProperties(appModel);
@@ -443,18 +539,7 @@ public class TranslateShacl {
 		System.out.println("***********Print out Instance MODEL For INSTANCE**********************");
 		//appModel.write(System.out, "N3");
 		//Thank you Jim!
-		
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		appModel.write(stream, "N-TRIPLE");
-		String[] lines = new String(stream.toByteArray()).split("[\\n\\r]");
-		Arrays.sort(lines);
-		System.out.println(String.join("\n", lines));
-
-		
-		//System.out.println(appModel.listStatements().toList().stream().map(Object::toString).sorted().collect(Collectors.joining("\n")));
-		
-		//Check against generated faux properties to see which properties are 
-		
+		printOutModel(appModel);				
 		System.out.println("*************End Print out Instance Model *****************");
 		compareToGeneratedProperties(appModel);
 		//System.out.println("*************Generate Template List**************");
@@ -465,24 +550,11 @@ public class TranslateShacl {
 	
 	private static Model processItem(Model shaclModel) {
 		Model appModel = generateItemModel(shaclModel);
-		//Print out app Model
-		
-		
+		//Print out app Model	
 		System.out.println("***********Print out Item MODEL**********************");
 		//appModel.write(System.out, "N3");
 		//Thank you Jim!
-		
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		appModel.write(stream, "N-TRIPLE");
-		String[] lines = new String(stream.toByteArray()).split("[\\n\\r]");
-		Arrays.sort(lines);
-		System.out.println(String.join("\n", lines));
-
-		
-		//System.out.println(appModel.listStatements().toList().stream().map(Object::toString).sorted().collect(Collectors.joining("\n")));
-		
-		//Check against generated faux properties to see which properties are 
-		
+		printOutModel(appModel);		
 		System.out.println("*************End Print out Item Model *****************");
 		compareToGeneratedProperties(appModel);
 		//System.out.println("*************Generate Template List**************");
@@ -491,43 +563,18 @@ public class TranslateShacl {
 
 	}
 	
+	private static void printOutModel(Model model) {
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		model.write(stream, "N-TRIPLE");
+		String[] lines = new String(stream.toByteArray()).split("[\\n\\r]");
+		Arrays.sort(lines);
+		System.out.println(String.join("\n", lines));
+	}
+	
 	//Load all the ontology files into a model where they can be reviewed/revised
 	private static Model getOntologyModel() {
-		//Read in all the files
-    	Model model= ModelFactory.createDefaultModel();
-
-		File directory = new File("rdf/currentOntologyFiles");
-	    for(File fileEntry : directory.listFiles()) {
-			try {
-				FileInputStream fis = (new FileInputStream(fileEntry));
-				String fn = fileEntry.getName();
-				//String fn = Paths.get(fileEntry.getPath()).getFileName().toString().toLowerCase();
-				//System.out.println("Reading in " + fn);
-				 //String fn = fileEntry.getPath().getFileName()
-                 if ( fn.endsWith(".nt") ) {
-                     model.read( fis, null, "N-TRIPLE" );
-                 } else if ( fn.endsWith(".n3") ) {
-                     model.read(fis, null, "N3");
-                 } else if ( fn.endsWith(".ttl") ) {
-                     model.read(fis, null, "TURTLE");
-                 } else if ( fn.endsWith(".owl") || fn.endsWith(".rdf") || fn.endsWith(".xml") ) {
-                	 System.out.println("Reading in owl, rdf, xml" + fn);
-                     model.read( fis, null, "RDF/XML" );
-                 } else if ( fn.endsWith(".md") ) {
-                 	// Ignore markdown files - documentation.
-                 } else {
-                     //log.warn("Ignoring " + type + " file graph " + p + " because the file extension is unrecognized.");
-                 }
-                 
-                 
-			} catch(Exception ex) {
-				System.out.println("Error occurred in reading in");
-				ex.printStackTrace();
-			}
-            
-        }
+		Model model = readInRDFFilesFromDirectory("rdf/currentOntologyFiles");	
 	    return model;
-
 	}
 	
 	//Check WHICH SHACL properties NOT defined in current version of ontology files
@@ -751,11 +798,13 @@ public class TranslateShacl {
 	private static Model queryShape(String shapeURI, Model queryModel) {
 		String PREFIXES = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
 				"";
+		//Multiple classes possible so grouping together into space separated string here
 		String query = PREFIXES + 
-				"SELECT ?property ?path ?class ?group ?name ?propDescription ?nodeKind ?order ?target ?orList ?inList ?shapeTarget WHERE " + 
+				"SELECT ?property ?path ?group ?name ?propDescription ?nodeKind ?order ?target ?orList ?inList ?shapeTarget " + 
+				" (group_concat (?iclass) AS ?class) WHERE " + 
 				"{ <" + shapeURI + "> sh:property ?property .  " + 
 				"?property sh:path ?path . " + 
-				"OPTIONAL {?property sh:class ?class .} " + 
+				"OPTIONAL {?property sh:class ?iclass .} " + 
 				"OPTIONAL {?property sh:group ?group .} " + 
 				"OPTIONAL {?property sh:name ?name .} " + 
 				"OPTIONAL {?property sh:description ?propDescription .} " + 
@@ -765,23 +814,96 @@ public class TranslateShacl {
 				"OPTIONAL {?property sh:or ?orList .} " + 
 				"OPTIONAL {?property sh:in ?inList .} " + 
 				"OPTIONAL { <" + shapeURI + "> sh:targetClass ?shapeTarget .} "
-				+ " } ORDER by ?path ?order ?class ?target";
-		/*query = PREFIXES + 
-				"SELECT ?property WHERE " + 
-				"{ <" + shapeURI + "> sh:property ?property .  " 
-				+ " }";
-		query = PREFIXES + "SELECT ?s ?p ?o WHERE {?s ?p ?o .}";*/
+				+ " } " + 
+				" GROUP BY ?property ?path ?group ?name ?propDescription ?nodeKind ?order ?target ?orList ?inList ?shapeTarget " + 
+				" ORDER by ?path ?order ?iclass ?target" ;
+				
 		System.out.println("Query is " + query);
 		ResultSet rs = executeQuery(queryModel, query);
-		Model returnModel = mapToFauxProperties(rs);
-	
+		ResultSetRewindable rsCopy = ResultSetFactory.copyResults(rs);
+		Model returnModel = mapToFauxProperties(rsCopy);
+		Model dataPropertiesModel = mapToDataProperties(rsCopy);
+		returnModel.add(dataPropertiesModel);
 		return returnModel;
 		
 	}
 	
+	//Create data properties
+	//Could also use a separate query that only looks at data properties
+	private static Model mapToDataProperties(ResultSetRewindable rs) {
+		Model dataPropertiesModel = ModelFactory.createDefaultModel();
+		//Iterate through result set
+		rs.reset();
+		while(rs.hasNext()) {
+			QuerySolution qs = rs.nextSolution();
+			//System.out.println(qs.toString());
+			Model dataPropertyModel = createDataProperty(qs);
+			dataPropertiesModel.add(dataPropertyModel);
+		}
+		return dataPropertiesModel;
+	}
 	
+	//Create a new data property
+	//Domain = target
+	//Range = class
+	private static Model createDataProperty(QuerySolution qs) {
+		Model dataPropertyModel = ModelFactory.createDefaultModel();
+		Resource path = getVarResource(qs, "path");
+		String prefixes = "@prefix owl: <http://www.w3.org/2002/07/owl#> .\r\n" + 
+				"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n" + 
+				"@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .";
+		String dataPropertyRDF = "";
+		String propertyGroupURI = "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#inPropertyGroupAnnot>";
+		if(path != null) {
+			String pathURI = path.getURI();
+			String pathResource = "<" + pathURI + ">";
+			String literalType = "http://www.w3.org/ns/shacl#Literal";
+			Resource nodeKind = getVarResource(qs, "nodeKind");
+
+			if(nodeKind != null && StringUtils.isNotEmpty(nodeKind.getURI()) 
+					&& nodeKind.getURI().equals(literalType)) {
+				//Not checking for range but does this matter for data properties?
+				//i.e. integer vs. string etc.?
+				Resource group = getVarResource(qs, "group");
+				Resource target = getVarResource(qs, "target");
+				Resource shapeTarget = getVarResource(qs, "shapeTarget");
+				
+				//Restriction on domain, picking string for now but
+				//can also check for datatype but we are not currently
+				if(group != null) {
+					dataPropertyRDF = pathResource + " " + propertyGroupURI + " <" + group.getURI() + "> .";
+				}
+				//check target specified on the property first
+				//if that is not available, check shapetarget
+				String domainURI = "";
+				if(target != null) {
+					domainURI = "<" + target.getURI() + ">";
+				} else {
+					if(shapeTarget != null) {
+						domainURI = "<" + shapeTarget.getURI() + ">";
+					}
+				}
+				
+				if(StringUtils.isNotEmpty(domainURI)) {
+					String restrictionRDF = domainURI + " rdfs:subClassOf " + 
+				" [ a owl:Restriction; " + 
+				" owl:onProperty " + pathResource + ";" + 
+				"owl:allValuesFrom <http://www.w3.org/2001/XMLSchema#string> ] .";
+					dataPropertyRDF += restrictionRDF;
+				}
+				
+				
+			}
+		}
+		
+		//Read in dataPropertyRDF with prefixes into model
+		dataPropertyRDF = prefixes + dataPropertyRDF;
+		dataPropertyModel.read(new ByteArrayInputStream(dataPropertyRDF.getBytes()), null, "N3");
+		return dataPropertyModel;
+	}
 	//Given result set with properties, create new faux properties
-	private static Model mapToFauxProperties(ResultSet rs) {
+	private static Model mapToFauxProperties(ResultSetRewindable rs) {
+		rs.reset();
 		Model appModel = ModelFactory.createDefaultModel();
 		
 		// TODO Auto-generated method stub
@@ -821,7 +943,7 @@ public class TranslateShacl {
 		//?property ?path ?class ?group ?name ?nodeKind ?order ?target ?orList
 		
 		Literal name = getVarLiteral(qs, "name");
-		Resource classResource = getVarResource(qs, "class");
+		Literal classLiteral = getVarLiteral(qs, "class"); //this is now space separated
 		Resource group = getVarResource(qs, "group");
 		Resource nodeKind = getVarResource(qs, "nodeKind");
 		Resource target = getVarResource(qs, "target");
@@ -852,7 +974,7 @@ public class TranslateShacl {
 		//IMPORTANT: Switching to nodeKind = IRI if class is present
 		//This may not be actually true, so will need to review
 		//If object property and there is some kind of range present
-		if(nodeKind == null && (classResource != null || orList != null)) {
+		if(nodeKind == null && (classLiteral != null || orList != null)) {
 			nodeKind = ResourceFactory.createResource(URIType);
 			System.out.println("Setting " + path + " to URI Type");
 		}
@@ -862,13 +984,22 @@ public class TranslateShacl {
 						" :configContextFor <" + pathURI + ">;" + 
 						" :hasConfiguration " + fauxConfigURI + " . ";
 				//class= qualified by, target = qualified by domain
-				if(classResource != null) {
-					fauxN3 += fauxConfigContextURI + " :qualifiedBy <" + classResource.getURI() + "> .";
+				if(classLiteral != null) {
+					//The class value is now space separated in the case of multiple classes
+					//this may involve querying the ontology model
+					String classURI = getClassURI(classLiteral);
+					fauxN3 += fauxConfigContextURI + " :qualifiedBy <" + classURI + "> .";
 				} else {
 					urisWithoutRange.add(fauxConfigContextURI);
-					//For now, simply to make this work in the interface when we upload it, changing this to owl:Thing
-					//As faux properties require ranges
-					fauxN3 += fauxConfigContextURI + " :qualifiedBy owl:Thing .";
+					//Check actual range of property and use that
+					//IF no range specified then pick owl:Thing
+					String range = getRangeForProperty(pathURI);
+					if(StringUtils.isEmpty(range)) {
+						range = "owl:Thing";
+					} else {
+						range = "<" + range + ">";
+					}
+					fauxN3 += fauxConfigContextURI + " :qualifiedBy " + range + " .";
 					//QUESTION: Should a faux property AUTOMATICALLY pick up the ontological range
 					//in the case where no range is explicitly specified
 
@@ -907,18 +1038,80 @@ public class TranslateShacl {
 				
 
 			} else {
-				
+				System.out.println("DATA PROPERTY:" + pathURI);
 			}
 		}
 		
 		//System.out.println("Faux N3 is now " + fauxN3);
 		fauxPropertyModel.read(new ByteArrayInputStream(fauxN3.getBytes()), null, "N3");
 		if(urisWithoutRange.size() > 0) {
-			System.out.println("Properties without range set to owl:Thing");
+			System.out.println("Properties without range set to owl:Thing or range from ontology");
 			System.out.println(StringUtils.join(urisWithoutRange, ","));
 		}
 		return fauxPropertyModel;
 	}
+
+	private static String getClassURI(Literal classLiteral) {
+		String uri = null;
+		String classURIs = classLiteral.getString();
+		String[] uris = StringUtils.split(classURIs, " ");
+		if(uris.length == 1) {
+			uri = uris[0]; 
+		} else {
+		//If more than one class, we will rely on the ontology to see if one is the subclass of the other
+		//i.e. find the most specific class
+			uri = findMostSpecificClass(uris);
+		}
+		return uri;
+	}
+
+	//Assumption: These are all classes in a hierarchy - if these classes are not related at all
+	//then we just return the alphabetical first one.  TODO: Recheck this assumption
+	private static String findMostSpecificClass(String[] uris) {
+		String classUri = uris[0];
+		HashMap<String, String> uriToSuper = new HashMap<String, String>();
+		for(String uri: uris) {
+			String query = "SELECT (group_concat(?superclass) as ?super) WHERE {<" + uri 
+					+ "> <http://www.w3.org/2000/01/rdf-schema#subClassOf> ?superclass . } ORDER BY ?superclass";
+			ResultSet rs = executeQuery(ontologyModel, query);
+			while(rs.hasNext()) {
+				QuerySolution qs = rs.nextSolution();
+				String superuri = qs.getLiteral("super").getString();
+				uriToSuper.put(uri,superuri);
+			}
+			
+		}
+		//If all of the rest of the uris have been found as superclasses for a uri, that is the most specific class
+		//Note: there will be more elegant ways to do this
+		for(String uri:uris) {
+			String superuri = uriToSuper.get(uri);
+			boolean foundUri = true;
+			for(String remUri: uris) {
+				if(remUri != uri && !superuri.contains(remUri)) {
+					foundUri = false;
+					break;
+				}
+			}
+			//all of the other uris are superclasses of this uri, so this is the most specific subclass
+			if(foundUri) {
+				classUri = uri;
+			}
+		}
+		return classUri;
+	}
+	
+	//Find the current range uri in the ontology
+	private static String getRangeForProperty(String propertyUri) {
+		String query = "SELECT ?range WHERE {<" + propertyUri + "> <http://www.w3.org/2000/01/rdf-schema#range> ?range .}";
+		ResultSet rs = executeQuery(ontologyModel, query);
+		while(rs.hasNext()) {
+			return rs.nextSolution().getResource("range").getURI();
+		}
+		
+		return null;
+		
+	}
+
 
 	private static Literal getVarLiteral(QuerySolution qs, String varName) {
 		if(qs.get(varName) != null && qs.get(varName).isLiteral()) {
@@ -963,21 +1156,51 @@ public class TranslateShacl {
 
 	//Read in SHACL files and populate model
 	private static Model populateModel() {
-		//shacl.ttl has the copy from Steven
-		File shaclFile = new File("rdf/bibliotek-o_shapes.shapes.ttl");
-		
+		Model model= readInRDFFilesFromDirectory("rdf/SHACLFiles");
+		//File shaclFile = new File("rdf/bibliotek-o_shapes.shapes.ttl");		
+		return model;
+	}
+	    
+    //Read in ontology files or SHACL files from a directory
+	private static Model readInRDFFilesFromDirectory(String directoryPath) {
 		Model model= ModelFactory.createDefaultModel();
-		try {
-			model.read(new FileInputStream(shaclFile), null, "TTL");
-		} catch(Exception ex) {
-			System.out.println("Error occurred in reading in");
-			ex.printStackTrace();
-		}
+		
+		//Read in from a specific directory instead of just a file
+		File directory = new File(directoryPath);
+	    for(File fileEntry : directory.listFiles()) {
+			try {
+				FileInputStream fis = (new FileInputStream(fileEntry));
+				String fn = fileEntry.getName();
+				//String fn = Paths.get(fileEntry.getPath()).getFileName().toString().toLowerCase();
+				//System.out.println("Reading in " + fn);
+				 //String fn = fileEntry.getPath().getFileName()
+                 if ( fn.endsWith(".nt") ) {
+                     model.read( fis, null, "N-TRIPLE" );
+                 } else if ( fn.endsWith(".n3") ) {
+                     model.read(fis, null, "N3");
+                 } else if ( fn.endsWith(".ttl") ) {
+                     model.read(fis, null, "TURTLE");
+                 } else if ( fn.endsWith(".owl") || fn.endsWith(".rdf") || fn.endsWith(".xml") ) {
+                	 System.out.println("Reading in owl, rdf, xml" + fn);
+                     model.read( fis, null, "RDF/XML" );
+                 } else if ( fn.endsWith(".md") ) {
+                 	// Ignore markdown files - documentation.
+                 } else {
+                     //log.warn("Ignoring " + type + " file graph " + p + " because the file extension is unrecognized.");
+                 }
+                 
+                 
+			} catch(Exception ex) {
+				System.out.println("Error occurred in reading in SHACL files");
+				ex.printStackTrace();
+			}
+	    }
+	
 		System.out.println("Read file in and populated model");
 		return model;
-		
-		
+	
 	}
+	
 	
 	
 }
