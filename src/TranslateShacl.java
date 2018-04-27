@@ -29,6 +29,9 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -41,8 +44,11 @@ public class TranslateShacl {
 	public static void main(String[] args) {
 		//For better option
 		//Run translation
-		HipHopTranslation ht = new HipHopTranslation();
-		ht.doTranslate(args);
+		//HipHopTranslation ht = new HipHopTranslation();
+		//ht.doTranslate(args);
+		
+		ARMTranslation art = new ARMTranslation();
+		art.doTranslate(args);
 	}
 	
 	
@@ -51,6 +57,9 @@ public class TranslateShacl {
 		public HipHopTranslation() {
 			this.shaclDirectoryPath = "rdf/SHACLFiles";
 			this.ontologyDirectoryPath = "rdf/currentOntologyFiles";
+			this.workFormURI = "http://bibliotek-o.org/shapes/audio/AudioWorkForm";
+			this.instanceFormURI = "http://bibliotek-o.org/shapes/audio/AudioInstanceForm";
+			this.itemFormURI = "http://bibliotek-o.org/shapes/audio/AudioItemForm";
 		}
 		
 		protected  void generateCustomFormSpecifics(Model appModel) {
@@ -301,6 +310,10 @@ public class TranslateShacl {
 		public ARMTranslation() {
 			this.shaclDirectoryPath = "rdf/ARMSHACL";
 			this.ontologyDirectoryPath = "rdf/ARMOntology";
+			//https://w3id.org/arm/application_profile/shacl/raremat_monograph/
+			this.workFormURI = "https://w3id.org/arm/application_profile/shacl/raremat_monograph/WorkForm";
+			this.instanceFormURI = "https://w3id.org/arm/application_profile/shacl/raremat_monograph/InstanceForm";
+			this.itemFormURI = "https://w3id.org/arm/application_profile/shacl/raremat_monograph/ItemForm";
 		}
 		
 		protected  void generateCustomFormSpecifics(Model appModel) {
@@ -309,41 +322,9 @@ public class TranslateShacl {
 			//Base URI -> <domain =, range= >
 			String rdfString = "";
 			//has part custom form
-			String configURI = retrieveConfigURI("http://purl.org/dc/terms/hasPart", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Audio", appModel);
-			rdfString += generateConfigRDF(configURI, "hasPart", "http://id.loc.gov/ontologies/bibframe/Audio") + "\n";
-			
-			//Genre form, audio to concept
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Audio", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
-			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
-			//has activity - audio work, instance, item
-			configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Audio", "http://bibliotek-o.org/ontology/Activity", appModel);
-			rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
-			//Subject
-			//http://www.w3.org/2002/07/owl#
-			configURI =  retrieveConfigURI("http://purl.org/dc/terms/subject", "http://id.loc.gov/ontologies/bibframe/Audio", "http://www.w3.org/2002/07/owl#Thing", appModel);
-			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
-					
-			//hasPreferredTitle
-			configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
-			rdfString += generateConfigRDF(configURI, "hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
-			
-			//Title
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
-			rdfString += generateConfigRDF(configURI, "title", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
-			
-			//Note
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/note", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Note", appModel);
-			rdfString += generateConfigRDF(configURI, "note", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
-			
-			//event (recorded at)
-			configURI =  retrieveConfigURI("http://schema.org/recordedAt", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Event", appModel);
-			rdfString += generateConfigRDF(configURI, "event", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
-				
-			//Identifier
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/identifiedBy", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Identifier", appModel);
-			rdfString += generateConfigRDF(configURI, "identifier", "http://id.loc.gov/ontologies/bibframe/Audio")+ "\n";
-		
-			
+			//String configURI = retrieveConfigURI("http://purl.org/dc/terms/hasPart", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Audio", appModel);
+			//rdfString += generateConfigRDF(configURI, "hasPart", "http://id.loc.gov/ontologies/bibframe/Audio") + "\n";
+
 			System.out.println(rdfString);
 		}
 		
@@ -353,30 +334,8 @@ public class TranslateShacl {
 			//Base URI -> <domain =, range= >
 			String rdfString = "";
 			//has part custom form
-			String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance", "http://bibliotek-o.org/ontology/Activity", appModel);
-			rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
-		
-			//has preferred title
-			configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Instance", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
-			rdfString += generateConfigRDF(configURI, "hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
-			
-			//title
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/Instance", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
-			rdfString += generateConfigRDF(configURI, "title", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
-			
-			//note
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/note", "http://id.loc.gov/ontologies/bibframe/Instance", "http://id.loc.gov/ontologies/bibframe/Note", appModel);
-			rdfString += generateConfigRDF(configURI, "note", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
-			
-			
-			//identifier
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/identifiedBy", "http://id.loc.gov/ontologies/bibframe/Instance", "http://id.loc.gov/ontologies/bibframe/Identifier", appModel);
-			rdfString += generateConfigRDF(configURI, "identifier", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
-			
-			//measurement group
-			configURI =  retrieveConfigURI("http://measurement.bibliotek-o.org/hasMeasurementGroup", "http://id.loc.gov/ontologies/bibframe/Instance", "http://measurement.bibliotek-o.org/MeasurementGroup", appModel);
-			rdfString += generateConfigRDF(configURI, "measurementGroup", "http://measurement.bibliotek-o.org/MeasurementGroup")+ "\n";
-				
+			//String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance", "http://bibliotek-o.org/ontology/Activity", appModel);
+			//rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
 			
 			System.out.println(rdfString);
 		}
@@ -387,153 +346,21 @@ public class TranslateShacl {
 			//Base URI -> <domain =, range= >
 			String rdfString = "";
 			//has part custom form
-			String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Item", "http://bibliotek-o.org/ontology/Activity", appModel);
-			rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
-		
-			
-			//preferred title
-			configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Item", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
-			rdfString += generateConfigRDF(configURI, "hasPreferredTitle", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
-		
-			
-			//title
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/Item", "http://id.loc.gov/ontologies/bibframe/Title", appModel);
-			rdfString += generateConfigRDF(configURI, "title", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+			//String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Item", "http://bibliotek-o.org/ontology/Activity", appModel);
+			//rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
 			System.out.println(rdfString);
-			
-			//note
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/note", "http://id.loc.gov/ontologies/bibframe/Item", "http://id.loc.gov/ontologies/bibframe/Note", appModel);
-			rdfString += generateConfigRDF(configURI, "note", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
-			System.out.println(rdfString);
-			
-			//identifier
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/identifiedBy", "http://id.loc.gov/ontologies/bibframe/Item", "http://id.loc.gov/ontologies/bibframe/Identifier", appModel);
-			rdfString += generateConfigRDF(configURI, "identifier", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
-		
+
 		}
 		
 		protected String generateConfigRDF(String configURI, String property, String domainURI) {
 			String configRDF = "";
 			switch (property) {
-				case "hasPart":
+				/*case "hasPart":
 					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-workHasPartWork.xml\"^^xsd:string ." + 
 							"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
 								 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"workHasPartWork.jsonld\" .";
 	
-					break;
-				case "genreForm":
-					configRDF = "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
-						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"hasGenreForm.jsonld\"; " + 
-						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"hasGenreForm.ftl\" .";
-	
-					break;	
-				case "hasActivity":
-					configRDF =  "<" + configURI + "> :listViewConfigFile \"listViewConfig-workHasActivity.xml\"^^xsd:string ; " + 
-							" <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string>  ;";
-	
-					//Depends on whether audio, instance or item
-					if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Audio")) {
-						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkHasActivity.jsonld\" ; ";
-					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
-						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioInstanceHasActivity.jsonld\" ; ";
-					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
-						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioItemHasActivity.jsonld\" ; ";
-					}	  	  
-					
-					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"hasActivity.ftl\" .";
-					//"<" + configURI + "> :listViewConfigFile \"listViewConfig-instanceHasActivity.xml\"^^xsd:string .  " + 
-							 
-	
-					break;	
-				case "subject":
-					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-subject.xml\"^^xsd:string .  ";
-					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
-							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"hasLCSH.jsonld\"; " + 
-							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"hasLCSH.ftl\" .";
-	
-					break;
-				case "hasPreferredTitle":
-					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-hasPreferredTitle.xml\"^^xsd:string .  ";
-					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " +
-							"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkPreferredTitle.jsonld\". ";				
-	
-					//In case this depends on whether audio, instance, or item, right now attaching same one for all classes
-					//Depends on whether audio, instance or item
-					/*
-					if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Audio")) {
-						configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkPreferredTitle.jsonld\". ";				} 
-					else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
-						configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioInstancePreferredTitle.jsonld\". ";
-					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
-						configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioItemPreferredTitle.jsonld\". " ;
-					}*/	  	  
-					
-	
-					break;	
-				case "title":
-					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-title.xml\"^^xsd:string .  ";
-					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " ; 
-					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkTitle.jsonld\". " ;
-			
-					//This will be simpler for now, just putting in one version
-					
-					/*
-					//Depends on whether audio, instance or item
-					if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Audio")) {
-						configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkTitle.jsonld\"; " + 
-								 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"audioWorkTitle.ftl\" .";
-					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
-						configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioInstanceTitle.jsonld\"; " + 
-								 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"audioInstanceTitle.ftl\" .";
-					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
-						configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioItemTitle.jsonld\"; " + 
-								 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"audioItemTitle.ftl\" .";
-					}	else {
-						configRDF += " .";
-					}
-					
-					*/
-					break;
-				case "note":
-					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-note.xml\"^^xsd:string .  ";
-					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " ; 
-							
-					
-					
-					//Depends on whether audio, instance or item
-					if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Audio")) {
-						configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioWorkNote.jsonld\" . " ;
-					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
-						configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioInstanceNote.jsonld\". " ;
-					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
-						configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"audioItemNote.jsonld\". " ;
-					}	else {
-						configRDF += " .";
-					}
-					
-	
-					break;	
-			
-				case "event":
-					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-event.xml\"^^xsd:string .  ";
-					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
-					"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"recordedAt.ftl\" ; ";				
-					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"recordedAt.jsonld\" ;" + 
-								"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customModelChangePreprocessorAnnot> \"\"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.preprocessors.AuthorityHackPreprocessor\"^^<http://www.w3.org/2001/XMLSchema#string> ." ;
-	
-					break;
-					
-				case "identifier": 
-					configRDF = "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
-							"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"hasIdentifier.jsonld\" .";
-					break;
-					
-				case "measurementGroup":
-					//configRDF = "<" + configURI + "> 
-					
-				//all sound characteristics require custom configuration for list views
-				case "soundCharacteristic":
-					break;
+					break;*/			
 					
 				default:
 					break;
@@ -551,6 +378,21 @@ public class TranslateShacl {
 		//Directory paths are set based on specific implementation
 		protected static String ontologyDirectoryPath = null;
 		protected static String shaclDirectoryPath = null;
+		protected static String workFormURI = null;
+		protected static String instanceFormURI = null;
+		protected static String itemFormURI = null;
+
+		public static String getWorkFormURI() {
+			return workFormURI;
+		}
+
+		public static String getInstanceFormURI() {
+			return instanceFormURI;
+		}
+
+		public static String getItemFormURI() {
+			return itemFormURI;
+		}
 
 		
 		public static String getOntologyDirectoryPath() {
@@ -570,6 +412,9 @@ public class TranslateShacl {
 			//Populate this for reference later
 			ontologyModel = getOntologyModel();
 			compareToOntology(shaclModel, ontologyModel);
+			//Output any RDF property (that is not defined as an owl object property)
+			System.out.println("Check for properties identified as RDF property");
+			outputRDFProperties(ontologyModel);
 			//Generate property groups
 			System.out.println("********Generate Property Groups***********");
 			generatePropertyGroups(shaclModel);
@@ -587,7 +432,8 @@ public class TranslateShacl {
 			//Do data property specifics
 			System.out.println("********Generate data properties*********");
 			Model dataPropertiesModel = processDataProperties(shaclModel, ontologyModel);
-			
+			//Write out data properties model
+			 dataPropertiesModel.write(System.out, "N3");
 			//Generate custom form specifics
 			System.out.println("#Work custom form");
 			generateCustomFormSpecifics(workAppModel);
@@ -601,24 +447,137 @@ public class TranslateShacl {
 	
 		}
 		
+		private void outputRDFProperties(Model ontologyModel) {
+			String query = "PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " + 
+		 		"PREFIX owl:   <http://www.w3.org/2002/07/owl#> " + 
+		 		"PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#> " + 
+		 		"SELECT DISTINCT ?propertyURI ?range WHERE {?propertyURI rdf:type rdf:Property . " + 
+		 		" OPTIONAL {?propertyURI rdfs:range ?range . } } ";
+			ResultSet rs = executeQuery(ontologyModel, query);
+			while(rs.hasNext()) {
+				String type = "object";
+				QuerySolution qs = rs.nextSolution();
+				Resource propertyURI = qs.getResource("propertyURI");
+				if(qs.contains("range")) {
+					Resource range = qs.getResource("range");
+					if(range != null && range.getURI().equals(RDFS.Literal.getURI())) {
+						type = "data";
+					}
+				}
+				String output = "<" + propertyURI + "> <" + RDF.type.getURI() + "> <";
+				if(type.equals("object")) {
+					output += OWL.ObjectProperty.getURI();
+				} else {
+					output += OWL.DatatypeProperty.getURI();
+				}
+				output += "> .";
+				System.out.println(output);
+			}
+			
+		}
+
 		//Generate data properties
 		 private static Model processDataProperties(Model shaclModel, Model ontologyModel){
 			 Model dataPropertiesModel = ModelFactory.createDefaultModel();
 			 //Query for all properties 
-			 String query = "SELECT ?formURI ?dataPropertyURI ?formTargetClass ?propertyClass WHERE {" + 
+			 String query = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
+			 "SELECT DISTINCT ?formURI ?propertyPathURI ?path ?formTarget ?propertyTarget ?group WHERE {" + 
 			 "?formURI sh:property ?propertyPathURI . " + 
 			 "?propertyPathURI sh:nodeKind sh:Literal ."  +
-			 "OPTIONAL {?propertyPathURI sh:target ?propertyClass . } " + 
-			 "OPTIONAL {?formURI sh:targetClass ?formTargetClass. }" + 
+			 "?propertyPathURI sh:path ?path . " +
+			 "OPTIONAL {?property sh:group ?group .} " + 
+			 "OPTIONAL {?propertyPathURI sh:target ?propertyTarget . } " + 
+			 "OPTIONAL {?formURI sh:targetClass ?formTarget. }" + 
 			 "}";
 			 ResultSet rs = executeQuery(shaclModel, query);
+		
 			 while(rs.hasNext()) {
 				 QuerySolution qs = rs.nextSolution();
+				 Model propertyModel = createDataProperty(qs);
+				 if(!containsDataRestriction(dataPropertiesModel, propertyModel)) {
+					 dataPropertiesModel.add(propertyModel);
+				 }
 			 }
+			 
 			 return dataPropertiesModel;
 		 }
 		
-		
+		//Data properties model = aggregate model of propertyModel, propertyModel = single data property restriction
+		 private static boolean containsDataRestriction(Model dataPropertiesModel, Model propertyModel) {
+			//Check if restriction for data property exists already, don't add again
+			 String prefixes = "PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " + 
+			 		"PREFIX owl:   <http://www.w3.org/2002/07/owl#> " + 
+			 		"PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#> ";
+			String query = prefixes + "SELECT  ?domain ?property ?valuesFrom WHERE {?domain rdfs:subClassOf ?restriction ." + 
+			"?restriction owl:allValuesFrom ?valuesFrom . ?restriction owl:onProperty ?property .}";
+			ResultSet rs = executeQuery(propertyModel, query);
+			while(rs.hasNext()) {
+				QuerySolution qs = rs.nextSolution();
+				Resource domain = qs.getResource("domain");
+				Resource property = qs.getResource("property");
+				Resource valuesFrom = qs.getResource("valuesFrom");
+				
+				String checkQuery = prefixes + "SELECT  ?restriction WHERE { <" + domain.getURI() +  "> rdfs:subClassOf ?restriction ." + 
+						"?restriction owl:allValuesFrom <" + valuesFrom.getURI() + "> . ?restriction owl:onProperty <" + property.getURI() + ">}";
+				ResultSet checkRs = executeQuery(dataPropertiesModel, checkQuery);
+				if(checkRs.hasNext()) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
+
+		private static Model createDataProperty(QuerySolution qs) {
+				Model dataPropertyModel = ModelFactory.createDefaultModel();
+				Resource path = getVarResource(qs, "path");
+				String prefixes = "@prefix owl: <http://www.w3.org/2002/07/owl#> .\r\n" + 
+						"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n" + 
+						"@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .";
+				String dataPropertyRDF = "";
+				String propertyGroupURI = "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#inPropertyGroupAnnot>";
+				if(path != null) {
+					String pathURI = path.getURI();
+					String pathResource = "<" + pathURI + ">";
+			
+					Resource group = getVarResource(qs, "group");
+					Resource target = getVarResource(qs, "propertyTarget");
+					Resource formTarget = getVarResource(qs, "formTarget");
+					
+					//Restriction on domain, picking string for now but
+					//can also check for datatype but we are not currently
+					if(group != null) {
+						dataPropertyRDF = pathResource + " " + propertyGroupURI + " <" + group.getURI() + "> .";
+					}
+					//check target specified on the property first
+					//if that is not available, check shapetarget
+					String domainURI = "";
+					if(target != null) {
+						domainURI = "<" + target.getURI() + ">";
+					} else {
+						if(formTarget != null) {
+							domainURI = "<" + formTarget.getURI() + ">";
+						}
+					}
+					
+					if(StringUtils.isNotEmpty(domainURI)) {
+						String restrictionRDF = domainURI + " rdfs:subClassOf " + 
+					" [ a owl:Restriction; " + 
+					" owl:onProperty " + pathResource + ";" + 
+					"owl:allValuesFrom <http://www.w3.org/2001/XMLSchema#string> ] .";
+						dataPropertyRDF += restrictionRDF;
+					}
+					
+						
+				
+				}
+				
+				//Read in dataPropertyRDF with prefixes into model
+				dataPropertyRDF = prefixes + dataPropertyRDF;
+				dataPropertyModel.read(new ByteArrayInputStream(dataPropertyRDF.getBytes()), null, "N3");
+				return dataPropertyModel;
+			}
+
 		//For each of work, instance, item models, generate the appropriate custom form linkages
 		//Cases are hardcoded, but specific faux property config numbers change based on the original shacl file
 		/*
@@ -1037,24 +996,21 @@ public class TranslateShacl {
 		private static Model generateWorkModel(Model shaclModel) {
 			
 			//Get all properties for an audio work form
-			String shapeURI = "http://bibliotek-o.org/shapes/audio/AudioWorkForm";
-			Model appModel = generateAppModel(shapeURI, shaclModel);
+			Model appModel = generateAppModel(workFormURI, shaclModel);
 			return appModel;
 		}
 		
 		private static Model generateInstanceModel(Model shaclModel) {
 			
 			//Get all properties for an audio work form
-			String shapeURI = "http://bibliotek-o.org/shapes/audio/AudioInstanceForm";
-			Model appModel = generateAppModel(shapeURI, shaclModel);
+			Model appModel = generateAppModel(instanceFormURI, shaclModel);
 			return appModel;
 		}
 		
 		private static Model generateItemModel(Model shaclModel) {
 			
 			//Get all properties for an audio work form
-			String shapeURI = "http://bibliotek-o.org/shapes/audio/AudioItemForm";
-			Model appModel = generateAppModel(shapeURI, shaclModel);
+			Model appModel = generateAppModel(itemFormURI, shaclModel);
 			return appModel;
 		}
 		
@@ -1095,85 +1051,15 @@ public class TranslateShacl {
 			ResultSet rs = executeQuery(queryModel, query);
 			ResultSetRewindable rsCopy = ResultSetFactory.copyResults(rs);
 			Model returnModel = mapToFauxProperties(rsCopy);
-			Model dataPropertiesModel = mapToDataProperties(rsCopy);
-			returnModel.add(dataPropertiesModel);
 			return returnModel;
 			
 		}
 		
-		//Create data properties
-		//Could also use a separate query that only looks at data properties
-		private static Model mapToDataProperties(ResultSetRewindable rs) {
-			Model dataPropertiesModel = ModelFactory.createDefaultModel();
-			//Iterate through result set
-			rs.reset();
-			while(rs.hasNext()) {
-				QuerySolution qs = rs.nextSolution();
-				//System.out.println(qs.toString());
-				Model dataPropertyModel = createDataProperty(qs);
-				dataPropertiesModel.add(dataPropertyModel);
-			}
-			return dataPropertiesModel;
-		}
 		
 		//Create a new data property
 		//Domain = target
 		//Range = class
-		private static Model createDataProperty(QuerySolution qs) {
-			Model dataPropertyModel = ModelFactory.createDefaultModel();
-			Resource path = getVarResource(qs, "path");
-			String prefixes = "@prefix owl: <http://www.w3.org/2002/07/owl#> .\r\n" + 
-					"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n" + 
-					"@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .";
-			String dataPropertyRDF = "";
-			String propertyGroupURI = "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#inPropertyGroupAnnot>";
-			if(path != null) {
-				String pathURI = path.getURI();
-				String pathResource = "<" + pathURI + ">";
-				String literalType = "http://www.w3.org/ns/shacl#Literal";
-				Resource nodeKind = getVarResource(qs, "nodeKind");
-	
-				if(nodeKind != null && StringUtils.isNotEmpty(nodeKind.getURI()) 
-						&& nodeKind.getURI().equals(literalType)) {
-					//Not checking for range but does this matter for data properties?
-					//i.e. integer vs. string etc.?
-					Resource group = getVarResource(qs, "group");
-					Resource target = getVarResource(qs, "target");
-					Resource shapeTarget = getVarResource(qs, "shapeTarget");
-					
-					//Restriction on domain, picking string for now but
-					//can also check for datatype but we are not currently
-					if(group != null) {
-						dataPropertyRDF = pathResource + " " + propertyGroupURI + " <" + group.getURI() + "> .";
-					}
-					//check target specified on the property first
-					//if that is not available, check shapetarget
-					String domainURI = "";
-					if(target != null) {
-						domainURI = "<" + target.getURI() + ">";
-					} else {
-						if(shapeTarget != null) {
-							domainURI = "<" + shapeTarget.getURI() + ">";
-						}
-					}
-					
-					if(StringUtils.isNotEmpty(domainURI)) {
-						String restrictionRDF = domainURI + " rdfs:subClassOf " + 
-					" [ a owl:Restriction; " + 
-					" owl:onProperty " + pathResource + ";" + 
-					"owl:allValuesFrom <http://www.w3.org/2001/XMLSchema#string> ] .";
-						dataPropertyRDF += restrictionRDF;
-					}
-					
-					
-				}
-			}
-			
-			//Read in dataPropertyRDF with prefixes into model
-			dataPropertyRDF = prefixes + dataPropertyRDF;
-			dataPropertyModel.read(new ByteArrayInputStream(dataPropertyRDF.getBytes()), null, "N3");
-			return dataPropertyModel;
-		}
+		
 		//Given result set with properties, create new faux properties
 		private static Model mapToFauxProperties(ResultSetRewindable rs) {
 			rs.reset();
@@ -1435,6 +1321,7 @@ public class TranslateShacl {
 		}
 		    
 	    //Read in ontology files or SHACL files from a directory
+		//This could also be a nested directory so will try and read from those as well
 		private static Model readInRDFFilesFromDirectory(String directoryPath) {
 			Model model= ModelFactory.createDefaultModel();
 			
@@ -1442,29 +1329,34 @@ public class TranslateShacl {
 			File directory = new File(directoryPath);
 		    for(File fileEntry : directory.listFiles()) {
 				try {
-					FileInputStream fis = (new FileInputStream(fileEntry));
-					String fn = fileEntry.getName();
-					//String fn = Paths.get(fileEntry.getPath()).getFileName().toString().toLowerCase();
-					//System.out.println("Reading in " + fn);
-					 //String fn = fileEntry.getPath().getFileName()
-	                 if ( fn.endsWith(".nt") ) {
-	                     model.read( fis, null, "N-TRIPLE" );
-	                 } else if ( fn.endsWith(".n3") ) {
-	                     model.read(fis, null, "N3");
-	                 } else if ( fn.endsWith(".ttl") ) {
-	                     model.read(fis, null, "TURTLE");
-	                 } else if ( fn.endsWith(".owl") || fn.endsWith(".rdf") || fn.endsWith(".xml") ) {
-	                	 System.out.println("Reading in owl, rdf, xml" + fn);
-	                     model.read( fis, null, "RDF/XML" );
-	                 } else if ( fn.endsWith(".md") ) {
-	                 	// Ignore markdown files - documentation.
-	                 } else {
-	                     //log.warn("Ignoring " + type + " file graph " + p + " because the file extension is unrecognized.");
-	                 }
+					if(fileEntry.isDirectory()) {
+						Model directoryModel = readInRDFFilesFromDirectory(fileEntry.getAbsolutePath());
+						model.add(directoryModel);
+					} else {
+						FileInputStream fis = (new FileInputStream(fileEntry));
+						String fn = fileEntry.getName();
+						//String fn = Paths.get(fileEntry.getPath()).getFileName().toString().toLowerCase();
+						//System.out.println("Reading in " + fn);
+						 //String fn = fileEntry.getPath().getFileName()
+		                 if ( fn.endsWith(".nt") ) {
+		                     model.read( fis, null, "N-TRIPLE" );
+		                 } else if ( fn.endsWith(".n3") ) {
+		                     model.read(fis, null, "N3");
+		                 } else if ( fn.endsWith(".ttl") ) {
+		                     model.read(fis, null, "TURTLE");
+		                 } else if ( fn.endsWith(".owl") || fn.endsWith(".rdf") || fn.endsWith(".xml") ) {
+		                	 System.out.println("Reading in owl, rdf, xml" + fn);
+		                     model.read( fis, null, "RDF/XML" );
+		                 } else if ( fn.endsWith(".md") ) {
+		                 	// Ignore markdown files - documentation.
+		                 } else {
+		                     //log.warn("Ignoring " + type + " file graph " + p + " because the file extension is unrecognized.");
+		                 }
+					}
 	                 
 	                 
 				} catch(Exception ex) {
-					System.out.println("Error occurred in reading in SHACL files");
+					System.out.println("Error occurred in reading in SHACL files: " + fileEntry.getName());
 					ex.printStackTrace();
 				}
 		    }
