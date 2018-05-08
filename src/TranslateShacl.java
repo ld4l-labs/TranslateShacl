@@ -874,8 +874,10 @@ public class TranslateShacl {
 		    	String uri = node.asResource().getURI();
 		    	//System.out.println("uri is for property decorated" + uri);
 		    	StmtIterator stmtit = model.listStatements(ResourceFactory.createResource(uri), null, (RDFNode) null);
-		    	if(!stmtit.hasNext()) {
+		    	if(!stmtit.hasNext() && uri != null) {
 		    		//System.out.println("This URI does not appear in the ontology files as a subject " + uri);
+		    		//there are blank nodes now being used in the case where a path is either not meant to be a field on the form
+		    		//or meant to specify an actual path of properties
 		    		urisMissing.add(uri);
 		    	}
 		    }

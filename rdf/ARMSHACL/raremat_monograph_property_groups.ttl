@@ -4,7 +4,7 @@
 @prefix core: <http://vivoweb.org/ontology/core#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix gn: <http://www.geonames.org/ontology/> .
-@prefix gvp: <http://www.geonames.org/ontology/> .
+@prefix gvp: <http://vocab.getty.edu/ontology#> .
 @prefix lingvo: <http://www.lingvoj.org/ontology#> .
 @prefix madsrdf: <http://www.loc.gov/standards/mads/rdf/v1.rdf#> .
 @prefix measurement: <https://w3id.org/arm/measurement/ontology/0.1/> .
@@ -20,7 +20,7 @@
 @prefix vivo: <http://vivoweb.org/ontology/core#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-@prefix : <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_shacl_monograph/> .
+@prefix : <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_property_groups/> . 
 
 #
 # ////////// PROPERTY GROUP DEFINITIONS ////////// #
@@ -113,6 +113,11 @@
   rdf:type sh:PropertyGroup ;
   rdfs:label "Instance Pagination and Foliation" ;
   sh:order "0"^^xsd:decimal .
+  
+:InstancePhysicalDescriptionPropertyGroup
+  rdf:type sh:PropertyGroup ;
+  rdfs:label "Instance physical description" ;
+  sh:order "0"^^xsd:decimal .
 
 :InstanceMeasurementGroupPropertyGroup  
   rdf:type sh:PropertyGroup ;
@@ -128,6 +133,12 @@
 :InstanceHasItemPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Has item" ;
+  sh:order "0"^^xsd:decimal .
+  
+:InstanceBibliographicCitationPropertyGroup
+  rdf:type sh:PropertyGroup ;
+  rdfs:label "Bibliographic Citations for the Instance" ;
+  sh:description "To group bibliographic citations of the instance." ;
   sh:order "0"^^xsd:decimal .
 
 :InstanceAwardReceiptPropertyGroup
@@ -179,6 +190,12 @@
   sh:description "To group parts and accompaniments of an item" ;
   sh:order "0"^^xsd:decimal .
   
+:ItemPhysicalDescriptionPropertyGroup
+  rdf:type sh:PropertyGroup ;
+  rdfs:label "Item Physical Description" ;
+  sh:description "To group item physical description information" ;
+  sh:order "0"^^xsd:decimal .
+  
 :ItemPaginationFoliationPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Item Pagination and Foliation" ;
@@ -193,6 +210,12 @@
 :ItemOfInstancePropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Item of" ;
+  sh:order "0"^^xsd:decimal .
+  
+:ItemBibliographicCitationPropertyGroup
+  rdf:type sh:PropertyGroup ;
+  rdfs:label "Bibliographic Citations for the Item" ;
+  sh:description "To group bibliographic citations for the item." ;
   sh:order "0"^^xsd:decimal .
   
 :ItemAwardReceiptPropertyGroup
@@ -213,4 +236,26 @@ rdf:type sh:PropertyGroup ;
 :ItemHistoryAndProvenancePropertyGroup
     a sh:PropertyGroup ;
     rdfs:label "Item history and provenance" ;
+    sh:order "0"^^xsd:decimal .
+
+######## EXPERIMENTAL - combine property groups for multiple types ########
+
+#
+# This approach enables sharing PropertyShapes across entity types, since
+# the PropertyShapes specify the property group. If this can't work because
+# the label, order, etc. must be different depending on subject type, then 
+# we will need distinct property groups with and-ed PropertyShapes to add
+# the property group for the composite PropertyShape.
+
+# Physical description for any subject type (property display depends on
+# entity type)
+:PhysicalDescriptionPropertyGroup
+    a sh:PropertyGroup ;
+    rdfs:label "Physical description" ;
+    sh:order "0"^^xsd:decimal .
+    
+# Activity for any subject type (property display depends on entity type)
+:ActivityPropertyGroup
+    a sh:PropertyGroup ;
+    rdfs:label "Agent" ;
     sh:order "0"^^xsd:decimal .
