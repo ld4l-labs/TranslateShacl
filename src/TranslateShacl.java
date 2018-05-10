@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -311,9 +312,11 @@ public class TranslateShacl {
 			this.shaclDirectoryPath = "rdf/ARMSHACL";
 			this.ontologyDirectoryPath = "rdf/ARMOntology";
 			//https://w3id.org/arm/application_profile/shacl/raremat_monograph/
-			this.workFormURI = "https://w3id.org/arm/application_profile/shacl/raremat_monograph/WorkForm";
-			this.instanceFormURI = "https://w3id.org/arm/application_profile/shacl/raremat_monograph/InstanceForm";
-			this.itemFormURI = "https://w3id.org/arm/application_profile/shacl/raremat_monograph/ItemForm";
+			//https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_form/
+			String namespace = "https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_form/";
+			this.workFormURI = namespace + "WorkForm";
+			this.instanceFormURI = namespace + "InstanceForm";
+			this.itemFormURI = namespace + "ItemForm";
 		}
 		
 		protected  void generateCustomFormSpecifics(Model appModel) {
@@ -413,8 +416,9 @@ public class TranslateShacl {
 			ontologyModel = getOntologyModel();
 			compareToOntology(shaclModel, ontologyModel);
 			//Output any RDF property (that is not defined as an owl object property)
-			System.out.println("Check for properties identified as RDF property");
+			System.out.println("Check for properties identified as RDF property, classes identified as RDFS class");
 			outputRDFProperties(ontologyModel);
+			outputRDFClasses(ontologyModel);
 			//Generate property groups
 			System.out.println("********Generate Property Groups***********");
 			generatePropertyGroups(shaclModel);
@@ -448,6 +452,7 @@ public class TranslateShacl {
 		}
 		
 		private void outputRDFProperties(Model ontologyModel) {
+			List<String> outputList = new ArrayList<String>();
 			String query = "PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " + 
 		 		"PREFIX owl:   <http://www.w3.org/2002/07/owl#> " + 
 		 		"PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#> " + 
@@ -471,7 +476,35 @@ public class TranslateShacl {
 					output += OWL.DatatypeProperty.getURI();
 				}
 				output += "> .";
-				System.out.println(output);
+				outputList.add(output);
+			}
+			Collections.sort(outputList);
+			for(String o: outputList) {
+				System.out.println(o);
+			}
+			
+		}
+		
+		//code to find RDF Classes and spit out statements specifying them as OWL Classes
+		private void outputRDFClasses(Model ontologyModel) {
+			List<String> outputList = new ArrayList<String>();
+			String query = "PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " + 
+		 		"PREFIX owl:   <http://www.w3.org/2002/07/owl#> " + 
+		 		"PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#> " + 
+		 		"SELECT DISTINCT ?classURI WHERE {?classURI rdf:type rdfs:Class .  } ";
+			ResultSet rs = executeQuery(ontologyModel, query);
+			while(rs.hasNext()) {
+				
+				QuerySolution qs = rs.nextSolution();
+				Resource classURI = qs.getResource("classURI");
+			
+				String output = "<" + classURI + "> <" + RDF.type.getURI() + "> <" + OWL.Class.getURI() +  "> .";
+				outputList.add(output);
+			}
+			
+			Collections.sort(outputList);
+			for(String o: outputList) {
+				System.out.println(o);
 			}
 			
 		}
@@ -1086,19 +1119,30 @@ public class TranslateShacl {
 		private static Model createFauxProperty(QuerySolution qs, int configNumber) {
 			Model fauxPropertyModel = ModelFactory.createDefaultModel();
 			Resource path = getVarResource(qs, "path");
+			if(path == null) {
+			//If path is null, just return an empty model but do log this
+				System.out.println("Path is NULL, QS is " + qs.toString());
+				return fauxPropertyModel;
+			}
 			//If path is not predicate but complex path, do not create a faux property
 			//Do print out a message
-			if(path != null) {
-				String pathURI = path.getURI();
-				//the path may include the prefix namespace within <>
-				//in this case, search for a : that is not the only one
-				if(pathURI.lastIndexOf("http:") > pathURI.indexOf("http:") ||
-						pathURI.lastIndexOf(":") > pathURI.indexOf(":") ||
-						pathURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
-					System.out.println("Faux property not created for " + pathURI);
-					return fauxPropertyModel;
-				}
+			//At this point, we know path is NOT null
+			String pathURI = path.getURI();
+			if(StringUtils.isEmpty(pathURI)) {
+				//for now, returning empty model but this could be a property path
+				//so will need to deal with that somehow
+				return fauxPropertyModel;
+
 			}
+			//the path may include the prefix namespace within <>
+			//in this case, search for a : that is not the only one
+			if(pathURI.lastIndexOf("http:") > pathURI.indexOf("http:") ||
+					pathURI.lastIndexOf(":") > pathURI.indexOf(":") ||
+					pathURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
+				System.out.println("Faux property not created for " + pathURI);
+				return fauxPropertyModel;
+			}
+			
 			String URIType = "http://www.w3.org/ns/shacl#IRI";
 			
 			//?property ?path ?class ?group ?name ?nodeKind ?order ?target ?orList
@@ -1130,7 +1174,7 @@ public class TranslateShacl {
 			String fauxConfigContextURI = "local:fpgn" + configNumber;
 			String fauxConfigURI = "local:fpgenconfig" + configNumber;
 			String fauxN3 = prefixes;
-			String pathURI = path.getURI();
+			//String pathURI = path.getURI();
 			List<String> urisWithoutRange = new ArrayList<String>();
 			//IMPORTANT: Switching to nodeKind = IRI if class is present
 			//This may not be actually true, so will need to review
