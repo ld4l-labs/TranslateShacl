@@ -13,10 +13,11 @@
 @prefix measure: <https://w3id.org/arm/measurement/ontology/0.1/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix prov: <http://www.w3.org/ns/prov> .
+@prefix raremat_monograph_custodial_history: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_custodial_history/> .
 @prefix raremat_monograph_enclosure: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_enclosure/> .
-@prefix raremat_monograph_exhibition: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_exhibition/> .
 @prefix raremat_monograph_form: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_form/> .
 @prefix raremat_monograph_property_groups: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_property_groups/> .
+@prefix raremat_shapes_monograph_exhibition: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_exhibition/> .
 @prefix rdau: <http://rdaregistry.info/Elements/u/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -43,14 +44,44 @@ raremat_monograph_form:WorkForm
   rdf:type sh:NodeShape ;
   rdfs:label "Monographic Text" ;
   sh:targetClass bf:Text ;
+  
+# WorkTitlePropertyGroup
+
   sh:property raremat_monograph_form:WorkForm_arm_hasPreferredTitle ;
   sh:property raremat_monograph_form:WorkForm_bf_title ;
+  
+# WorkActivityPropertyGroup
+
+  sh:property raremat_monograph_form:WorkForm_activity_hasActivity ;
+
+# WorkSubjectGenreFormPropertyGroup
+
   sh:property raremat_monograph_form:WorkForm_bf_subject ;
   sh:property raremat_monograph_form:WorkForm_bf_genreForm ;
-  sh:property raremat_monograph_form:WorkForm_bf_language ;
   sh:property raremat_monograph_form:WorkForm_arm_hasStylePeriod ;
+  
+# WorkLanguageFormPropertyGroup
+
+  sh:property raremat_monograph_form:WorkForm_bf_language ;
+  
+# WorkToInstancePropertyGroup
+
   sh:property raremat_monograph_form:WorkForm_bf_hasInstance ;
-  sh:property raremat_monograph_form:WorkForm_activity_hasActivity ;
+
+# WorkNotePropertyGroup
+
+  sh:property raremat_monograph_form:WorkForm_bf_note ;
+  
+# WorkAwardReceiptPropertyGroup
+
+  sh:property raremat_monograph_form:WorkForm_award_receives ;
+  
+# WorkIdentifierPropertyGroup
+
+  sh:property raremat_monograph_form:WorkForm_bf_identifiedBy ;
+
+# WorkToWorkPropertyGroup
+
   sh:property raremat_monograph_form:WorkForm_bf_hasPart ;
   sh:property raremat_monograph_form:WorkForm_bf_partOf ;
   sh:property raremat_monograph_form:WorkForm_bf_hasExpression ;
@@ -123,10 +154,7 @@ raremat_monograph_form:WorkForm
   sh:property raremat_monograph_form:WorkForm_rdau_P60831 ;
   sh:property raremat_monograph_form:WorkForm_rdau_P60832 ;
   sh:property raremat_monograph_form:WorkForm_rdau_P60833 ;
-  sh:property raremat_monograph_form:WorkForm_bf_dataSource ;
-  sh:property raremat_monograph_form:WorkForm_award_receives ;
-  sh:property raremat_monograph_form:WorkForm_bf_note ;
-  sh:property raremat_monograph_form:WorkForm_bf_identifiedBy .
+  sh:property raremat_monograph_form:WorkForm_bf_dataSource .
 
 
 
@@ -279,7 +307,8 @@ raremat_monograph_form:WorkForm_bf_hasInstance
       sh:nodeKind sh:IRI ;
       sh:group raremat_monograph_property_groups:WorkToInstancePropertyGroup ;
       tosh:editWidget swa:NestedObjectEditor ;
-      sh:class bf:Instance .
+      sh:class bf:Instance ;
+      sh:order "0"^^xsd:decimal .
       
 # ///// PROPERTY SHAPES FOR WorkNotePropertyGroup START HERE. /////////////////////////////////////////////////////////////////////////
 
@@ -302,7 +331,7 @@ raremat_monograph_form:WorkForm_bf_note
          ]
          
         ) ;
-    .
+      sh:order "0"^^xsd:decimal .
     
 # ///// PROPERTY SHAPES FOR WorkAwardReceipt PropertyGroup START HERE. /////////////////////////////////////////////////////////////
 
@@ -327,6 +356,7 @@ raremat_monograph_form:WorkForm_bf_identifiedBy
       sh:description "Identifiers for works." ;
       sh:group raremat_monograph_property_groups:WorkIdentifierPropertyGroup ;
       sh:name "Work Identifier" ;
+      sh:order "0"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 
@@ -341,7 +371,8 @@ raremat_monograph_form:WorkForm_bf_hasPart
       sh:path bf:hasPart ;
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
-      sh:name "Contents of Monograph" .    
+      sh:name "Contents of Monograph" ;
+      sh:order "0"^^xsd:decimal .    
 
 # TODO decide what types of bf:Works a bf:Text can be a part of, e.g. another bf:Text
 
@@ -350,6 +381,7 @@ raremat_monograph_form:WorkForm_bf_partOf
       sh:path bf:partOf ;
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
+      sh:order "1"^^xsd:decimal ;
       sh:name "Is part or contents of" .
 
 raremat_monograph_form:WorkForm_bf_hasExpression 
@@ -358,6 +390,7 @@ raremat_monograph_form:WorkForm_bf_hasExpression
       sh:class bf:Work ;
       sh:description "Work that is an expression of a described Work. For use to relate Works under FRBR/RDA rules." ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
+      sh:order "2"^^xsd:decimal ;
       sh:name "Has expression" .
 
 raremat_monograph_form:WorkForm_bf_referencedBy 
@@ -366,6 +399,7 @@ raremat_monograph_form:WorkForm_bf_referencedBy
       sh:class bf:Work ;
       sh:description "Resource that references the described resource." ;
       sh:name "Referenced by" ;
+      sh:order "3"^^xsd:decimal ; 
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup .
     
 raremat_monograph_form:WorkForm_bf_references 
@@ -375,6 +409,7 @@ raremat_monograph_form:WorkForm_bf_references
       sh:description "Resource that is referenced by the described resource." ;
       sh:name "References" ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
+      sh:order "4"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
     
 raremat_monograph_form:WorkForm_rdau_P60088 
@@ -383,6 +418,7 @@ raremat_monograph_form:WorkForm_rdau_P60088
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is dramatized as" ;
+      sh:order "5"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60102 
@@ -391,6 +427,7 @@ raremat_monograph_form:WorkForm_rdau_P60102
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is sequel" ;
+      sh:order "6"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60104 
@@ -399,6 +436,7 @@ raremat_monograph_form:WorkForm_rdau_P60104
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is replaced by" ;
+      sh:order "7"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60106 
@@ -407,6 +445,7 @@ raremat_monograph_form:WorkForm_rdau_P60106
       sh:class bf:Text ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adapted in verse as" ;
+      sh:order "8"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60110 
@@ -415,6 +454,7 @@ raremat_monograph_form:WorkForm_rdau_P60110
       sh:class bf:MovingImage ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adapted as motion picture" ;
+      sh:order "9"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60138 
@@ -423,6 +463,7 @@ raremat_monograph_form:WorkForm_rdau_P60138
       sh:class bf:Text ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adapted as novel" ;
+      sh:order "10"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60177 
@@ -431,6 +472,7 @@ raremat_monograph_form:WorkForm_rdau_P60177
       sh:class bf:Audio ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is abstracted in" ;
+      sh:order "11"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60178 
@@ -439,6 +481,7 @@ raremat_monograph_form:WorkForm_rdau_P60178
       sh:class bf:Text ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is indexed in" ;
+      sh:order "12"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60180 
@@ -447,6 +490,7 @@ raremat_monograph_form:WorkForm_rdau_P60180
       sh:class bf:NotatedMovement ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adapted as choreography" ;
+      sh:order "13"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60185 
@@ -455,6 +499,7 @@ raremat_monograph_form:WorkForm_rdau_P60185
       sh:class bf:Text ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adapted as screenplay" ;
+      sh:order "14"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60188 
@@ -463,6 +508,7 @@ raremat_monograph_form:WorkForm_rdau_P60188
       sh:class bf:Text ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adapted as radio script" ;
+      sh:order "15"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60189 
@@ -471,6 +517,7 @@ raremat_monograph_form:WorkForm_rdau_P60189
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is freely translated as" ;
+      sh:order "16"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60199 
@@ -479,6 +526,7 @@ raremat_monograph_form:WorkForm_rdau_P60199
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is continued in part by" ;
+      sh:order "17"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60203 
@@ -487,6 +535,7 @@ raremat_monograph_form:WorkForm_rdau_P60203
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is abstracted as" ;
+      sh:order "18"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60205 
@@ -495,6 +544,7 @@ raremat_monograph_form:WorkForm_rdau_P60205
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is summarized as" ;
+      sh:order "19"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60214 
@@ -503,6 +553,7 @@ raremat_monograph_form:WorkForm_rdau_P60214
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is imitated as" ;
+      sh:order "20"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60216 
@@ -511,6 +562,7 @@ raremat_monograph_form:WorkForm_rdau_P60216
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is expanded as" ;
+      sh:order "21"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60220 
@@ -519,6 +571,7 @@ raremat_monograph_form:WorkForm_rdau_P60220
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Has prequel" ;
+      sh:order "22"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60224 
@@ -527,6 +580,7 @@ raremat_monograph_form:WorkForm_rdau_P60224
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is abstract of" ;
+      sh:order "23"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60225 
@@ -535,6 +589,7 @@ raremat_monograph_form:WorkForm_rdau_P60225
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is dramatization of" ;
+      sh:order "24"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60238 
@@ -543,6 +598,7 @@ raremat_monograph_form:WorkForm_rdau_P60238
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is digest of" ;
+      sh:order "25"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60241 
@@ -551,6 +607,7 @@ raremat_monograph_form:WorkForm_rdau_P60241
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adaptation of" ;
+      sh:order "26"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60243 
@@ -559,6 +616,7 @@ raremat_monograph_form:WorkForm_rdau_P60243
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is free translation of" ;
+      sh:order "27"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60244 
@@ -567,6 +625,7 @@ raremat_monograph_form:WorkForm_rdau_P60244
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is translation of" ;
+      sh:order "28"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60245 
@@ -575,6 +634,7 @@ raremat_monograph_form:WorkForm_rdau_P60245
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is revised as" ;
+      sh:order "29"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60246 
@@ -583,6 +643,7 @@ raremat_monograph_form:WorkForm_rdau_P60246
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is parodied as" ;
+      sh:order "30"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60247 
@@ -591,6 +652,7 @@ raremat_monograph_form:WorkForm_rdau_P60247
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is absorbed by" ;
+      sh:order "31"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60248 
@@ -599,6 +661,7 @@ raremat_monograph_form:WorkForm_rdau_P60248
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is absorbed in part by" ;
+      sh:order "32"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60250 
@@ -607,6 +670,7 @@ raremat_monograph_form:WorkForm_rdau_P60250
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is derivative" ;
+      sh:order "33"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60260 
@@ -615,6 +679,7 @@ raremat_monograph_form:WorkForm_rdau_P60260
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adapted as" ;
+      sh:order "34"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60120 
@@ -623,6 +688,7 @@ raremat_monograph_form:WorkForm_rdau_P60120
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is remade as" ;
+      sh:order "35"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60204 
@@ -631,6 +697,7 @@ raremat_monograph_form:WorkForm_rdau_P60204
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is augmented by" ;
+      sh:order "36"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60211 
@@ -639,6 +706,7 @@ raremat_monograph_form:WorkForm_rdau_P60211
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is reviewed in" ;
+      sh:order "37"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60212 
@@ -647,6 +715,7 @@ raremat_monograph_form:WorkForm_rdau_P60212
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is critiqued in" ;
+      sh:order "38"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60215 
@@ -655,6 +724,7 @@ raremat_monograph_form:WorkForm_rdau_P60215
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is described in" ;
+      sh:order "39"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60275 
@@ -663,6 +733,7 @@ raremat_monograph_form:WorkForm_rdau_P60275
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is abridged as" ;
+      sh:order "40"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60261 
@@ -671,6 +742,7 @@ raremat_monograph_form:WorkForm_rdau_P60261
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is preceded by" ;
+      sh:order "41"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60276 
@@ -679,6 +751,7 @@ raremat_monograph_form:WorkForm_rdau_P60276
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is continuation in part of" ;
+      sh:order "42"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
            
 raremat_monograph_form:WorkForm_rdau_P60277 
@@ -687,6 +760,7 @@ raremat_monograph_form:WorkForm_rdau_P60277
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is separated from" ;
+      sh:order "43"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60278 
@@ -695,6 +769,7 @@ raremat_monograph_form:WorkForm_rdau_P60278
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is succeeded by" ;
+      sh:order "44"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60279 
@@ -703,6 +778,7 @@ raremat_monograph_form:WorkForm_rdau_P60279
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is digested as" ;
+      sh:order "45"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60280 
@@ -711,6 +787,7 @@ raremat_monograph_form:WorkForm_rdau_P60280
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is translated as" ;
+      sh:order "46"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60289 
@@ -719,6 +796,7 @@ raremat_monograph_form:WorkForm_rdau_P60289
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is summary of" ;
+      sh:order "47"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60293 
@@ -727,6 +805,7 @@ raremat_monograph_form:WorkForm_rdau_P60293
       sh:class bf:NotatedMovement ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is choreographic adaptation of" ;
+      sh:order "48"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60295 
@@ -735,6 +814,7 @@ raremat_monograph_form:WorkForm_rdau_P60295
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is remake of" ;
+      sh:order "49"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60296 
@@ -743,6 +823,7 @@ raremat_monograph_form:WorkForm_rdau_P60296
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is paraphrase of" ;
+      sh:order "50"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60303 
@@ -751,6 +832,7 @@ raremat_monograph_form:WorkForm_rdau_P60303
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is revision of" ;
+      sh:order "51"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60305 
@@ -759,6 +841,7 @@ raremat_monograph_form:WorkForm_rdau_P60305
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is based on" ;
+      sh:order "52"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60306 
@@ -767,6 +850,7 @@ raremat_monograph_form:WorkForm_rdau_P60306
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is continued by" ;
+      sh:order "53"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60308 
@@ -775,6 +859,7 @@ raremat_monograph_form:WorkForm_rdau_P60308
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is abstracts for" ;
+      sh:order "54"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60309 
@@ -783,6 +868,7 @@ raremat_monograph_form:WorkForm_rdau_P60309
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is indexing for" ;
+      sh:order "55"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60310 
@@ -791,6 +877,7 @@ raremat_monograph_form:WorkForm_rdau_P60310
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is prequel to" ;
+      sh:order "56"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60311 
@@ -799,6 +886,7 @@ raremat_monograph_form:WorkForm_rdau_P60311
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is imitation of" ;
+      sh:order "57"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60312 
@@ -807,6 +895,7 @@ raremat_monograph_form:WorkForm_rdau_P60312
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is parody of" ;
+      sh:order "58"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60354 
@@ -815,6 +904,7 @@ raremat_monograph_form:WorkForm_rdau_P60354
       sh:class bf:MovingImage ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adapted as television program" ;
+      sh:order "59"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60361 
@@ -823,6 +913,7 @@ raremat_monograph_form:WorkForm_rdau_P60361
       sh:class bf:MovingImage ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adapted as video" ;
+      sh:order "60"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60480 
@@ -831,6 +922,7 @@ raremat_monograph_form:WorkForm_rdau_P60480
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is replacement of" ;
+      sh:order "61"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60503 
@@ -839,6 +931,7 @@ raremat_monograph_form:WorkForm_rdau_P60503
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is split into" ;
+      sh:order "62"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60504 
@@ -846,7 +939,8 @@ raremat_monograph_form:WorkForm_rdau_P60504
       sh:path <http://rdaregistry.info/Elements/u/P60504> ;
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
-      sh:name "Iss merged to form" ;
+      sh:name "Is merged to form" ;
+      sh:order "63"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60505 
@@ -855,6 +949,7 @@ raremat_monograph_form:WorkForm_rdau_P60505
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is merger of" ;
+      sh:order "64"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60574 
@@ -863,6 +958,7 @@ raremat_monograph_form:WorkForm_rdau_P60574
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is absorption of" ;
+      sh:order "65"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60575 
@@ -871,6 +967,7 @@ raremat_monograph_form:WorkForm_rdau_P60575
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is absorption in part of" ;
+      sh:order "66"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60576 
@@ -879,6 +976,7 @@ raremat_monograph_form:WorkForm_rdau_P60576
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is continuation of" ;
+      sh:order "67"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60577 
@@ -887,6 +985,7 @@ raremat_monograph_form:WorkForm_rdau_P60577
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is sequel to" ;
+      sh:order "68"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60743 
@@ -895,6 +994,7 @@ raremat_monograph_form:WorkForm_rdau_P60743
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is graphic novelization of" ;
+      sh:order "69"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60831 
@@ -903,6 +1003,7 @@ raremat_monograph_form:WorkForm_rdau_P60831
       sh:class bf:NotatedMusic ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is adapted as oratorio" ;
+      sh:order "70"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60832 
@@ -911,6 +1012,7 @@ raremat_monograph_form:WorkForm_rdau_P60832
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is inspired by" ;
+      sh:order "71"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
 raremat_monograph_form:WorkForm_rdau_P60833 
@@ -919,6 +1021,7 @@ raremat_monograph_form:WorkForm_rdau_P60833
       sh:class bf:Work ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Is inspiration for" ;
+      sh:order "72"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
     
 raremat_monograph_form:WorkForm_bf_dataSource 
@@ -928,6 +1031,7 @@ raremat_monograph_form:WorkForm_bf_dataSource
       sh:description "Resource that is a data source to which the described resource is related. It may contain information about other files, printed sources, or collection procedures." ;
       sh:group raremat_monograph_property_groups:WorkToWorkPropertyGroup ;
       sh:name "Data source" ;
+      sh:order "73"^^xsd:decimal ;
       sh:nodeKind sh:IRI .
       
       
@@ -939,16 +1043,37 @@ raremat_monograph_form:InstanceForm
   rdf:type sh:NodeShape ;
   rdfs:label "Instance of Monographic Text" ;
   sh:targetClass bf:Instance ;
+  
+# InstanceTitlePropertyGroup
+
   sh:property raremat_monograph_form:InstanceForm_arm_hasPreferredTitle ;
   sh:property raremat_monograph_form:InstanceForm_bf_title ;
+  
+  
+# InstanceTypePropertyGroup
+
   sh:property raremat_monograph_form:InstanceForm_bf_carrier ;
+  
+  
+# InstanceTypePropertyGroup
+  
   sh:property raremat_monograph_form:InstanceForm_bf_genreForm ;
+  
+ 
+# InstanceActivityPropertyGroup
+
   sh:property raremat_monograph_form:InstanceForm_activity_hasActivity ;
   sh:property raremat_monograph_form:InstanceForm_bf_responsibilityStatement ;
   sh:property raremat_monograph_form:InstanceForm_bf_provisionActivityStatement ;
-  sh:property raremat_monograph_form:InstanceForm_bf_hasPart ;
+  
+# InstanceAccompanimentsPropertyGroup
+
   sh:property raremat_monograph_form:InstanceForm_bf_accompaniedBy ;
   sh:property raremat_monograph_form:InstanceForm_bf_accompanies ;
+  
+  
+# InstancePhysicalDescriptionPropertyGroup
+
   sh:property raremat_monograph_form:InstanceForm_bf_extent ;
   sh:property raremat_monograph_form:InstanceForm_measure_hasMeasurementGroup ;
   sh:property raremat_monograph_form:InstanceForm_bf_bookFormat ;
@@ -957,16 +1082,40 @@ raremat_monograph_form:InstanceForm
   sh:property raremat_monograph_form:InstanceForm_measure_hasMaterial ;
   sh:property raremat_monograph_form:InstanceForm_rdau_P60596 ;
   sh:property raremat_monograph_form:InstanceForm_rdau_P60159 ;
+  sh:property raremat_monograph_form:InstanceForm_bf_hasPart ;
+  sh:property raremat_monograph_enclosure:InstanceForm_bf_hasPart_arm_Enclosure ;
+  sh:property raremat_monograph_enclosure:InstanceForm_bf_hasPart_arm_Binding ;
   sh:property raremat_monograph_form:InstanceForm_arm_writtenIn ;
   sh:property raremat_monograph_form:InstanceForm_arm_markedBy ;
+  
+  
+# InstanceOfWorkPropertyGroup
+
   sh:property raremat_monograph_form:InstanceForm_bf_instanceOf ;
   sh:property raremat_monograph_form:InstanceForm_bf_editionStatement ;
+  
+
+# InstanceHasItemPropertyGroup
+
   sh:property raremat_monograph_form:InstanceForm_bf_hasItem ;
+  
+  
+# InstanceBibliographicCitationPropertyGroup
   sh:property raremat_monograph_form:InstanceForm_arm_hasCitation ;
+  
+# InstanceAwardReceiptPropertyGroup
+
   sh:property raremat_monograph_form:InstanceForm_award_receives ;
+  
+
+# InstanceNotePropertyGroup
+
   sh:property raremat_monograph_form:InstanceForm_bf_note ;
+  
+  
+# InstanceIdentifierPropertyGroup
+
   sh:property raremat_monograph_form:InstanceForm_bf_identifiedBy ;
-  sh:property raremat_monograph_enclosure:RareMatForm_dcterms_hasPart_arm_Enclosure ;
   .
 
 
@@ -1078,17 +1227,7 @@ raremat_monograph_form:InstanceForm_bf_provisionActivityStatement
       sh:description "Statement relating to providers of a resource; usually transcribed." ;
       sh:nodeKind sh:Literal ;
       sh:group raremat_monograph_property_groups:InstanceActivityPropertyGroup .
-      
-# TODO decide what carrier types can be part of an Instance of a Monograph
-      
-raremat_monograph_form:InstanceForm_bf_hasPart 
-      a sh:PropertyShape ;
-      sh:path bf:hasPart ;
-      sh:name "Instance part" ;
-      sh:order "0"^^xsd:decimal ;
-      sh:description "Part of the instance being described." ;
-      sh:class bf:Instance ;
-      sh:group raremat_monograph_property_groups:InstancePartsAccompanimentsPropertyGroup .
+
 
 # TODO decide what carrier types can accompany an Instance of a Monograph
      
@@ -1098,7 +1237,8 @@ raremat_monograph_form:InstanceForm_bf_accompaniedBy
       sh:class bf:Instance ;
       sh:description "Resource that accompanies the described resource." ;
       sh:name "Accompanied by" ;
-      sh:group raremat_monograph_property_groups:InstancePartsAccompanimentsPropertyGroup .
+      sh:order "0"^^xsd:decimal ;
+      sh:group raremat_monograph_property_groups:InstanceAccompanimentsPropertyGroup .
 
 # TODO decide what carrier types can accompany an Instance of a Monograph
       
@@ -1108,7 +1248,8 @@ raremat_monograph_form:InstanceForm_bf_accompanies
       sh:class bf:Instance ;
       sh:description "Resource that adds to or is issued with the described resource." ;
       sh:name "Accompanies" ;
-      sh:group raremat_monograph_property_groups:InstancePartsAccompanimentsPropertyGroup .
+      sh:order "1"^^xsd:decimal ;
+      sh:group raremat_monograph_property_groups:InstanceAccompanimentsPropertyGroup .
  
  
   
@@ -1133,7 +1274,7 @@ raremat_monograph_form:InstanceForm_measure_hasMeasurementGroup
       sh:group raremat_monograph_property_groups:InstancePhysicalDecriptionPropertyGroup ;
       sh:name "Instance measurement information" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "1"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
       
 raremat_monograph_form:InstanceForm_bf_bookFormat 
@@ -1145,7 +1286,7 @@ raremat_monograph_form:InstanceForm_bf_bookFormat
       sh:name "Book format" ;
       sh:in ( <http://rdaregistry.info/termList/bookFormat/1001> <http://rdaregistry.info/termList/bookFormat/1002> <http://rdaregistry.info/termList/bookFormat/1003> <http://rdaregistry.info/termList/bookFormat/1004> <http://rdaregistry.info/termList/bookFormat/1005> <http://rdaregistry.info/termList/bookFormat/1006> <http://rdaregistry.info/termList/bookFormat/1007> <http://rdaregistry.info/termList/bookFormat/1008> <http://rdaregistry.info/termList/bookFormat/1009> <http://rdaregistry.info/termList/bookFormat/1010> <http://rdaregistry.info/termList/bookFormat/1011> <http://rdaregistry.info/termList/bookFormat/1012> <http://rdaregistry.info/termList/bookFormat/1013> <http://rdaregistry.info/termList/bookFormat/1014> <http://rdaregistry.info/termList/bookFormat/1015>) ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal .
+      sh:order "2"^^xsd:decimal .
       
 raremat_monograph_form:InstanceForm_bf_illustrativeContent_rdf_value
       a sh:PropertyShape ;
@@ -1155,7 +1296,7 @@ raremat_monograph_form:InstanceForm_bf_illustrativeContent_rdf_value
       sh:description "Information about content intended to illustrate a resource." ;
       sh:name "Illustrative content" ;
       sh:nodeKind sh:Literal ;
-      sh:order ""^^xsd:decimal .
+      sh:order "3"^^xsd:decimal .
       
 raremat_monograph_form:InstanceForm_arm_hasSignatureStatement 
       a sh:PropertyShape ;
@@ -1165,7 +1306,7 @@ raremat_monograph_form:InstanceForm_arm_hasSignatureStatement
       sh:description "A formulaic statement describing the pattern followed in assembling the sheets of the book, as expressed in its signatures. Signatures are letters, numerals, symbols, or a group of such characters printed at the foot of the rectos of the first few leaves of each gathering (quire) to aid the binder in correctly assembling the sections." ;
       sh:name "Signature statement" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "4"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
       
       
@@ -1177,7 +1318,7 @@ raremat_monograph_form:InstanceForm_arm_hasMaterial
       sh:description "Materials that make up this this instance. Materials can also be more granularly associated with each part of the instance, and/or as base or applied material." ;
       sh:name "Has material" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "5"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
 
 
@@ -1189,7 +1330,7 @@ raremat_monograph_form:InstanceForm__rdau_P60596
       sh:description "Base materials for this this instance. Base materials can also be more granularly associated with each part of the instance." ;
       sh:name "Has base material" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "6"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
   
 raremat_monograph_form:InstanceForm_rdau_P60159 
@@ -1200,8 +1341,19 @@ raremat_monograph_form:InstanceForm_rdau_P60159
       sh:description "Applied materials for this this instance. Applied materials can also be more granularly associated with each part of the instance." ;
       sh:name "Has applied material" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "7"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
+      
+raremat_monograph_form:InstanceForm_bf_hasPart 
+      a sh:PropertyShape ;
+      sh:path bf:hasPart ;
+      sh:name "Instance part" ;
+      sh:order "8"^^xsd:decimal ;
+      sh:description "Part of the instance being described." ;
+      sh:class bf:Instance ;
+      sh:group raremat_monograph_property_groups:InstancePhysicalDescriptionPropertyGroup .
+      
+# An Enclosure Property Shape belongs at this point in the form sequence. See :bf_hasPart_arm_Enclosure
       
 raremat_monograph_form:InstanceForm_arm_writtenIn 
       a sh:PropertyShape ;
@@ -1220,7 +1372,7 @@ raremat_monograph_form:InstanceForm_arm_writtenIn
       sh:description "The Font or HandWriting the textual information is displayed in." ;
       sh:name "Font or HandWriting" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "10"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
       
 raremat_monograph_form:InstanceForm_arm_markedBy 
@@ -1253,7 +1405,7 @@ raremat_monograph_form:InstanceForm_arm_markedBy
       sh:description "Markings applied to objects during or after creation, conveying information such as the object's origin or maker, its authenticity, or a change in its official status." ;
       sh:name "Markings" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "11"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
       
 # ///// PROPERTY SHAPES FOR InstanceOfWork PropertyGroup START HERE. /////////////////////////////////////////////////////////////      
@@ -1264,6 +1416,7 @@ raremat_monograph_form:InstanceForm_bf_instanceOf
       sh:class bf:Text ;
       sh:description "Works that this is an instance of" ;
       sh:name "Instance of (works)" ;
+      sh:order "0"^^xsd:decimal ;
       sh:group raremat_monograph_property_groups:InstanceOfWorkPropertyGroup .
       
 raremat_monograph_form:InstanceForm_bf_editionStatement 
@@ -1272,6 +1425,7 @@ raremat_monograph_form:InstanceForm_bf_editionStatement
       sh:name "Edition statement or version of the resource" ;
       sh:description: "Edition or version of the resource and associated statements of responsibility for the edition; usually transcribed." ;
       sh:nodeKind sh:Literal ;
+      sh:order "1"^^xsd:decimal ;
       sh:group raremat_monograph_property_groups:InstanceOfWorkPropertyGroup .
 
 # ///// PROPERTY SHAPES FOR InstancetoItemPropertyGroup START HERE. /////////////////////////////////////////////////////////////
@@ -1282,6 +1436,7 @@ raremat_monograph_form:InstanceForm_bf_hasItem
       sh:class bf:Item ;
       sh:description "Items of this instance" ;
       sh:name "Has item" ;
+      sh:order "0"^^xsd:decimal ;
       sh:group raremat_monograph_property_groups:InstanceHasItemPropertyGroup .
       
 # ///// PROPERTY SHAPES FOR InstanceBibliographicCitationPropertyGroup START HERE. /////////////////////////////////////////////////////////////
@@ -1317,6 +1472,7 @@ raremat_monograph_form:InstanceForm_bf_note
       sh:path bf:note ;
       sh:description "Instance related notes for when more granualar information isn't captured." ;
       sh:name "Instance notes" ;
+      sh:order "0"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor ;
       sh:group raremat_monograph_property_groups:InstanceNotePropertyGroup ;
       sh:or (
@@ -1345,6 +1501,7 @@ raremat_monograph_form:InstanceForm_bf_identifiedBy
       sh:description "Identifiers for Instances" ;
       sh:group raremat_monograph_property_groups:InstanceIdentifierPropertyGroup ;
       sh:name "Instance Identifier" ;
+      sh:order "0"^^xsd:decimal ;
       sh:nodeKind sh:IRI .         
           
           
@@ -1356,15 +1513,41 @@ raremat_monograph_form:ItemForm
   rdf:type sh:NodeShape ;
   rdfs:label "Item of Monographic Text" ;
   sh:targetClass bf:Item ;
+  
+# ItemTypePropertyGroup
+
+  sh:property raremat_monograph_form:ItemForm_rdf_type ;
+  
+  
+# ItemTitlePropertyGroup
+
   sh:property raremat_monograph_form:ItemForm_arm_hasPreferredTitle ;
   sh:property raremat_monograph_form:ItemForm_bf_title ;
+  
+  
+# ItemActivityPropertyGroup
+
   sh:property raremat_monograph_form:ItemForm_activity_hasActivity ;
+  
+
+# ItemGenreFormPropertyGroup
+
   sh:property raremat_monograph_form:ItemForm_bf_genreForm ;
-  sh:property raremat_monograph_form:ItemForm_bf_hasPart ;
-  sh:property raremat_monograph_form:ItemForm_bf_partOf ;
+  
+  
+# ItemAccompanimentsPropertyGroup
+
   sh:property raremat_monograph_form:ItemForm_arm_isOnCarrier ;
-  sh:property raremat_monograph_form:ItemForm_bf_extent ;
+  
+  
+# ItemPhysicalDescriptionPropertyGroup
+
+  sh:property raremat_monograph_form:ItemForm_bf_hasPart ;
+  sh:property raremat_monograph_enclosure:ItemForm_bf_hasPart_arm_Enclosure ;
+  sh:property raremat_monograph_enclosure:ItemForm_bf_hasPart_arm_Binding ;
+  sh:property raremat_monograph_form:ItemForm_bf_partOf ;
   sh:property raremat_monograph_form:ItemForm_measure_hasMeasurementGroup ;
+  sh:property raremat_monograph_form:ItemForm_bf_extent ;
   sh:property raremat_monograph_form:ItemForm_arm_hasSignatureStatement ;
   sh:property raremat_monograph_form:ItemForm_arm_hasPhysicalCondition_rdf_value ;
   sh:property raremat_monograph_form:ItemForm_arm_hasMaterial ;
@@ -1372,13 +1555,30 @@ raremat_monograph_form:ItemForm
   sh:property raremat_monograph_form:ItemForm_rdau_P60159 ;
   sh:property raremat_monograph_form:ItemForm_arm_writtenIn ;
   sh:property raremat_monograph_form:ItemForm_arm_markedBy ;
+  
+  
+# ItemOfInstancePropertyGroup
+
   sh:property raremat_monograph_form:ItemForm_bf_itemOf ;
+
+# ItemBibliographicCitationPropertyGroup
   sh:property raremat_monograph_form:ItemForm_arm_hasCitation ;
+  
+# ItemHistoryAndProvenancePropertyGroup
+
+  sh:property raremat_shapes_monograph_exhibition:ItemForm_arm_hasExhibition ;
+  sh:property raremat_monograph_custodial_history:ItemForm_arm_hasCustodialHistory ;
   sh:property raremat_monograph_form:ItemForm_award_receives ;
+
+
+# ItemNotePropertyGroup
+
   sh:property raremat_monograph_form:ItemForm_bf_note ;
+  
+  
+# ItemIdentifierPropertyGroup
+
   sh:property raremat_monograph_form:ItemForm_bf_identifiedBy ;
-  # sh:property raremat_shapes_monograph_exhibition:ItemForm_arm_hasExhibition ;
-  sh:property raremat_monograph_enclosure:RareMatForm_dcterms_hasPart_arm_Enclosure ;
   . 
 
 raremat_monograph_form:ItemForm_rdf_type 
@@ -1410,11 +1610,6 @@ raremat_monograph_form:ItemForm_bf_title
   sh:name "Other title" ;
   sh:nodeKind sh:IRI ;
   sh:order "1"^^xsd:decimal .
-
-  
-# TODO Property groups for related things, e.g. bf:itemOf, Boundwiths, Bibliographic citations
-
-# TODO History and Provenance Custodial History, Activity (with curated list of custodial-history related roles), Exhibitions, Activities, Awards, Activities
 
 # TODO Update Activity List when there are subclasses, and custodial history is added to the form. 
 
@@ -1449,9 +1644,26 @@ raremat_monograph_form:ItemForm_bf_genreForm_madsrdf_isMemberOfMADSScheme
  sh:name "LCGFT Form Genre Terms" ;
  sh:nodeKind sh:IRI ;
  skos:editorialNote "Use look up service; LCGFT is too big to load directly into an RDF editor, and more importantly we don't want to create MADSAuthorities, only link to them." .
-  
-# TODO decide what Items can be part of an Item of a Monograph
       
+raremat_monograph_form:ItemForm_arm_isOnCarrier 
+      a sh:PropertyShape ;
+      sh:path arm:isOnCarrier ;
+      sh:name "Is on a carrier" ;
+      sh:order "0"^^xsd:decimal ;
+      sh:description "The item being described is on a particular carrier (possibly on a carrier with other items)." ;
+      sh:group raremat_monograph_property_groups:ItemAccompanimentsPropertyGroup ;
+      tosh:editWidget swa:NestedObjectEditor .
+      
+# ///// PROPERTY SHAPES FOR ItemOfInstance PropertyGroup START HERE. /////////////////////////////////////////////////////////////      
+
+raremat_monograph_form:ItemForm_bf_itemOf 
+      a sh:PropertyShape ;
+      sh:path bf:itemOf ;
+      sh:class bf:Instance ;
+      sh:description "Instances that this is an item of" ;
+      sh:name "Item of (instances)" ;
+      sh:group raremat_monograph_property_groups:ItemOfInstancePropertyGroup .
+
 raremat_monograph_form:ItemForm_bf_hasPart 
       a sh:PropertyShape ;
       sh:path bf:hasPart ;
@@ -1459,7 +1671,9 @@ raremat_monograph_form:ItemForm_bf_hasPart
       sh:order "0"^^xsd:decimal ;
       sh:description "Part of the item being described." ;
       sh:class bf:Item ;
-      sh:group raremat_monograph_property_groups:ItemPartsAccompanimentsPropertyGroup .
+      sh:group raremat_monograph_property_groups:ItemPhysicalDescriptionPropertyGroup .
+      
+# An Enclosure Property Shape belongs at this point in the form sequence. See :bf_hasPart_arm_Enclosure
       
 raremat_monograph_form:ItemForm_bf_partOf 
       a sh:PropertyShape ;
@@ -1468,17 +1682,8 @@ raremat_monograph_form:ItemForm_bf_partOf
       sh:order "1"^^xsd:decimal ;
       sh:description "The item being described is part of another item." ;
       sh:class bf:Item ;
-      sh:group raremat_monograph_property_groups:ItemPartsAccompanimentsPropertyGroup .
+      sh:group raremat_monograph_property_groups:ItemPhysicalDescriptionPropertyGroup .
       
-raremat_monograph_form:ItemForm_arm_isOnCarrier 
-      a sh:PropertyShape ;
-      sh:path arm:isOnCarrier ;
-      sh:name "Is on a carrier" ;
-      sh:order "2"^^xsd:decimal ;
-      sh:description "The item being described is on a particular carrier (possibly on a carrier with other items)." ;
-      sh:group raremat_monograph_property_groups:ItemPartsAccompanimentsPropertyGroup ;
-      tosh:editWidget swa:NestedObjectEditor .
-
 raremat_monograph_form:ItemForm_measure_hasMeasurementGroup 
       a sh:PropertyShape ;
       sh:path measure:hasMeasurementGroup ;
@@ -1486,21 +1691,20 @@ raremat_monograph_form:ItemForm_measure_hasMeasurementGroup
       sh:group raremat_monograph_property_groups:ItemPhysicalDescriptionPropertyGroup ;
       sh:name "Instance measurement information" ;
       sh:nodeKind sh:IRI ;
-      sh:order "0"^^xsd:decimal ;
+      sh:order "2"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
    
 raremat_monograph_form:ItemForm_bf_extent 
       a sh:PropertyShape ;
       sh:path bf:extent ;
       sh:name "Item pagination and foliation" ;
-      sh:order "0"^^xsd:decimal ;
+      sh:order "3"^^xsd:decimal ;
       sh:description "Sequential numbering of individual leaves, plates, pages (numbering on both sides), or columns (used as a sequence of numbering) of a resource." ;
       sh:class arm:PaginationFoliation ;
       sh:group raremat_monograph_property_groups:ItemPhysicalDescriptionPropertyGroup ;
       tosh:editWidget swa:NestedObjectEditor .
   
 # TODO Physical description, Physical Condition, Activity (with curated list of Item roles for physical condition assessment and conservation), Bindings 
-
       
 raremat_monograph_form:ItemForm_arm_hasSignatureStatement 
       a sh:PropertyShape ;
@@ -1510,7 +1714,7 @@ raremat_monograph_form:ItemForm_arm_hasSignatureStatement
       sh:description "A formulaic statement describing the pattern followed in assembling the sheets of the book, as expressed in its signatures. Signatures are letters, numerals, symbols, or a group of such characters printed at the foot of the rectos of the first few leaves of each gathering (quire) to aid the binder in correctly assembling the sections." ;
       sh:name "Signature statement" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "4"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
       
 raremat_monograph_form:ItemForm_arm_hasPhysicalCondition_rdf_value
@@ -1521,7 +1725,7 @@ raremat_monograph_form:ItemForm_arm_hasPhysicalCondition_rdf_value
       sh:description "Description of characteristics such as physical appearance, level of damage, quality, or completeness" ;
       sh:name "Physical condition" ;
       sh:nodeKind sh:Literal ;
-      sh:order ""^^xsd:decimal .
+      sh:order "5"^^xsd:decimal .
       
 raremat_monograph_form:ItemForm_arm_hasMaterial 
       a sh:PropertyShape ;
@@ -1531,7 +1735,7 @@ raremat_monograph_form:ItemForm_arm_hasMaterial
       sh:description "Materials that make up this this item. Materials can also be more granularly associated with each part of the item, and/or as base or applied material." ;
       sh:name "Has material" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "6"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
 
 
@@ -1543,7 +1747,7 @@ raremat_monograph_form:ItemForm_rdau_P60596
       sh:description "Base materials for this this instance. Base materials can also be more granularly associated with each part of the item." ;
       sh:name "Has base material" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "7"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
   
   
@@ -1555,19 +1759,9 @@ raremat_monograph_form:ItemForm_rdau_P60159
       sh:description "Applied materials for this this item. Applied materials can also be more granularly associated with each part of the item." ;
       sh:name "Has applied material" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "8"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
       
-raremat_monograph_form:InstanceForm_rdau_P60159 
-      a sh:PropertyShape ;
-      sh:path rdau:P60159 ;
-      sh:class crm:E57_Material ;
-      sh:group raremat_monograph_property_groups:InstancePhysicalDescriptionPropertyGroup ;
-      sh:description "Applied materials for this this instance. Applied materials can also be more granularly associated with each part of the instance." ;
-      sh:name "Has applied material" ;
-      sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
-      tosh:editWidget swa:NestedObjectEditor .
       
 raremat_monograph_form:ItemForm_arm_writtenIn 
       a sh:PropertyShape ;
@@ -1586,7 +1780,7 @@ raremat_monograph_form:ItemForm_arm_writtenIn
       sh:description "The Font or HandWriting the textual information is displayed in." ;
       sh:name "Font or HandWriting" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "9"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
       
 raremat_monograph_form:ItemForm_arm_markedBy 
@@ -1620,19 +1814,9 @@ raremat_monograph_form:ItemForm_arm_markedBy
       sh:description "Markings applied to objects during or after creation, conveying information such as the object's origin or maker, its authenticity, or a change in its official status." ;
       sh:name "Markings" ;
       sh:nodeKind sh:IRI ;
-      sh:order ""^^xsd:decimal ;
+      sh:order "10"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
       
-      
-# ///// PROPERTY SHAPES FOR ItemOfInstance PropertyGroup START HERE. /////////////////////////////////////////////////////////////      
-
-raremat_monograph_form:ItemForm_bf_itemOf 
-      a sh:PropertyShape ;
-      sh:path bf:itemOf ;
-      sh:class bf:Instance ;
-      sh:description "Instances that this is an item of" ;
-      sh:name "Item of (instances)" ;
-      sh:group raremat_monograph_property_groups:ItemOfInstancePropertyGroup .
       
 # ///// PROPERTY SHAPES FOR ItemBibliographicCitationPropertyGroup START HERE. /////////////////////////////////////////////////////////////
 
@@ -1648,16 +1832,20 @@ raremat_monograph_form:ItemForm_arm_hasCitation
   sh:order "0"^^xsd:decimal .
 
       
-# ///// PROPERTY SHAPES FOR ItemAwardReceipt PropertyGroup START HERE. /////////////////////////////////////////////////////////////
+# ///// PROPERTY SHAPES FOR ItemPhysicalDescriptionPropertyGroup PropertyGroup START HERE. /////////////////////////////////////////////////////////////
+
+# ItemForm_arm_hasExhibition Property Shape belongs at this point in the form sequence.
+
+# ItemForm_arm_hasCustodialHistory Property Shape belongs at this point in the form sequence.
 
 raremat_monograph_form:ItemForm_award_receives 
       a sh:PropertyShape ;
       sh:path award:receives ;
       sh:class award:AwardReceipt ;
-      sh:group raremat_monograph_property_groups:ItemAwardReceiptPropertyGroup ;
+      sh:group raremat_monograph_property_groups:ItemHistoryAndProvenancePropertyGroup ;
       sh:name "Item award receipt" ;
       sh:nodeKind sh:IRI ;
-      sh:order "0"^^xsd:decimal ;
+      sh:order "2"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
       
       
@@ -1668,6 +1856,7 @@ raremat_monograph_form:ItemForm_bf_note
       sh:path bf:note ;
       sh:description "Item related notes for when more granualar information isn't captured." ;
       sh:name "Item notes" ;
+      sh:order "0"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor ;
       sh:group raremat_monograph_property_groups:ItemNotePropertyGroup ;
       sh:or (
@@ -1686,8 +1875,6 @@ raremat_monograph_form:ItemForm_bf_note
     .
 
 # ///// PROPERTY SHAPES FOR ItemIdentifier PropertyGroup START HERE. /////////////////////////////////////////////////////////////
-
-# TODO Decide what Identifier Type are applicable for Monographic Items
 
 raremat_monograph_form:ItemForm_bf_identifiedBy 
       a sh:PropertyShape ;
@@ -1821,15 +2008,7 @@ raremat_monograph_form:MeasurementGroupForm
   sh:property raremat_monograph_form:MeasurementGroupForm_dcterms_description ;
   sh:property raremat_monograph_form:MeasurementGroupForm_measure_hasMeasurement .
   
-  
-raremat_monograph_form:MeasurementGroupForm_dcterms_description 
-      a sh:PropertyShape ;
-      sh:path dcterms:description ;
-      sh:description "Record any qualifying information about the measurement, e.g. 'approximate', 'or smaller', 'in container', 'with handle' " ;
-      sh:name "Qualifying information about the measurement" ;
-      sh:nodeKind sh:Literal ;
-      sh:order "0"^^xsd:decimal .
-    
+
 raremat_monograph_form:MeasurementGroupForm_measure_hasMeasurement
       a sh:PropertyShape ;
       sh:path measure:hasMeasurement ;
@@ -1837,10 +2016,17 @@ raremat_monograph_form:MeasurementGroupForm_measure_hasMeasurement
       sh:description "The measurement of a single aspect of a resource, including value, units, and the dimension measured. For example, a book may have a height (aspect) of 10 (value) centimeters (units). Each such measurement is attached to a MeasurementGroup." ;
       sh:name "Single measurement" ;
       sh:nodeKind sh:IRI ;
-      sh:order "1"^^xsd:decimal ;
+      sh:order "0"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor .
-
-
+      
+raremat_monograph_form:MeasurementGroupForm_dcterms_description 
+      a sh:PropertyShape ;
+      sh:path dcterms:description ;
+      sh:description "Record any qualifying information about the measurement, e.g. 'approximate', 'or smaller', 'in container', 'with handle' " ;
+      sh:name "Qualifying information about the measurement" ;
+      sh:nodeKind sh:Literal ;
+      sh:order "1"^^xsd:decimal .
+      
 
 # /////// Measurement FORM BEGINS HERE ////////////////////////////////////////////////////////////
 
@@ -1905,8 +2091,6 @@ raremat_monograph_form:MeasurementForm_measure_hasUnit
           ]
         ) 
 .
-
-# For dimension types, such as height, width, weight, etc. use AAT, Art & Architecture Thesaurus.
 
 raremat_monograph_form:MeasurementForm_measure_measures 
       a sh:PropertyShape ;
@@ -1991,6 +2175,7 @@ raremat_monograph_form:NoteForm_rdf_type
       a sh:PropertyShape ;
       sh:path rdf:type ;
       sh:name "Type of Note" ;
+      sh:order "0"^^xsd:decimal ;
       sh:minCount "1" .     
 
 raremat_monograph_form:NoteForm_rdf_value 
@@ -2000,6 +2185,7 @@ raremat_monograph_form:NoteForm_rdf_value
       sh:maxCount "1" ;
       sh:description "String value for the note" ;
       sh:name "Note value" ;
+      sh:order "1"^^xsd:decimal ;
       sh:nodeKind sh:Literal .
       
 
@@ -2018,6 +2204,7 @@ raremat_monograph_form:PaginationFoliationForm_rdf_value
       sh:path rdf:value ;
       sh:description "Sequential numbering of individual leaves, plates, pages (numbering on both sides), or columns (used as a sequence of numbering) of a resource." ;
       sh:name "Pagination and foliation" ;
+      sh:order "0"^^xsd:decimal ;
       sh:nodeKind sh:Literal .    
 
 raremat_monograph_form:PaginationFoliationForm_dcterms_description 
@@ -2025,6 +2212,7 @@ raremat_monograph_form:PaginationFoliationForm_dcterms_description
       sh:path dcterms:description ;
       sh:description "Description of the pagination and/or foliation, including errors." ;
       sh:name "Description of pagination and foliation" ;
+      sh:order "1"^^xsd:decimal ;
       sh:nodeKind sh:Literal .
       
 # /////// AwardReceipt FORM BEGINS HERE ////////////////////////////////////////////////////////////
@@ -2044,6 +2232,7 @@ raremat_monograph_form:AwardReceiptForm_rdf_type
       sh:path rdf:type ;
       sh:description "Sequential numbering of individual leaves, plates, pages (numbering on both sides), or columns (used as a sequence of numbering) of a resource." ;
       sh:name "Type of Award Receipt" ;
+      sh:order "0"^^xsd:decimal ;
       sh:or (
           [
             sh:hasValue award:AwardWinner ;
@@ -2091,7 +2280,7 @@ raremat_monograph_form:AwardReceiptForm_activity_hasActivity
       a sh:PropertyShape ;
       sh:path activity:hasActivity ;
       sh:description "Agent activities related to the Award Receipt" ;
-      sh:name "Award receipt agent activity" ;
+      sh:name "Awarded by" ;
       sh:nodeKind sh:IRI ;
       sh:order "3"^^xsd:decimal ;
       tosh:editWidget swa:NestedObjectEditor ;
@@ -2154,6 +2343,7 @@ raremat_monograph_form:AwardForm_rdfs_label
       sh:path rdf:label ;
       sh:description "Name to refer to the award" ;
       sh:name "Name of award" ;
+      sh:order "0"^^xsd:decimal ;
       sh:nodeKind sh:Literal .
       
 
@@ -2393,7 +2583,7 @@ raremat_monograph_form:InstanceTitleForm_arm_hasSource
       sh:path arm:hasSource ;
       sh:name "Title source" ;
       sh:description "Source of the title. The source may be an agent, work, or instance" ;
-      sh:order "6"^^xsd:decimal ;
+      sh:order "7"^^xsd:decimal ;
       sh:or (
          
          [
@@ -2414,7 +2604,7 @@ raremat_monograph_form:InstanceTitleForm_bf_status
       sh:path bf:Status ;
       sh:in ( <https://w3id.org/arm/datasets/status/cancelled> <https://w3id.org/arm/datasets/status/current> <https://w3id.org/arm/datasets/status/deprecated> <https://w3id.org/arm/datasets/status/invalid> ) ;
       sh:description "The place from which this title originates, such as spine, cover, container, etc." ;
-      sh:order "7"^^xsd:decimal ;
+      sh:order "8"^^xsd:decimal ;
       sh:nodeKind sh:IRI ;
       sh:name "Title origin" .
       
@@ -2423,7 +2613,7 @@ raremat_monograph_form:InstanceTitleForm_arm_titleOf
       sh:path arm:titleOf ;
       sh:class bf:Instance ;
       sh:description "Links this title to an instance" ;
-      sh:order "8"^^xsd:decimal ;
+      sh:order "9"^^xsd:decimal ;
       sh:nodeKind sh:IRI ;
       sh:name "Title of" .
 
@@ -2432,7 +2622,7 @@ raremat_monograph_form:InstanceTitleForm_arm_isPreferredTitleOf
       sh:path arm:isPreferredTitleOf ;
       sh:class bf:Instance ;
       sh:description "Links this preferred title to an instance" ;
-      sh:order "9"^^xsd:decimal ;
+      sh:order "10"^^xsd:decimal ;
       sh:nodeKind sh:IRI ;
       sh:name "Preferred title of text work (if applicable)" .
     
@@ -2459,7 +2649,7 @@ raremat_monograph_form:InstanceTitleForm_bf_note
       sh:description "Note about this title" ;
       tosh:editWidget swa:NestedObjectEditor ;
       sh:nodeKind sh:IRI ;
-      sh:order "10"^^xsd:decimal .
+      sh:order "11"^^xsd:decimal .
       
       
 # /////// Item Title FORM BEGINS HERE ////////////////////////////////////////////////////////////
@@ -2610,7 +2800,7 @@ raremat_monograph_form:ItemTitleForm_bf_note
            sh:class arm:CaptainNote ;
          ]   
          [ 
-            sh:class  arm:InaccuracyNote ;
+           sh:class arm:InaccuracyNote ;
          ]
          
           ) ;
@@ -2642,7 +2832,7 @@ raremat_monograph_form:TitleNoteForm_rdf_type
 raremat_monograph_form:TitleNoteForm_rdf_value
       a sh:PropertyShape ;
       sh:path rdf:value ;
-      sh:description "Literal value for the title" ;
+      sh:description "Literal value for the note" ;
       sh:minCount "1" ;
       sh:maxCount "1" ;
       sh:order "1"^^xsd:decimal ;
@@ -2860,7 +3050,7 @@ raremat_monograph_form:MaterialForm_crm_P2_has_type
 raremat_monograph_form:MaterialForm_crm_P2_has_type_gvp_broaderExtended 
     a sh:PropertyShape ;
     sh:path ( crm:P2_has_type gvp:broaderExtended ) ;
-    sh:hasValue <http://vocab.getty.edu/page/aat/300010358> ;
+    sh:hasValue aat:300010358 ;
     sh:description "Values for materials taken from http://vocab.getty.edu/page/aat/300010358 (AAT's materials hierarchy)" ;
     sh:name "AAT Material Terms" ;
     skos:editorialNote "Use look up service; AAT materials is too big to load directly into an RDF editor, or list out in the SHACL" .
@@ -3042,6 +3232,7 @@ raremat_monograph_form:WorkIdentifierForm_rdf_type
       a sh:PropertyShape ;
       sh:path rdf:type ;
       sh:name "Type of Identifier" ;
+      sh:order "0"^^xsd:decimal ;
       sh:in ( bf:Identifier bf:Iswc bf:Istc bf:DissertationIdentifier ) ;
       sh:minCount "1" .     
 
@@ -3052,6 +3243,7 @@ raremat_monograph_form:WorkIdentifierForm_rdf_value
       sh:maxCount "1" ;
       sh:description "String value for the identifier" ;
       sh:name "Identifier value" ;
+      sh:order "1"^^xsd:decimal ;
       sh:nodeKind sh:Literal .
 
 
@@ -3081,6 +3273,7 @@ raremat_monograph_form:InstanceIdentifierForm_rdf_type
       sh:path rdf:type ;
       sh:in ( bf:Identifier bf:Isbn bf:Coden bf:CopyrightNumber bf:Fingerprint bf:Ismn bf:Iso bf:Istc bf:Lccn bf:Local bf:Nbn arm:OclcNumber bf:PublisherNumber bf:ReportNumber bf:Strn ) ;
       sh:name "Type of Identifier" ;
+      sh:order "0"^^xsd:decimal ;
       sh:minCount "1" .     
 
 raremat_monograph_form:InstanceIdentifierForm_rdf_value 
@@ -3090,6 +3283,7 @@ raremat_monograph_form:InstanceIdentifierForm_rdf_value
       sh:maxCount "1" ;
       sh:description "String value for the identifier" ;
       sh:name "Identifier value" ;
+      sh:order "1"^^xsd:decimal ;
       sh:nodeKind sh:Literal .
 
 
@@ -3116,7 +3310,9 @@ raremat_monograph_form:ItemIdentifierForm
 
 raremat_monograph_form:ItemIdentifierForm_rdf_type 
       a sh:PropertyShape ;
-      sh:path rdf:type ;sh:name "Type of Identifier" ;
+      sh:path rdf:type ;
+      sh:name "Type of Identifier" ;
+      sh:order "0"^^xsd:decimal ;
       sh:in ( bf:Identifier bf:ShelfMark arm:AccessionNumber bf:Barcode bf:Local ) ;
       sh:minCount "1" .
 
@@ -3127,6 +3323,7 @@ raremat_monograph_form:ItemIdentifierForm_rdf_value
       sh:maxCount "1" ;
       sh:description "String value for the identifier" ;
       sh:name "Identifier value" ;
+      sh:order "1"^^xsd:decimal ;
       sh:nodeKind sh:Literal .
 
 

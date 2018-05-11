@@ -42,8 +42,8 @@
   
 :WorkSubjectGenreFormPropertyGroup
   rdf:type sh:PropertyGroup ;
-  rdfs:label "Type and Genre" ;
-  sh:description "To group type, Genre, and Form information for the resource." ;
+  rdfs:label "Subject, Genre, and Style" ;
+  sh:description "To group Subject, Genre, and Style information for the resource." ;
   sh:order "2"^^xsd:decimal .
   
 :WorkLanguageFormPropertyGroup
@@ -90,71 +90,60 @@
 :InstanceTypePropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Instance Carrier Type" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "1"^^xsd:decimal .
   
 :InstanceGenreFormPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Instance Genre" ;
   sh:description "To group Instance Genres." ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "2"^^xsd:decimal .
   
 :InstanceActivityPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Instance Agents and Roles" ;
   sh:description "To group Agent role information for the resource." ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "3"^^xsd:decimal .
   
-:InstancePartsAccompanimentsPropertyGroup
+:InstanceAccompanimentsPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Instance Parts and Accompaniments" ;
-  sh:order "0"^^xsd:decimal .
-
-:InstancePaginationFoliationPropertyGroup
-  rdf:type sh:PropertyGroup ;
-  rdfs:label "Instance Pagination and Foliation" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "4"^^xsd:decimal .
   
 :InstancePhysicalDescriptionPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Instance physical description" ;
-  sh:order "0"^^xsd:decimal .
-
-:InstanceMeasurementGroupPropertyGroup  
-  rdf:type sh:PropertyGroup ;
-  rdfs:label "Measurements" ;
-  sh:description "To group measurement information for the resource." ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "5"^^xsd:decimal .
   
 :InstanceOfWorkPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Instance of Work" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "6"^^xsd:decimal .
   
 :InstanceHasItemPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Has item" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "7"^^xsd:decimal .
   
 :InstanceBibliographicCitationPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Bibliographic Citations for the Instance" ;
   sh:description "To group bibliographic citations of the instance." ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "8"^^xsd:decimal .
 
 :InstanceAwardReceiptPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Awards received" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "9"^^xsd:decimal .
 
 :InstanceNotePropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Item notes" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "10"^^xsd:decimal .
   
 :InstanceIdentifierPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Item identifiers" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "11"^^xsd:decimal .
 
 
 
@@ -170,73 +159,59 @@
   rdf:type sh:PropertyGroup ;
   rdfs:label "Titles" ;
   sh:description "To group title information for the resource." ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "1"^^xsd:decimal .
   
 :ItemActivityPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Item Agent and Roles" ;
   sh:description "To group Agent role information for the resource." ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "2"^^xsd:decimal .
   
 :ItemGenreFormPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Item genre" ;
   sh:description "To group Item Genres." ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "3"^^xsd:decimal .
   
-:ItemPartsAccompanimentsPropertyGroup
+:ItemAccompanimentsPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Instance Parts and Accompaniments" ;
   sh:description "To group parts and accompaniments of an item" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "4"^^xsd:decimal .
   
 :ItemPhysicalDescriptionPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Item Physical Description" ;
   sh:description "To group item physical description information" ;
-  sh:order "0"^^xsd:decimal .
-  
-:ItemPaginationFoliationPropertyGroup
-  rdf:type sh:PropertyGroup ;
-  rdfs:label "Item Pagination and Foliation" ;
-  sh:order "0"^^xsd:decimal .
-  
-:ItemMeasurementGroupPropertyGroup  
-  rdf:type sh:PropertyGroup ;
-  rdfs:label "Measurements" ;
-  sh:description "To group measurement information for the resource." ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "5"^^xsd:decimal .
   
 :ItemOfInstancePropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Item of" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "6"^^xsd:decimal .
   
 :ItemBibliographicCitationPropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Bibliographic Citations for the Item" ;
   sh:description "To group bibliographic citations for the item." ;
-  sh:order "0"^^xsd:decimal .
-  
-:ItemAwardReceiptPropertyGroup
-  rdf:type sh:PropertyGroup ;
-  rdfs:label "Awards received" ;
-  sh:order "0"^^xsd:decimal .
-  
+  sh:order "7"^^xsd:decimal .
+
+:ItemHistoryAndProvenancePropertyGroup
+  a sh:PropertyGroup ;
+  rdfs:label "Item history and provenance" ;
+  sh:order "8"^^xsd:decimal .
+    
 :ItemNotePropertyGroup
   rdf:type sh:PropertyGroup ;
   rdfs:label "Item notes" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "9"^^xsd:decimal .
   
 :ItemIdentifierPropertyGroup
 rdf:type sh:PropertyGroup ;
   rdfs:label "Item identifiers" ;
-  sh:order "0"^^xsd:decimal .
+  sh:order "10"^^xsd:decimal .
     
-:ItemHistoryAndProvenancePropertyGroup
-    a sh:PropertyGroup ;
-    rdfs:label "Item history and provenance" ;
-    sh:order "0"^^xsd:decimal .
+
 
 ######## EXPERIMENTAL - combine property groups for multiple types ########
 
@@ -246,16 +221,33 @@ rdf:type sh:PropertyGroup ;
 # the label, order, etc. must be different depending on subject type, then 
 # we will need distinct property groups with and-ed PropertyShapes to add
 # the property group for the composite PropertyShape.
-
-# Physical description for any subject type (property display depends on
-# entity type)
-:PhysicalDescriptionPropertyGroup
-    a sh:PropertyGroup ;
-    rdfs:label "Physical description" ;
-    sh:order "0"^^xsd:decimal .
     
-# Activity for any subject type (property display depends on entity type)
+# Activity of any resource type 
 :ActivityPropertyGroup
     a sh:PropertyGroup ;
     rdfs:label "Agent" ;
-    sh:order "0"^^xsd:decimal .
+    sh:order "0"^^xsd:decimal ;
+    .
+
+# Identifier of any resource type 
+:IdentifierPropertyGroup
+    a sh:PropertyGroup ;
+    rdfs:label "Identifiers" ;
+    sh:order "0"^^xsd:decimal ;
+    .
+        
+# Location of any resource type 
+:LocationPropertyGroup
+    a sh:PropertyGroup ;
+    rdfs:label "Location" ;
+    sh:order "0"^^xsd:decimal ;
+    .
+    
+# Physical description of any resource type. Note that Item and Instance 
+# have distinct physical description property groups due to different 
+# PropertyShape ordering constraints.
+:PhysicalDescriptionPropertyGroup
+    a sh:PropertyGroup ;
+    rdfs:label "Physical description" ;
+    sh:order "0"^^xsd:decimal ;
+    .
