@@ -1,7 +1,8 @@
+@prefix aat: <http://vocab.getty.edu/aat/> .
 @prefix activity: <https://w3id.org/arm/core/activity/0.1/> .
 @prefix arm: <https://w3id.org/arm/core/ontology/0.1/> .
 @prefix bf: <http://id.loc.gov/ontologies/bibframe/> .
-@prefix crm: <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix crm: <http://www.cidoc-crm.org/Property/P2-has-type/Version-6.2/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix gvp: <http://vocab.getty.edu/ontology#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -12,7 +13,6 @@
 @prefix swa: <http://topbraid.org/swa#> .
 @prefix tosh: <http://topbraid.org/tosh#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix aat: <http://vocab.getty.edu/aat/> .
 
 @prefix : <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_enclosure/> .
 @prefix arm_core_property_shapes: <https://w3id.org/arm/core/validation/shacl/arm_core_property_shapes/> .
@@ -26,35 +26,41 @@
 
 # Links a resource to its material
 :arm_hasMaterial
-    sh:and (
-        arm_core_property_shapes:arm_hasMaterial
-        [
-            # NON-VALIDATING
-            sh:name "Made of material" ;
-            sh:description "Materials of which this resource is made. There may be one or more." ;
-            sh:order "0"^^xsd:decimal ;
-            tosh:editWidget swa:NestedObjectEditor ;                   
-        ]
-    ) ;
+    a sh:PropertyShape ;
+    sh:node arm_core_property_shapes:arm_hasMaterial ;
+    # NON-VALIDATING
+    sh:name "Made of material" ;
+    sh:description "Materials of which this resource is made. There may be one or more." ;
+    tosh:editWidget swa:NestedObjectEditor ;                   
     .
 
 :MaterialForm
     rdf:type sh:NodeShape ;
     rdfs:label "Material form" ;
-    sh:targetClass crm:E57_Material ;
+    sh:targetClass crm:E57_Material;
     sh:property 
+    
+        # Only for use on Material page; do not include in embedded forms.
+        :MaterialForm_arm_isMaterialOf ,
+        
         :MaterialForm_crm_P2_has_type ;
     .
-       
+ 
+:MaterialForm_arm_isMaterialOf 
+    a sh:NodeShape ;
+    sh:node arm_core_property_shapes:arm_isMaterialOf ;
+    # NON-VALIDATING
+    sh:name "Resource" ;
+    sh:description "Resource made of this Material" ;
+    sh:order "10"^^xsd:int ; 
+    .
+      
 :MaterialForm_crm_P2_has_type
-    sh:and (
-        arm_core_property_shapes:crm_P2_has_type
-        [
-            # NON-VALIDATING
-            sh:name "Material type" ;
-            sh:order "0"^^xsd:decimal ;          
-        ]
-    ) ;
+    a sh:PropertyShape ;
+    sh:node arm_core_property_shapes:crm_P2_has_type ;
+    # NON-VALIDATING
+    sh:name "Material type" ;
+    sh:order "10"^^xsd:int ;          
     .      
       
 # The following sh:path ( crm:P2_has_type gvp:broaderExtended ) isn't meant 

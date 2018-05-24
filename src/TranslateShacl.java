@@ -50,6 +50,60 @@ public class TranslateShacl {
 		
 		ARMTranslation art = new ARMTranslation();
 		art.doTranslate(args);
+		
+		//cleanupLanguageTags();
+		
+		
+	}
+	
+	//Certain vocabulary rdf files needed language tags filtered out
+	private static void cleanupLanguageTags() {
+		//Temporarily adding for extracting statements that have a language with a dash
+		
+		//Read in from a specific directory instead of just a file
+		List<String> files = new ArrayList<String>();
+		files.add("aat_binding_component.rdf");
+		files.add("aat_handwriting_type.rdf");
+		files.add("aat_style_period.rdf");
+		files.add("aat_typeface.rdf");
+		
+		for(String f: files) {
+			Model model= ModelFactory.createDefaultModel();
+			Model removeModel = ModelFactory.createDefaultModel();
+			File fileEntry = new File("rdf/ARMOntology/sources/vocabularies/" + f);
+			System.out.println("*****File name*******=" + f);
+			try {
+			
+				FileInputStream fis = (new FileInputStream(fileEntry));
+				model.read( fis, null, "RDF/XML" );
+				String query = "SELECT ?subject ?predicate ?literal (lang(?literal) AS ?lang) WHERE {" + 
+				"?subject ?predicate ?literal . FILTER(strlen(lang(?literal)) > 10)" + 
+				"}";
+				Query q= QueryFactory.create(query);
+				ResultSet rs = null;
+				QueryExecution qe = QueryExecutionFactory.create(q, model);
+				
+				try {
+					rs = qe.execSelect();
+					while(rs.hasNext()) {
+						QuerySolution qs = rs.next();
+						System.out.println(qs.toString());
+						removeModel.addLiteral(qs.getResource("subject"), ResourceFactory.createProperty(qs.getResource("predicate").getURI()), qs.getLiteral("literal"));
+					}
+					Model resultingModel = model.remove(removeModel);
+					System.out.println("Output new model: " + f);
+					resultingModel.write(System.out, "RDF/XML");
+					
+				} catch(Exception ex) {
+					System.out.println("Error executing this query");
+				}
+				
+			} catch(Exception ex) {
+				System.out.println("Error occurred in reading in SHACL files: " + fileEntry.getName());
+				ex.printStackTrace();
+			}
+		    
+		}
 	}
 	
 	
@@ -327,6 +381,7 @@ public class TranslateShacl {
 			//has part custom form
 			//String configURI = retrieveConfigURI("http://purl.org/dc/terms/hasPart", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Audio", appModel);
 			//rdfString += generateConfigRDF(configURI, "hasPart", "http://id.loc.gov/ontologies/bibframe/Audio") + "\n";
+			
 
 			System.out.println(rdfString);
 		}
@@ -337,8 +392,10 @@ public class TranslateShacl {
 			//Base URI -> <domain =, range= >
 			String rdfString = "";
 			//has part custom form
-			//String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance", "http://bibliotek-o.org/ontology/Activity", appModel);
-			//rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+			String configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/hasCitation", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/core/ontology/0.1/Citation", appModel);
+			rdfString += generateConfigRDF(configURI, "hasCitation", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+			
+			
 			
 			System.out.println(rdfString);
 		}
@@ -351,6 +408,9 @@ public class TranslateShacl {
 			//has part custom form
 			//String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Item", "http://bibliotek-o.org/ontology/Activity", appModel);
 			//rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+			String configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/hasCitation", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/ontology/0.1/Citation", appModel);
+			rdfString += generateConfigRDF(configURI, "hasCitation", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+		
 			System.out.println(rdfString);
 
 		}
@@ -358,13 +418,16 @@ public class TranslateShacl {
 		protected String generateConfigRDF(String configURI, String property, String domainURI) {
 			String configRDF = "";
 			switch (property) {
-				/*case "hasPart":
-					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-workHasPartWork.xml\"^^xsd:string ." + 
-							"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
-								 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"workHasPartWork.jsonld\" .";
-	
-					break;*/			
-					
+			
+			case "hasCitation":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-hasCitation.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasCitation.jsonld\" ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasCitationForm.ftl\".";
+
+				break;
+				
+			
 				default:
 					break;
 					
@@ -419,6 +482,12 @@ public class TranslateShacl {
 			System.out.println("Check for properties identified as RDF property, classes identified as RDFS class");
 			outputRDFProperties(ontologyModel);
 			outputRDFClasses(ontologyModel);
+			//Do data property specifics
+			System.out.println("********Generate data properties*********");
+			Model dataPropertiesModel = processDataProperties(shaclModel, ontologyModel);
+			//Write out data properties model
+			dataPropertiesModel.write(System.out, "N3");
+			 
 			//Generate property groups
 			System.out.println("********Generate Property Groups***********");
 			generatePropertyGroups(shaclModel);
@@ -433,11 +502,7 @@ public class TranslateShacl {
 			//Item level info
 			Model itemAppModel = processItem(shaclModel);
 			
-			//Do data property specifics
-			System.out.println("********Generate data properties*********");
-			Model dataPropertiesModel = processDataProperties(shaclModel, ontologyModel);
-			//Write out data properties model
-			 dataPropertiesModel.write(System.out, "N3");
+			
 			//Generate custom form specifics
 			System.out.println("#Work custom form");
 			generateCustomFormSpecifics(workAppModel);
@@ -571,37 +636,40 @@ public class TranslateShacl {
 				String propertyGroupURI = "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#inPropertyGroupAnnot>";
 				if(path != null) {
 					String pathURI = path.getURI();
-					String pathResource = "<" + pathURI + ">";
-			
-					Resource group = getVarResource(qs, "group");
-					Resource target = getVarResource(qs, "propertyTarget");
-					Resource formTarget = getVarResource(qs, "formTarget");
-					
-					//Restriction on domain, picking string for now but
-					//can also check for datatype but we are not currently
-					if(group != null) {
-						dataPropertyRDF = pathResource + " " + propertyGroupURI + " <" + group.getURI() + "> .";
-					}
-					//check target specified on the property first
-					//if that is not available, check shapetarget
-					String domainURI = "";
-					if(target != null) {
-						domainURI = "<" + target.getURI() + ">";
+					if(StringUtils.isEmpty(pathURI)) {
+						System.out.println("This is an odd animal, not using since null or starts with file:" + qs.toString());
 					} else {
-						if(formTarget != null) {
-							domainURI = "<" + formTarget.getURI() + ">";
-						}
-					}
-					
-					if(StringUtils.isNotEmpty(domainURI)) {
-						String restrictionRDF = domainURI + " rdfs:subClassOf " + 
-					" [ a owl:Restriction; " + 
-					" owl:onProperty " + pathResource + ";" + 
-					"owl:allValuesFrom <http://www.w3.org/2001/XMLSchema#string> ] .";
-						dataPropertyRDF += restrictionRDF;
-					}
-					
+						String pathResource = "<" + pathURI + ">";
+				
+						Resource group = getVarResource(qs, "group");
+						Resource target = getVarResource(qs, "propertyTarget");
+						Resource formTarget = getVarResource(qs, "formTarget");
 						
+						//Restriction on domain, picking string for now but
+						//can also check for datatype but we are not currently
+						if(group != null) {
+							dataPropertyRDF = pathResource + " " + propertyGroupURI + " <" + group.getURI() + "> .";
+						}
+						//check target specified on the property first
+						//if that is not available, check shapetarget
+						String domainURI = "";
+						if(target != null) {
+							domainURI = "<" + target.getURI() + ">";
+						} else {
+							if(formTarget != null) {
+								domainURI = "<" + formTarget.getURI() + ">";
+							}
+						}
+						
+						if(StringUtils.isNotEmpty(domainURI)) {
+							String restrictionRDF = domainURI + " rdfs:subClassOf " + 
+						" [ a owl:Restriction; " + 
+						" owl:onProperty " + pathResource + ";" + 
+						"owl:allValuesFrom <http://www.w3.org/2001/XMLSchema#string> ] .";
+							dataPropertyRDF += restrictionRDF;
+						}
+					
+					}
 				
 				}
 				
@@ -1063,6 +1131,7 @@ public class TranslateShacl {
 			String PREFIXES = "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
 					"";
 			//Multiple classes possible so grouping together into space separated string here
+			//Check for sh:and for a particular property shape as well and then read that in
 			String query = PREFIXES + 
 					"SELECT ?property ?path ?group ?name ?propDescription ?nodeKind ?order ?target ?orList ?inList ?shapeTarget " + 
 					" (group_concat (?iclass) AS ?class) WHERE " + 
@@ -1362,11 +1431,49 @@ public class TranslateShacl {
 		//Read in SHACL files and populate model
 		private static Model populateModel() {
 			Model model= readInRDFFilesFromDirectory(shaclDirectoryPath);
-			//File shaclFile = new File("rdf/bibliotek-o_shapes.shapes.ttl");		
+			//File shaclFile = new File("rdf/bibliotek-o_shapes.shapes.ttl");	
+			//Let's normalize this model too, i.e .to some extent
+			//Where sh:node is USED, copy over those predicates to the main property shape
+			model = normalizeNodes(model);
+			System.out.println("***Normalize Model****");
+			model.write(System.out, "N3");
+			System.out.println("****End normalized model******");
 			return model;
 		}
 		    
-	    //Read in ontology files or SHACL files from a directory
+	    private static Model normalizeNodes(Model model) {
+	    	System.out.println("Normalize model!");
+	    	Property nodeProperty = ResourceFactory.createProperty("http://www.w3.org/ns/shacl#node");
+			StmtIterator stit = model.listStatements(null, nodeProperty, (RDFNode) null);
+			//stop recursing at this point if we have no more sh:node properties
+			if(!stit.hasNext()) {
+				System.out.println("Stopping recursing for normalizing model!");
+				return model;
+			} 
+			
+			Model normalizedModel = ModelFactory.createDefaultModel();
+	    	normalizedModel.add(model);
+			while(stit.hasNext()) {
+				Statement stmt = stit.nextStatement();
+				Resource subjectResource = stmt.getSubject();
+				Resource objectResource = stmt.getResource();
+				//Get ALL the stmts from the object resource and apply them to the subject resource
+				StmtIterator oit = model.listStatements(objectResource, null, (RDFNode) null);
+				while(oit.hasNext()) {
+					Statement oStmt = oit.nextStatement();
+					//System.out.println("Adding stmt to subject instead" + oStmt.toString());
+					normalizedModel.add(subjectResource, oStmt.getPredicate(), oStmt.getObject());
+					//for the recursion to actually stop, we need to remove the sh:node statements
+					//once we've 'walked the graph' properly
+				}
+				//remove sh:node statement
+				normalizedModel.remove(stmt);
+			}
+			//call recursive method
+			return normalizeNodes(normalizedModel);
+		}
+
+		//Read in ontology files or SHACL files from a directory
 		//This could also be a nested directory so will try and read from those as well
 		private static Model readInRDFFilesFromDirectory(String directoryPath) {
 			Model model= ModelFactory.createDefaultModel();
