@@ -395,6 +395,14 @@ public class TranslateShacl {
 			String configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/hasCitation", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/core/ontology/0.1/Citation", appModel);
 			rdfString += generateConfigRDF(configURI, "hasCitation", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
 			
+			//marking
+			configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/markedBy", "http://id.loc.gov/ontologies/bibframe/Instance", "http://www.w3.org/2002/07/owl#Thing", appModel);
+			rdfString += generateConfigRDF(configURI, "markedBy", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+			
+			//binding
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/hasPart", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/core/ontology/0.1/Binding", appModel);
+			rdfString += generateConfigRDF(configURI, "binding", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+			
 			
 			
 			System.out.println(rdfString);
@@ -411,6 +419,24 @@ public class TranslateShacl {
 			String configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/hasCitation", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/ontology/0.1/Citation", appModel);
 			rdfString += generateConfigRDF(configURI, "hasCitation", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
 		
+			//marking
+			configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/markedBy", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2002/07/owl#Thing", appModel);
+			rdfString += generateConfigRDF(configURI, "markedBy", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+			
+			//binding
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/hasPart", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/ontology/0.1/Binding", appModel);
+			rdfString += generateConfigRDF(configURI, "binding", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			//physical condition
+			configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/hasPhysicalCondition", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/ontology/0.1/PhysicalCondition", appModel);
+			rdfString += generateConfigRDF(configURI, "hasPhysicalCondition", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			//extent
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/extent", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/ontology/0.1/PaginationFoliation", appModel);
+			rdfString += generateConfigRDF(configURI, "extent", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+		
+			
 			System.out.println(rdfString);
 
 		}
@@ -424,6 +450,35 @@ public class TranslateShacl {
 						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasCitation.jsonld\" ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasCitationForm.ftl\".";
+
+				break;
+			case "markedBy":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-markedBy.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armMarkedBy.jsonld\" ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armMarkedByForm.ftl\".";
+
+				break;
+			case "binding":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-hasPartBinding.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasPartBinding.jsonld\" ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasPartBindingForm.ftl\".";
+
+				break;
+			case "hasPhysicalCondition":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-hasPhysicalCondition.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasPhysicalCondition.jsonld\" ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasPhysicalConditionForm.ftl\".";
+
+				break;
+			case "extent":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-extent.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armExtent.jsonld\" . " ; 
+							//extent = using custom 
+							// "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasCitationForm.ftl\".";
 
 				break;
 				
@@ -787,14 +842,21 @@ public class TranslateShacl {
 						JSONObject obj = propArray.getJSONObject(i);
 						String uri = obj.getString("uri");
 						//Create query for this URI and execute query
-						String labelQuery = "SELECT ?label WHERE {<" + uri + "> <http://www.w3.org/2000/01/rdf-schema#label> ?label .}";
+						String labelQuery = "SELECT ?label ?prefLabel WHERE { OPTIONAL {<" + uri + "> <http://www.w3.org/2000/01/rdf-schema#label> ?label .} OPTIONAL {<" + uri + "> <http://www.w3.org/2004/02/skos/core#prefLabel> ?prefLabel .} }";
 						ResultSet inLabelRS = executeQuery(ontologyModel, labelQuery);
 						while(inLabelRS.hasNext()) {
 							QuerySolution labelQs = inLabelRS.nextSolution();
-							String inLabel = labelQs.getLiteral("label").getString();
-							if(StringUtils.isNotEmpty(inLabel)) {
-								obj.put("label", inLabel);
-							}
+							Literal labelLiteral = labelQs.getLiteral("label");
+							Literal prefLabelLiteral = labelQs.getLiteral("prefLabel");
+							//use pref label if rdfs:label does not exist
+							if(labelLiteral == null && prefLabelLiteral != null) labelLiteral = prefLabelLiteral;
+							if(labelLiteral != null) {
+								String labelLanguage = labelLiteral.getLanguage();
+								String inLabel = labelLiteral.getString();
+								if(StringUtils.isNotEmpty(inLabel) && (StringUtils.isEmpty(labelLanguage) || labelLanguage.equals("en"))) {
+									obj.put("label", inLabel);
+								}
+							} 
 						}
 					}
 				} catch(Exception ex) {
@@ -850,13 +912,19 @@ public class TranslateShacl {
 						JSONObject obj = propArray.getJSONObject(i);
 						String uri = obj.getString("uri");
 						//Create query for this URI and execute query
-						String labelQuery = "SELECT ?label WHERE {<" + uri + "> <http://www.w3.org/2000/01/rdf-schema#label> ?label .}";
+						String labelQuery = "SELECT ?label ?prefLabel WHERE { OPTIONAL {<" + uri + "> <http://www.w3.org/2000/01/rdf-schema#label> ?label .} OPTIONAL {<" + uri + "> <http://www.w3.org/2004/02/skos/core#prefLabel> ?prefLabel .} }";
 						ResultSet orLabelRS = executeQuery(ontologyModel, labelQuery);
 						while(orLabelRS.hasNext()) {
 							QuerySolution labelQs = orLabelRS.nextSolution();
-							String orLabel = labelQs.getLiteral("label").getString();
-							if(StringUtils.isNotEmpty(orLabel)) {
-								obj.put("label", orLabel);
+							Literal labelLiteral = labelQs.getLiteral("label");
+							Literal prefLabelLiteral = labelQs.getLiteral("prefLabel");
+							if(labelLiteral == null && prefLabelLiteral != null) labelLiteral = prefLabelLiteral;
+							if(labelLiteral != null) {
+								String labelLanguage = labelLiteral.getLanguage();
+								String orLabel = labelLiteral.getString();
+								if(StringUtils.isNotEmpty(orLabel) && (StringUtils.isEmpty(labelLanguage) || labelLanguage.equals("en"))) {
+									obj.put("label", orLabel);
+								}
 							}
 						}
 					}
