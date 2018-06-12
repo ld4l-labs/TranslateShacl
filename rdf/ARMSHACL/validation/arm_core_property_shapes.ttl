@@ -28,7 +28,7 @@
 # Links a resource to its Activity.
 :activity_hasActivity 
     a sh:PropertyShape ;
-    sh:path arm:hasActivity ;
+    sh:path activity:hasActivity ;
     sh:nodeKind sh:IRI ; 
     sh:class arm:Activity ;
     .
@@ -152,7 +152,14 @@
     sh:minCount 1 ;
     sh:maxCount 1 ;
     .
-        
+
+# Links a location to the resource located there.        
+:arm_isLocationOf
+    a sh:PropertyShape ;
+    sh:path arm:isLocationOf ;
+    sh:nodeKind sh:IRI ;
+    .
+            
 # Links material to resource made of it in whole or in part.
 :arm_isMaterialOf 
     a sh:PropertyShape ;
@@ -315,9 +322,9 @@
 # Links a resource to a taxonomy term that types it.
 :crm_P2_has_type
     a sh:PropertyShape ;
+    sh:path crm:P2_has_type ;
     sh:nodeKind sh:IRI ;
     sh:class skos:Concept ;
-    sh:path crm:P2_has_type
     .
 
 # Links a resource to its rdf:type.           
@@ -335,6 +342,13 @@
     # according to context.
     .
 
+# Links a resource to its rdfs:label.
+:rdfs_label
+    a sh:PropertyShape ;
+    sh:path rdfs:label ;
+    sh:nodeKind sh:Literal ;
+    .
+   
 # Links an ExhibitionEvent to a multi-part or traveling ExhibitionEvent of 
 # which it is a part.
  :schema_ExhibitionEvent_bf_partOf_schema_ExhibitionEvent

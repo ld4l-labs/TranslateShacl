@@ -382,7 +382,19 @@ public class TranslateShacl {
 			//String configURI = retrieveConfigURI("http://purl.org/dc/terms/hasPart", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Audio", appModel);
 			//rdfString += generateConfigRDF(configURI, "hasPart", "http://id.loc.gov/ontologies/bibframe/Audio") + "\n";
 			
+			//activity
+			String configURI =  retrieveConfigURI("https://w3id.org/arm/core/activity/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Text", "https://w3id.org/arm/core/activity/0.1/Activity", appModel);
+			rdfString += generateConfigRDF(configURI, "activity", "http://id.loc.gov/ontologies/bibframe/Text")+ "\n";
 
+			//Genre Form
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Text", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
+			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Text")+ "\n";
+
+			//Subject heading
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
+			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			
 			System.out.println(rdfString);
 		}
 		
@@ -403,8 +415,23 @@ public class TranslateShacl {
 			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/hasPart", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/core/ontology/0.1/Binding", appModel);
 			rdfString += generateConfigRDF(configURI, "binding", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
 			
+			//activity
+			configURI =  retrieveConfigURI("https://w3id.org/arm/core/activity/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/core/activity/0.1/Activity", appModel);
+			rdfString += generateConfigRDF(configURI, "activity", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+
+			//Genre Form
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Instance", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
+			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
 			
-			
+			//Subject heading
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Instance", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
+			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+
+			//Measurement Group
+			//https://w3id.org/arm/measurement/ontology/0.1/hasMeasurementGroup
+			configURI =  retrieveConfigURI("https://w3id.org/arm/measurement/ontology/0.1/hasMeasurementGroup", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/measurement/ontology/0.1/MeasurementGroup", appModel);
+			rdfString += generateConfigRDF(configURI, "measurement", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+
 			System.out.println(rdfString);
 		}
 		
@@ -435,6 +462,27 @@ public class TranslateShacl {
 			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/extent", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/ontology/0.1/PaginationFoliation", appModel);
 			rdfString += generateConfigRDF(configURI, "extent", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
 
+			//Genre Form
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
+			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			//Title
+			
+			//Preferred Title
+			
+			//Activity
+			configURI =  retrieveConfigURI("https://w3id.org/arm/core/activity/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/activity/0.1/Activity", appModel);
+			rdfString += generateConfigRDF(configURI, "activity", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			
+			//Measurement Group
+			configURI =  retrieveConfigURI("https://w3id.org/arm/measurement/ontology/0.1/hasMeasurementGroup", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/measurement/ontology/0.1/MeasurementGroup", appModel);
+			rdfString += generateConfigRDF(configURI, "measurement", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			//Subject heading
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
+			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
 		
 			
 			System.out.println(rdfString);
@@ -446,41 +494,92 @@ public class TranslateShacl {
 			switch (property) {
 			
 			case "hasCitation":
-				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-hasCitation.xml\"^^xsd:string ." + 
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-hasCitation.xml\"^^xsd:string ." + 
 						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasCitation.jsonld\" ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasCitationForm.ftl\".";
 
 				break;
 			case "markedBy":
-				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-markedBy.xml\"^^xsd:string ." + 
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-markedBy.xml\"^^xsd:string ." + 
 						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armMarkedBy.jsonld\" ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armMarkedByForm.ftl\".";
 
 				break;
 			case "binding":
-				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-hasPartBinding.xml\"^^xsd:string ." + 
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-hasPartEnclosureBinding.xml\"^^xsd:string ." + 
 						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasPartBinding.jsonld\" ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasPartBindingForm.ftl\".";
 
 				break;
 			case "hasPhysicalCondition":
-				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-hasPhysicalCondition.xml\"^^xsd:string ." + 
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-itemHasPhysicalCondition.xml\"^^xsd:string ." + 
 						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasPhysicalCondition.jsonld\" ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasPhysicalConditionForm.ftl\".";
 
 				break;
 			case "extent":
-				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-extent.xml\"^^xsd:string ." + 
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-extent.xml\"^^xsd:string ." + 
 						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
 							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armExtent.jsonld\" . " ; 
 							//extent = using custom 
 							// "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasCitationForm.ftl\".";
 
 				break;
+				
+		  /**Copying things over **/
+				
+				case "activity":
+					configRDF =  "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-hasActivity.xml\"^^xsd:string ; " + 
+							" <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string>  ;";
+	
+					//Depends on whether audio, instance or item
+					if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Text")) {
+						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armTextHasActivity.jsonld\" ; ";
+					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
+						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armInstanceHasActivity.jsonld\" ; ";
+					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
+						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armItemHasActivity.jsonld\" ; ";
+					}	  	  
+					
+					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasActivity.ftl\" .";
+					//"<" + configURI + "> :listViewConfigFile \"listViewConfig-instanceHasActivity.xml\"^^xsd:string .  " + 
+							 
+	
+					break;	
+				case "measurement":
+					configRDF = "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasMeasurementGroup.jsonld\"; " + 
+						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasMeasurement.ftl\" .";
+	
+					break;		
+				case "genreForm":
+					configRDF = "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasGenreForm.jsonld\"; " + 
+						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasGenreForm.ftl\" .";
+	
+					break;	
+				case "subject":
+					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-arm-subject.xml\"^^xsd:string .  ";
+					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasLCSH.jsonld\"; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasLCSH.ftl\" .";
+	
+					break;
+				case "hasPreferredTitle":
+					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-arm-hasPreferredTitle.xml\"^^xsd:string .  ";
+					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " +
+							"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasPreferredTitle.jsonld\". ";				
+	
+					
+					break;	
+				case "title":
+					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-arm-title.xml\"^^xsd:string .  ";
+					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " ; 
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armTitle.jsonld\". " ;
 				
 			
 				default:

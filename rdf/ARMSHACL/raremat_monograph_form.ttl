@@ -4,7 +4,7 @@
 @prefix activity: <https://w3id.org/arm/core/activity/0.1/> .
 @prefix bf: <http://id.loc.gov/ontologies/bibframe/> .
 @prefix core: <http://vivoweb.org/ontology/core#> .
-@prefix crm: <http://www.cidoc-crm.org/Property/P2-has-type/Version-6.2/> .
+@prefix crm: <http://www.cidoc-crm.org/cidoc-crm/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix gn: <http://www.geonames.org/ontology/> .
 @prefix gvp: <http://vocab.getty.edu/ontology#> .
@@ -13,9 +13,9 @@
 @prefix measure: <https://w3id.org/arm/measurement/ontology/0.1/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix prov: <http://www.w3.org/ns/prov> .
-@prefix raremat_shapes_monograph_exhibition: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_exhibition/> .
 @prefix raremat_monograph_custodial_history: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_custodial_history/> .
 @prefix raremat_monograph_enclosure: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_enclosure/> .
+@prefix raremat_monograph_exhibition: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_exhibition/> .
 @prefix raremat_monograph_form: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_form/> .
 @prefix raremat_monograph_property_groups: <https://w3id.org/arm/application_profiles/raremat_monograph/shacl/raremat_monograph_property_groups/> .
 @prefix rdau: <http://rdaregistry.info/Elements/u/> .
@@ -1390,7 +1390,7 @@ raremat_monograph_form:InstanceForm_arm_hasMaterial
     tosh:editWidget swa:NestedObjectEditor .
 
 
-raremat_monograph_form:InstanceForm__rdau_P60596 
+raremat_monograph_form:InstanceForm_rdau_P60596 
     a sh:PropertyShape ;
     sh:path rdau:P60596 ;
     sh:class crm:E57_Material ;
@@ -1418,7 +1418,17 @@ raremat_monograph_form:InstanceForm_bf_hasPart
     sh:name "Instance part" ;
     sh:order "8"^^xsd:int ;
     sh:description "Part of the instance being described." ;
-    sh:class bf:Instance ;
+    sh:or (
+        [
+            sh:class arm:Page ;
+        ]
+        [
+            sh:class arm:Volume ;
+        ]
+        [
+            sh:class bf:Instance ;
+        ]
+      ) ;
     sh:group raremat_monograph_property_groups:InstancePhysicalDescriptionPropertyGroup .
 
 # An Binding Property Shape belongs at this point in the form sequence. See :InstanceForm_bf_hasPart_arm_Binding
@@ -1633,9 +1643,13 @@ raremat_monograph_form:ItemForm
   
 # ItemHistoryAndProvenancePropertyGroup
 
-    sh:property raremat_monograph_custodial_history:ItemForm_ch_hasCustodialHistory_bf_hasPart ;
+    # VitroLib requires a PropertyShape with single-valued sh:path.
+    # TranslateShacl ignore multi-valued sh:paths.
+    # sh:property raremat_monograph_custodial_history:ItemForm_ch_hasCustodialHistory_bf_hasPart ;   
+    sh:property raremat_monograph_custodial_history:ItemForm_ch_hasCustodialHistory ;
     
-    sh:property raremat_shapes_monograph_exhibition:ItemForm_arm_hasExhibition_bf_partOf ;
+    # Not implementing in this iteration of VitroLib.
+    # sh:property raremat_monograph_exhibition:ItemForm_arm_hasExhibition_bf_partOf ;
     
     sh:property raremat_monograph_form:ItemForm_award_receives ;
 
@@ -1812,7 +1826,17 @@ raremat_monograph_form:ItemForm_bf_hasPart
     sh:name "Item part" ;
     sh:order "0"^^xsd:int ;
     sh:description "Part of the item being described." ;
-    sh:class bf:Item ;
+    sh:or (
+        [
+            sh:class arm:Page ;
+        ]
+        [
+            sh:class arm:Volume ;
+        ]
+        [
+            sh:class bf:Instance ;
+        ]
+      ) ;
     sh:group raremat_monograph_property_groups:ItemPhysicalDescriptionPropertyGroup .
    
 # A Binding Property Shape belongs at this point in the form sequence. See :ItemForm_bf_hasPart_arm_Binding
@@ -1822,9 +1846,9 @@ raremat_monograph_form:ItemForm_bf_hasPart
 raremat_monograph_form:ItemForm_bf_partOf 
     a sh:PropertyShape ;
     sh:path bf:partOf ;
-    sh:name "Part of a bound collection" ;
+    sh:name "Part of bound collection" ;
     sh:order "3"^^xsd:int ;
-    sh:description "The item being described is part of a bound collection." ;
+    sh:description "The item being described is part of the bound collection." ;
     sh:class arm:BoundCollection ;
     sh:group raremat_monograph_property_groups:ItemPhysicalDescriptionPropertyGroup .
     
@@ -1874,7 +1898,7 @@ raremat_monograph_form:ItemForm_measure_hasMeasurementGroup
     sh:path measure:hasMeasurementGroup ;
     sh:class measure:MeasurementGroup ;
     sh:group raremat_monograph_property_groups:ItemPhysicalDescriptionPropertyGroup ;
-    sh:name "Instance measurement information" ;
+    sh:name "Item measurement information" ;
     sh:nodeKind sh:IRI ;
     sh:order "8"^^xsd:int ;
     tosh:editWidget swa:NestedObjectEditor .
@@ -2230,45 +2254,7 @@ raremat_monograph_form:MeasurementForm_measure_hasUnit
     sh:name "Unit" ;
     sh:nodeKind sh:IRI ;
     sh:order "1"^^xsd:int ;
-    sh:or (
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#Centimeter> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#Foot> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#Gram> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#Inch> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#Kilogram> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#Kilometer> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#Meter> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#MileUSStatute> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#Millimeter> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#MetricTon> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#OunceMass> ;
-        ]
-        [
-                sh:hasValue <http://qudt.org/vocab/unit#PoundMass> ;
-        ]
-      ) 
-.
+    sh:in ( <http://qudt.org/vocab/unit#Centimeter> <http://qudt.org/vocab/unit#Foot> <http://qudt.org/vocab/unit#Gram> <http://qudt.org/vocab/unit#Inch> <http://qudt.org/vocab/unit#Kilogram> <http://qudt.org/vocab/unit#Kilometer> <http://qudt.org/vocab/unit#Meter> <http://qudt.org/vocab/unit#MileUSStatute> <http://qudt.org/vocab/unit#Millimeter> <http://qudt.org/vocab/unit#MetricTon> <http://qudt.org/vocab/unit#OunceMass> <http://qudt.org/vocab/unit#PoundMass> ) .
 
 raremat_monograph_form:MeasurementForm_measure_measures 
     a sh:PropertyShape ;
@@ -2277,66 +2263,8 @@ raremat_monograph_form:MeasurementForm_measure_measures
     sh:name "Dimension or other aspect" ;
     sh:nodeKind sh:IRI ;
     sh:order "2"^^xsd:int ;
-    sh:or (
-        [
-                sh:hasValue <http://vocab.getty.edu/aat/300055621> ;
-        ]
-        [
-                sh:hasValue <http://vocab.getty.edu/aat/300055623> ;
-        ]
-        [
-                sh:hasValue <http://vocab.getty.edu/aat/300055624> ;
-        ]
-        [
-                sh:hasValue <http://vocab.getty.edu/aat/300055644> ;
-        ]
-        [
-                sh:hasValue <http://vocab.getty.edu/aat/300055645> ;
-        ]
-        [
-                sh:hasValue <http://vocab.getty.edu/aat/300055646> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300055647> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300055649> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300056240> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300072633> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300312044> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300404162> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300404164> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300404403> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300404430> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300404431> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300404432> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300404433> ;
-        ]
-        [
-            sh:hasValue <http://vocab.getty.edu/aat/300404437> ;
-        ]
-      ) 
-.
+    sh:in ( aat:300055621 aat:300055623 aat:300055624 aat:300055644 aat:300055645 aat:300055646 aat:300055647 aat:300055649 aat:300056240 aat:300072633 aat:300312044 aat:300404162 aat:300404164 aat:300404403 aat:300404430 aat:300404431 aat:300404432 aat:300404433 aat:300404437 ) .
+
 
 # /////// NOTE FORM BEGINS HERE ////////////////////////////////////////////////////////////
 
@@ -2407,29 +2335,10 @@ raremat_monograph_form:AwardReceiptForm
 raremat_monograph_form:AwardReceiptForm_rdf_type 
     a sh:PropertyShape ;
     sh:path rdf:type ;
-    sh:description "Sequential numbering of individual leaves, plates, pages (numbering on both sides), or columns (used as a sequence of numbering) of a resource." ;
+    sh:description "The type of award receipt, e.g. honorable mention, short list, Nominee." ;
     sh:name "Type of Award Receipt" ;
     sh:order "0"^^xsd:int ;
-    sh:or (
-        [
-            sh:hasValue award:AwardWinner ;
-        ]
-        [
-            sh:hasValue award:AwardNominee ;
-        ]
-        [
-            sh:hasValue award:AwardHonoraryMention ;
-        ]
-        [
-            sh:hasValue award:AwardCitation ;
-        ]
-        [
-            sh:hasValue award:AwardLonglist ;
-        ]
-        [
-            sh:hasValue award:AwardShortlist ;
-        ]
-        ) ;
+    sh:in ( award:AwardWinner award:AwardNominee award:AwardHonoraryMention award:AwardCitation award:AwardLonglist award:AwardShortlist ) ;
     sh:nodeKind sh:IRI ;
     sh:order "0"^^xsd:int .
     
@@ -3014,8 +2923,22 @@ raremat_monograph_form:BibliographicCitationForm
 raremat_monograph_form:BibliographicCitationForm_arm_hasSource
     a sh:PropertyShape ;
     sh:path arm:hasSource ;
-    sh:class arm:Entry ;
-    sh:description "Note about this title" ;
+    sh:or (
+        [
+            sh:class arm:Entry ;
+        ]
+        [
+            sh:class arm:Page ;
+        ]
+        [
+            sh:class arm:Volume ;
+        ]
+        [
+            sh:class bf:Instance ;
+        ]
+      ) ;
+    sh:name "Citation source" ;
+    sh:description "Citation source, either an Entry, Page, Volume, Instance of where a citation was found." ;
     tosh:editWidget swa:NestedObjectEditor ;
     sh:nodeKind sh:IRI ;
     sh:order "0"^^xsd:int .
@@ -3036,17 +2959,9 @@ raremat_monograph_form:BibliographicCitationEntryForm
     rdf:type sh:NodeShape ;
     sh:targetClass arm:Entry ;
     rdfs:label "Bibliographic Citation Entry Form" ;
-    sh:property raremat_monograph_form:BibliographicCitationForm_bf_place ;
+    sh:property raremat_monograph_form:BibliographicCitationForm_arm_atLocation ;
     sh:property raremat_monograph_form:BibliographicCitationForm_rdf_value ;
     . 
-     
-raremat_monograph_form:BibliographicCitationForm_rdf_value
-    a sh:PropertyShape ;
-    sh:path rdf:value ;
-    sh:name "Citation value" ;
-    sh:description "The value of the citation." ;
-    sh:nodeKind sh:Literal ;
-    sh:order "0"^^xsd:int .
 
 raremat_monograph_form:BibliographicCitationForm_arm_atLocation 
     a sh:PropertyShape ;
@@ -3059,13 +2974,21 @@ raremat_monograph_form:BibliographicCitationForm_arm_atLocation
             sh:class arm:Volume ;
         ]
         [
-            sh:class bf:Text ;
+            sh:class bf:Instance ;
         ]
       ) ;
-    sh:name "Entry source" ;
+    sh:name "Source" ;
     sh:description "Location where the citation entry was found" ;
     tosh:editWidget swa:NestedObjectEditor ;
     sh:nodeKind sh:IRI ;
+    sh:order "0"^^xsd:int .
+    
+raremat_monograph_form:BibliographicCitationForm_rdf_value
+    a sh:PropertyShape ;
+    sh:path rdf:value ;
+    sh:name "Citation entry value" ;
+    sh:description "The value of the citation entry." ;
+    sh:nodeKind sh:Literal ;
     sh:order "1"^^xsd:int .
     
 # /////// Page FORM BEGINS HERE ////////////////////////////////////////////////////////////  
@@ -3094,7 +3017,7 @@ raremat_monograph_form:PageForm_bf_partOf
              sh:class arm:Volume ;
         ]
         [
-             sh:class bf:Text ;
+             sh:class bf:Instance ;
         ]
       ) ;
     sh:name "Part of" ;
@@ -3246,7 +3169,7 @@ raremat_monograph_form:FontForm_arm_hasTypeface
     sh:in ( aat:300200661 <https://w3id.org/arm/datasets/typeface/gothic-antique> <https://w3id.org/arm/datasets/typeface/rotunda> <https://w3id.org/arm/datasets/typeface/textura> aat:300200001 aat:300194460 aat:300255252 aat:300211132 aat:300211185 aat:300211196 aat:300216317 aat:300195881 aat:300211202 aat:300211172 aat:300202354 aat:300211038 aat:300202391 aat:300211014 aat:300211017 aat:300215373 aat:300195655 aat:300195865 ) ;
     sh:nodeKind sh:IRI ;
     sh:name "Has typeface" ;
-    sh:description "A design or â€œfont familyâ€� created by a typographer or type designer. It defines specific stylistic features to determine the type display of a writing system." .
+    sh:description "A design or “font family” created by a typographer or type designer. It defines specific stylistic features to determine the type display of a writing system." .
     
 raremat_monograph_form:FontForm_measure_hasMeasurement 
     a sh:PropertyShape ;
@@ -3325,7 +3248,7 @@ raremat_monograph_form:MarkingForm_arm_hasActivity
     sh:property activity:hasActivity ;
     sh:name "Marking Agent" ;
     sh:order "2"^^xsd:int ;
-    tosh:editWidget swa:NestedObjectEditor ;    
+    tosh:editWidget swa:NestedObjectEditor ;
     sh:class activity:CreatorActivity .
 
 # /////// Marking Activity FORM BEGINS HERE ////////////////////////////////////////////////////////////
