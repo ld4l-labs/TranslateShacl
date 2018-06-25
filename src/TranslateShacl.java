@@ -48,10 +48,13 @@ public class TranslateShacl {
 		//HipHopTranslation ht = new HipHopTranslation();
 		//ht.doTranslate(args);
 		
-		ARMTranslation art = new ARMTranslation();
-		art.doTranslate(args);
+		//ARMTranslation art = new ARMTranslation();
+		//art.doTranslate(args);
 		
 		//cleanupLanguageTags();
+		
+		ArtFrameTranslation artframe = new ArtFrameTranslation();
+		artframe.doTranslate(args);
 		
 		
 	}
@@ -391,8 +394,8 @@ public class TranslateShacl {
 			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Text")+ "\n";
 
 			//Subject heading
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
-			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Text", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
+			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Text")+ "\n";
 
 			
 			System.out.println(rdfString);
@@ -423,9 +426,9 @@ public class TranslateShacl {
 			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Instance", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
 			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
 			
-			//Subject heading
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Instance", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
-			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+			//Subject heading - doesn't appear to be applicable at instance level
+			//configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Instance", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
+			//rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
 
 			//Measurement Group
 			//https://w3id.org/arm/measurement/ontology/0.1/hasMeasurementGroup
@@ -479,9 +482,9 @@ public class TranslateShacl {
 			configURI =  retrieveConfigURI("https://w3id.org/arm/measurement/ontology/0.1/hasMeasurementGroup", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/measurement/ontology/0.1/MeasurementGroup", appModel);
 			rdfString += generateConfigRDF(configURI, "measurement", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
 
-			//Subject heading
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
-			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+			//Subject heading - doesn't appear to be relevant at subject level
+			//configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
+			//rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
 
 		
 			
@@ -590,6 +593,237 @@ public class TranslateShacl {
 			return configRDF;
 		}
 		
+	}
+	
+	
+	/*************** ArtFrame Translation *********************/
+	public static class ArtFrameTranslation extends Translation {
+		public ArtFrameTranslation() {
+			this.shaclDirectoryPath = "rdf/ArtFrameSHACL";
+			this.ontologyDirectoryPath = "rdf/ArtFrameOntology";
+			String namespace = "https://w3id.org/arm/application_profiles/art/shacl/artframe_art_form/";
+			this.workFormURI = namespace + "WorkForm";
+			this.instanceFormURI = namespace + "InstanceForm";
+			this.itemFormURI = namespace + "ItemForm";
+		}
+		
+		protected  void generateCustomFormSpecifics(Model appModel) {
+			//App Model uses the vitroLib-specific faux configuration
+			//TODO: Make this use classes instead
+			//Base URI -> <domain =, range= >
+			String rdfString = "";
+			//has part custom form
+			//String configURI = retrieveConfigURI("http://purl.org/dc/terms/hasPart", "http://id.loc.gov/ontologies/bibframe/Audio", "http://id.loc.gov/ontologies/bibframe/Audio", appModel);
+			//rdfString += generateConfigRDF(configURI, "hasPart", "http://id.loc.gov/ontologies/bibframe/Audio") + "\n";
+			
+			//activity
+			String configURI =  retrieveConfigURI("https://w3id.org/arm/core/activity/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Text", "https://w3id.org/arm/core/activity/0.1/Activity", appModel);
+			rdfString += generateConfigRDF(configURI, "activity", "http://id.loc.gov/ontologies/bibframe/Text")+ "\n";
+
+			//Genre Form
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Text", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
+			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Text")+ "\n";
+
+			//Subject heading
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Text", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
+			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Text")+ "\n";
+
+			
+			System.out.println(rdfString);
+		}
+		
+		protected  void generateInstanceCustomFormSpecifics(Model appModel) {
+			//App Model uses the vitroLib-specific faux configuration
+			//TODO: Make this use classes instead
+			//Base URI -> <domain =, range= >
+			String rdfString = "";
+			//has part custom form
+			String configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/hasCitation", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/core/ontology/0.1/Citation", appModel);
+			rdfString += generateConfigRDF(configURI, "hasCitation", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+			
+			//marking
+			configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/markedBy", "http://id.loc.gov/ontologies/bibframe/Instance", "http://www.w3.org/2002/07/owl#Thing", appModel);
+			rdfString += generateConfigRDF(configURI, "markedBy", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+			
+			//binding
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/hasPart", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/core/ontology/0.1/Binding", appModel);
+			rdfString += generateConfigRDF(configURI, "binding", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+			
+			//activity
+			configURI =  retrieveConfigURI("https://w3id.org/arm/core/activity/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/core/activity/0.1/Activity", appModel);
+			rdfString += generateConfigRDF(configURI, "activity", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+
+			//Genre Form
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Instance", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
+			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+			
+			//Subject heading - doesn't appear to be applicable at instance level
+			//configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Instance", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
+			//rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+
+			//Measurement Group
+			//https://w3id.org/arm/measurement/ontology/0.1/hasMeasurementGroup
+			configURI =  retrieveConfigURI("https://w3id.org/arm/measurement/ontology/0.1/hasMeasurementGroup", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/measurement/ontology/0.1/MeasurementGroup", appModel);
+			rdfString += generateConfigRDF(configURI, "measurement", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
+
+			System.out.println(rdfString);
+		}
+		
+		protected void generateItemCustomFormSpecifics(Model appModel) {
+			//App Model uses the vitroLib-specific faux configuration
+			//TODO: Make this use classes instead
+			//Base URI -> <domain =, range= >
+			String rdfString = "";
+			//has part custom form
+			//String configURI =  retrieveConfigURI("http://bibliotek-o.org/ontology/hasActivity", "http://id.loc.gov/ontologies/bibframe/Item", "http://bibliotek-o.org/ontology/Activity", appModel);
+			//rdfString += generateConfigRDF(configURI, "hasActivity", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+			String configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/hasCitation", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/ontology/0.1/Citation", appModel);
+			rdfString += generateConfigRDF(configURI, "hasCitation", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+		
+			//marking
+			configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/markedBy", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2002/07/owl#Thing", appModel);
+			rdfString += generateConfigRDF(configURI, "markedBy", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+			
+			//binding
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/hasPart", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/ontology/0.1/Binding", appModel);
+			rdfString += generateConfigRDF(configURI, "binding", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			//physical condition
+			configURI =  retrieveConfigURI("https://w3id.org/arm/core/ontology/0.1/hasPhysicalCondition", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/ontology/0.1/PhysicalCondition", appModel);
+			rdfString += generateConfigRDF(configURI, "hasPhysicalCondition", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			//extent
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/extent", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/ontology/0.1/PaginationFoliation", appModel);
+			rdfString += generateConfigRDF(configURI, "extent", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			//Genre Form
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
+			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			//Title
+			
+			//Preferred Title
+			
+			//Activity
+			configURI =  retrieveConfigURI("https://w3id.org/arm/core/activity/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/activity/0.1/Activity", appModel);
+			rdfString += generateConfigRDF(configURI, "activity", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			
+			//Measurement Group
+			configURI =  retrieveConfigURI("https://w3id.org/arm/measurement/ontology/0.1/hasMeasurementGroup", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/measurement/ontology/0.1/MeasurementGroup", appModel);
+			rdfString += generateConfigRDF(configURI, "measurement", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+			//Subject heading - doesn't appear to be relevant at subject level
+			//configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
+			//rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
+
+		
+			
+			System.out.println(rdfString);
+
+		}
+		
+		protected String generateConfigRDF(String configURI, String property, String domainURI) {
+			String configRDF = "";
+			switch (property) {
+			
+			case "hasCitation":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-hasCitation.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasCitation.jsonld\" ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasCitationForm.ftl\".";
+
+				break;
+			case "markedBy":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-markedBy.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armMarkedBy.jsonld\" ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armMarkedByForm.ftl\".";
+
+				break;
+			case "binding":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-hasPartEnclosureBinding.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasPartBinding.jsonld\" ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasPartBindingForm.ftl\".";
+
+				break;
+			case "hasPhysicalCondition":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-itemHasPhysicalCondition.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasPhysicalCondition.jsonld\" ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasPhysicalConditionForm.ftl\".";
+
+				break;
+			case "extent":
+				configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-extent.xml\"^^xsd:string ." + 
+						"<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armExtent.jsonld\" . " ; 
+							//extent = using custom 
+							// "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasCitationForm.ftl\".";
+
+				break;
+				
+		  /**Copying things over **/
+				
+				case "activity":
+					configRDF =  "<" + configURI + "> :listViewConfigFile \"listViewConfig-ARM-hasActivity.xml\"^^xsd:string ; " + 
+							" <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string>  ;";
+	
+					//Depends on whether audio, instance or item
+					if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Text")) {
+						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armTextHasActivity.jsonld\" ; ";
+					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
+						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armInstanceHasActivity.jsonld\" ; ";
+					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
+						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armItemHasActivity.jsonld\" ; ";
+					}	  	  
+					
+					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasActivity.ftl\" .";
+					//"<" + configURI + "> :listViewConfigFile \"listViewConfig-instanceHasActivity.xml\"^^xsd:string .  " + 
+							 
+	
+					break;	
+				case "measurement":
+					configRDF = "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasMeasurementGroup.jsonld\"; " + 
+						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasMeasurement.ftl\" .";
+	
+					break;		
+				case "genreForm":
+					configRDF = "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasGenreForm.jsonld\"; " + 
+						 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasGenreForm.ftl\" .";
+	
+					break;	
+				case "subject":
+					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-arm-subject.xml\"^^xsd:string .  ";
+					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasLCSH.jsonld\"; " + 
+							 "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasLCSH.ftl\" .";
+	
+					break;
+				case "hasPreferredTitle":
+					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-arm-hasPreferredTitle.xml\"^^xsd:string .  ";
+					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " +
+							"<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armHasPreferredTitle.jsonld\". ";				
+	
+					
+					break;	
+				case "title":
+					configRDF = "<" + configURI + "> :listViewConfigFile \"listViewConfig-arm-title.xml\"^^xsd:string .  ";
+					configRDF += "<" + configURI + "> <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string> ; " ; 
+					configRDF +=  "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armTitle.jsonld\". " ;
+				
+			
+				default:
+					break;
+					
+					
+			}
+			return configRDF;
+		}
+
 	}
 	
 	/******** Abstract class Translation, with partial implementations of most methods *********/
