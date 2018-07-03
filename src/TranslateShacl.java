@@ -53,9 +53,28 @@ public class TranslateShacl {
 		
 		//cleanupLanguageTags();
 		
-		ArtFrameTranslation artframe = new ArtFrameTranslation();
-		artframe.doTranslate(args);
+		//ArtFrameTranslation artframe = new ArtFrameTranslation();
+		//artframe.doTranslate(args);
+		shaclAnalysis();
 		
+	}
+	
+	
+	//
+	private static void shaclAnalysis() {
+		//For each of the shacl properties, read in the directory and print out the paths
+		//used - order by namespace of URI
+		System.out.println("ARM**********");
+		ARMTranslation arm = new ARMTranslation();
+		arm.analyzeSHACL();
+		System.out.println(" ");
+		System.out.println("******ArtFrame*******");
+		ArtFrameTranslation artframe = new ArtFrameTranslation();
+		artframe.analyzeSHACL();
+		System.out.println(" ");
+		System.out.println("******Biblioteko*******");
+		HipHopTranslation ht = new HipHopTranslation();
+		ht.analyzeSHACL();
 		
 	}
 	
@@ -617,16 +636,16 @@ public class TranslateShacl {
 			//rdfString += generateConfigRDF(configURI, "hasPart", "http://id.loc.gov/ontologies/bibframe/Audio") + "\n";
 			
 			//activity
-			String configURI =  retrieveConfigURI("https://w3id.org/arm/core/activity/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Text", "https://w3id.org/arm/core/activity/0.1/Activity", appModel);
-			rdfString += generateConfigRDF(configURI, "activity", "http://id.loc.gov/ontologies/bibframe/Text")+ "\n";
+			String configURI =  retrieveConfigURI("https://w3id.org/arm/activity/ontology/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Work", "http://www.w3.org/2002/07/owl#Thing", appModel);
+			rdfString += generateConfigRDF(configURI, "activity", "http://id.loc.gov/ontologies/bibframe/Work")+ "\n";
 
 			//Genre Form
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Text", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
-			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Text")+ "\n";
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/genreForm", "http://id.loc.gov/ontologies/bibframe/Work", "http://www.w3.org/2004/02/skos/core#Concept", appModel);
+			rdfString += generateConfigRDF(configURI, "genreForm", "http://id.loc.gov/ontologies/bibframe/Work")+ "\n";
 
 			//Subject heading
-			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Text", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
-			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Text")+ "\n";
+			configURI =  retrieveConfigURI("http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/Work", "http://www.w3.org/2000/01/rdf-schema#Resource", appModel);
+			rdfString += generateConfigRDF(configURI, "subject", "http://id.loc.gov/ontologies/bibframe/Work")+ "\n";
 
 			
 			System.out.println(rdfString);
@@ -650,7 +669,7 @@ public class TranslateShacl {
 			rdfString += generateConfigRDF(configURI, "binding", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
 			
 			//activity
-			configURI =  retrieveConfigURI("https://w3id.org/arm/core/activity/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance", "https://w3id.org/arm/core/activity/0.1/Activity", appModel);
+			configURI =  retrieveConfigURI("https://w3id.org/arm/activity/ontology/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Instance", "http://www.w3.org/2002/07/owl#Thing", appModel);
 			rdfString += generateConfigRDF(configURI, "activity", "http://id.loc.gov/ontologies/bibframe/Instance")+ "\n";
 
 			//Genre Form
@@ -705,7 +724,7 @@ public class TranslateShacl {
 			//Preferred Title
 			
 			//Activity
-			configURI =  retrieveConfigURI("https://w3id.org/arm/core/activity/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Item", "https://w3id.org/arm/core/activity/0.1/Activity", appModel);
+			configURI =  retrieveConfigURI("https://w3id.org/arm/activity/ontology/0.1/hasActivity", "http://id.loc.gov/ontologies/bibframe/Item", "http://www.w3.org/2002/07/owl#Thing", appModel);
 			rdfString += generateConfigRDF(configURI, "activity", "http://id.loc.gov/ontologies/bibframe/Item")+ "\n";
 
 			
@@ -771,12 +790,12 @@ public class TranslateShacl {
 							" <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customEntryFormAnnot> \"edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators.MinimalEditConfigurationGenerator\"^^<http://www.w3.org/2001/XMLSchema#string>  ;";
 	
 					//Depends on whether audio, instance or item
-					if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Text")) {
-						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armTextHasActivity.jsonld\" ; ";
+					if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Work")) {
+						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"artWorkHasActivity.jsonld\" ; ";
 					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Instance")) {
-						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armInstanceHasActivity.jsonld\" ; ";
+						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"artInstanceHasActivity.jsonld\" ; ";
 					} else if(domainURI.equals("http://id.loc.gov/ontologies/bibframe/Item")) {
-						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"armItemHasActivity.jsonld\" ; ";
+						configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customConfigFileAnnot> \"artItemHasActivity.jsonld\" ; ";
 					}	  	  
 					
 					configRDF += "<http://vitro.mannlib.cornell.edu/ns/vitro/0.7#customTemplateFileAnnot> \"armHasActivity.ftl\" .";
@@ -1918,6 +1937,46 @@ public class TranslateShacl {
 			System.out.println("Read file in and populated model");
 			return model;
 		
+		}
+		
+		
+		//Have analysis of which ontologies used, by property namespace
+		public static void analyzeSHACL() {
+			Model shaclModel = populateModel();
+			//Populate this for reference later
+			Model thisOntologyModel = getOntologyModel();
+			//Query all properties AND classes referenced
+			//Print out based on namespace
+			
+			String PREFIXES = 		 "PREFIX sh: <http://www.w3.org/ns/shacl#> " + 
+					"PREFIX list: <http://jena.hpl.hp.com/ARQ/list#> ";
+			//Multiple classes possible so grouping together into space separated string here
+			//Check for sh:and for a particular property shape as well and then read that in
+			String query = PREFIXES + 
+					"SELECT DISTINCT ?ontURI  " + 
+					" WHERE { " + 
+					"{?subject sh:property ?property .  " + 
+					"?property sh:path ?ontURI . } " + 
+					"UNION {?subject sh:class ?ontURI .} " + 
+					"UNION {?subject sh:target ?ontURI .} " + 
+					"UNION {?subject sh:targetClass ?ontURI .} " +
+					"UNION {?subject sh:in ?allowedList . ?allowedList list:index (?position ?ontURI) . }" + 
+					"UNION {?subject sh:or ?orAllowedList . ?orAllowedList list:index (?position ?ontURI) . }" + 
+					" FILTER(!isBlank(?ontURI)) } " + 
+					" ORDER by ?ontURI" ;
+					
+			
+	
+		
+			System.out.println("Query is " + query);
+			ResultSet rs = executeQuery(shaclModel, query);
+			while(rs.hasNext()) {
+				Resource r = rs.nextSolution().getResource("ontURI");
+				if(r.isURIResource()) {
+					System.out.println(r.getURI());
+				}
+			}
+			
 		}
 	}
 	

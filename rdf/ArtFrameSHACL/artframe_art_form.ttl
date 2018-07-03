@@ -41,6 +41,8 @@
 artframe_art_form:WorkForm
   rdf:type sh:NodeShape ;
   rdfs:label "Art Object" ;
+  #Adding this to prevent proliferation of faux properties
+  sh:targetClass bf:Work ;
   sh:or (
           [
             sh:targetClass bf:StillImage ;
@@ -60,7 +62,7 @@ artframe_art_form:WorkForm
 
 # WorkActivityPropertyGroup
 
-  sh:property artframe_art_form:WorkTextForm_activity_hasActivity ; 
+  sh:property artframe_art_form:WorkForm_activity_hasActivity ; 
 
 #CopyrightPropertyGroup
 
@@ -253,8 +255,8 @@ artframe_art_form:WorkForm_bf_genreForm
   artframe_art_form:lookup artframe_art_form:LD4LookupService .
   
 # The following sh:Property with sh:path bf:genreForm/madsrdf:isMemberOfMADSScheme isn't meant to be a field in the form, but rather state a restriction on the use of bf:genreForm to instances from http://id.loc.gov/authorities/genreForms. 
-  
-artframe_art_form:WorkForm_bf_genreForm 
+# Changed this to update the URI so it isn't same as genreForm  
+artframe_art_form:WorkForm_bf_genreForm_madsrdf_isMemberOfMADSScheme  
  a sh:PropertyShape ;
  sh:path <bf:genreForm/skos:inScheme> ;
  sh:description "Values for form genre terms" ;
@@ -1202,7 +1204,7 @@ artframe_art_form:ItemForm
          
 # ItemActivityPropertyGroup
          
-  sh:property artframe_art_form:ItemForm_activity_hasActivity ;
+  sh:property artframe_art_form:ItemForm_arm_hasActivity ;
          
 # ItemGenreFormPropertyGroup
          
@@ -1297,7 +1299,7 @@ artframe_art_form:ItemForm_bf_title
 
 artframe_art_form:ItemForm_arm_hasActivity 
   a sh:PropertyShape ;
-  sh:path arm:hasActivity ;
+  sh:path activity:hasActivity ;
   sh:name "Agent activity and role for the item" ;
   sh:description "Item level agent activities" ;
   sh:order "0"^^xsd:decimal ;
@@ -1989,7 +1991,7 @@ artframe_art_form:AwardReceiptForm_bf_date
       
 artframe_art_form:AwardReceiptForm_arm_hasActivity 
       a sh:PropertyShape ;
-      sh:path arm:hasActivity ;
+      sh:path activity:hasActivity ;
       sh:description "Agent activities related to the Award Receipt" ;
       sh:name "Award receipt agent activity" ;
       sh:nodeKind sh:IRI ;

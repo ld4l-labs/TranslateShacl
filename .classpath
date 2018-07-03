@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="C:/Users/hjk54/.m2/repository/org/vivoweb/vitro-api/2.0.0-SNAPSHOT"/>
 	<classpathentry kind="lib" path="C:/Users/hjk54/.m2/repository/org/vivoweb/vitro-api/2.0.0-SNAPSHOT/vitro-api-2.0.0-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="C:/Users/hjk54/.m2/repository/org/vivoweb/vitro-api/2.0.0-SNAPSHOT/vitro-api-2.0.0-SNAPSHOT-tests.jar"/>
+	<classpathentry kind="lib" path="C:/Users/hjk54/.m2/repository/org/vivoweb/vitro-api/1.10.0-beta1/vitro-api-1.10.0-beta1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
